@@ -115,6 +115,54 @@ pretrained/galileo-base-patch8/
 conda run -n presl python -B scripts/check_env.py --config configs/galileo_dpt.yaml
 ```
 
+## 特征缓存
+
+因为 Galileo encoder 默认冻结，可以先把每个 PASTIS 样本的 Galileo 空间特征缓存成 `.npz`，后续只训练 DPT decoder/head。缓存目录默认也在 `.gitignore` 里，不会上传。
+
+先分别缓存 train 和 val：
+
+```bash
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split train
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split val
+```
+
+默认输出路径：
+
+```text
+data/cache/galileo-base-patch8/t24_patch8_train/
+data/cache/galileo-base-patch8/t24_patch8_val/
+```
+
+每个 `.npz` 包含：
+
+```text
+patch_id
+fold
+dates
+selected_indices
+months
+target
+features
+hidden_state
+encoder_name
+encoder_checkpoint
+patch_size
+selected_timesteps
+normalization
+```
+
+缓存完成后，用缓存特征训练 decoder/head：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_dpt.yaml --batch-size 4 --epochs 100 --no-amp
+```
+
+如果缓存放在自定义目录，可以显式指定：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_dpt.yaml --train-cache-dir data/cache/galileo-base-patch8/t24_patch8_train --val-cache-dir data/cache/galileo-base-patch8/t24_patch8_val
+```
+
 如果 `pretrained/galileo-base-patch8` 已经准备好，可以做一轮 one-batch smoke test：
 
 ```bash
