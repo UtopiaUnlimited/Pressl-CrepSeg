@@ -1,0 +1,52 @@
+seed: 42
+
+data:
+  root: data/PASTIS
+  train_folds: [3]
+  val_folds: [4]
+  test_folds: [5]
+  selected_timesteps: 24
+  image_size: 128
+  num_classes: 20
+  target_channel: 0
+  batch_size: 1
+  num_workers: 0
+
+encoder:
+  name: galileo-base-patch8
+  checkpoint: pretrained/galileo-base-patch8
+  patch_size: 8
+  freeze: true
+  normalize: true
+  local_files_only: true
+  output_hidden_states: false
+  spatial_token_strategy: auto
+  hidden_size: null
+
+model:
+  decoder_channels: 256
+  decoder_blocks: 3
+  dropout: 0.1
+
+loss:
+  name: ce_dice
+  ce_weight: 1.0
+  dice_weight: 0.5
+  ignore_index: null
+
+optimizer:
+  name: adamw
+  lr: 0.0003
+  weight_decay: 0.01
+
+scheduler:
+  name: cosine
+  min_lr: 0.000001
+
+train:
+  epochs: 100
+  amp: false
+  log_dir: logs/galileo_dpt
+  checkpoint_dir: checkpoints/galileo_dpt
+  save_best: true
+  monitor: val_loss

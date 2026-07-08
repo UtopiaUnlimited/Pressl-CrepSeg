@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+import torch
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from data import PASTISDataset, pastis_collate_fn  # noqa: E402
+from losses import build_loss  # noqa: E402
+from metrics import ConfusionMatrix, mean_iou  # noqa: E402
+from models import build_model  # noqa: E402
+from utils import load_config  # noqa: E402
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="configs/galileo_dpt.yaml")
+    parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--split", choices=["val", "test"], default="test")
+    parser.add_argument("--device", default=None)
+    return parser.parse_args()
+
+
+@torch.no_grad()
+def main() -> None:
+    args = parse_args()
+    config = load_config(args.config)
+    device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
+
+    data_cfg = config["data"]
+    dataset = PASTISDataset(
+        root=data_cfg["root"],
+        folds=data_cfg[f"{args.split}_folds"],
+        selected_timesteps=data_cfg["selected_timesteps"],
+        target_channel=data_cfg.get("target_channel", 0),
+    )
+    loader = DataLoader(
+        dataset,
+        batch_size=int(data_cfg.get("batch_size", 1)),
+        shuffle=False,
+        num_workers=int(data_cfg.get("num_workers", 0)),
+        collate_fn=pastis_collate_fn,
+    )
+
+    model = build_model(config).to(device)
+    checkpoint = torch.load(args.checkpoint, map_location=device)
+    model.load_state_dict(checkpoint["model"])
+    model.eval()
+
+    criterion = build_loss(config).to(device)
+    confusion = ConfusionMatrix(
+        num_classes=int(data_cfg["num_classes"]),
+        ignore_index=config.get("loss", {}).get("ignore_index"),
+    )
+    total_loss = 0.0
+    batch_count = 0
+    for batch in tqdm(loader, desc=args.split):
+        target = batch["target"].to(device)
+        batch["target"] = target
+        logits = model(batch)
+        total_loss += float(criterion(logits, target).item())
+        batch_count += 1
+        confusion.update(logits, target)
+
+    miou, per_class_iou = mean_iou(confusion.matrix)
+    print(f"{args.split}_loss={total_loss / max(1, batch_count):.5f}")
+    print(f"{args.split}_miou={miou:.5f}")
+    print("per_class_iou=" + ",".join(f"{value:.5f}" for value in per_class_iou.tolist()))
+
+
+if __name__ == "__main__":
+    main()
