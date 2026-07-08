@@ -177,4 +177,13 @@ conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml 
 
 ## 显存说明
 
-在 RTX 4060 Laptop 8GB 上，Galileo base 甚至 nano 在 `128x128`、`T=24`、`patch_size=8` 下都会因为 Galileo 内部 attention 申请数十 GB 显存而 OOM。当前代码和权重加载已经验证通过，但完整 smoke train 需要更大显存、降低时空 token 数、使用特征缓存，或后续改成更省显存的 Galileo 调用策略。
+PASTIS 的 `128x128`、`T=24`、`patch_size=8` 会产生 `16x16` 空间 token grid。Galileo processor 会把 S2 拆到多个 space-time group，因此单样本有效 token 数约为 `16 * 16 * 24 * 5 = 30720`。这个规模对 attention 很重。
+
+当前 `GalileoHFEncoder` 对官方 attention 做了一个很窄的兼容优化：当 `remove_masked_tokens` 后 attention mask 全部为有效 token 时，不再把 mask 展开成 `[B, heads, N, N]`，而是直接传 `None` 给 PyTorch SDPA。这个优化后，RTX 4060 Laptop 8GB 可以跑过 one-batch smoke test：
+
+```bash
+conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 1 --epochs 1 --max-train-batches 1 --max-val-batches 1 --no-amp
+conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 2 --epochs 1 --max-train-batches 1 --max-val-batches 1 --no-amp
+```
+
+注意：当前 wrapper 会对 batch 内样本逐个调用 Galileo encoder，所以增大 `batch_size` 不会让 Galileo attention 峰值显存直接乘以 batch size，但运行时间会近似增加；decoder/head、loss 和指标部分的显存仍会随 batch size 增大。正式训练仍建议优先使用特征缓存。

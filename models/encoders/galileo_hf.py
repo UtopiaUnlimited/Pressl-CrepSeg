@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+from types import MethodType
 from pathlib import Path
 from typing import NamedTuple
 
 import torch
+import torch.nn.functional as F
 from torch import nn
 
 
@@ -62,6 +64,7 @@ class GalileoHFEncoder(nn.Module):
             trust_remote_code=True,
             local_files_only=self.local_files_only,
         )
+        self._patch_all_true_attention_masks()
 
         if self.freeze:
             for parameter in self.model.parameters():
@@ -69,6 +72,61 @@ class GalileoHFEncoder(nn.Module):
             self.model.eval()
 
         self.hidden_size = hidden_size or self._infer_hidden_size()
+
+    def _patch_all_true_attention_masks(self) -> None:
+        """Avoid materializing [B, heads, N, N] masks when every token is valid."""
+
+        def patched_forward(attn_module, x, y=None, attn_mask=None):
+            batch_size, num_tokens, channels = x.shape
+            q = attn_module.q(x)
+
+            if y is None:
+                if attn_module.cross_attn:
+                    raise AssertionError("Expected self-attention when y is None.")
+                k = attn_module.k(x)
+                v = attn_module.v(x)
+            else:
+                if not attn_module.cross_attn:
+                    raise AssertionError("Expected cross-attention when y is provided.")
+                k = attn_module.k(y)
+                v = attn_module.v(y)
+
+            q = q.reshape(batch_size, num_tokens, attn_module.num_heads, -1).transpose(1, 2)
+            k = k.reshape(batch_size, k.shape[1], attn_module.num_heads, -1).transpose(1, 2)
+            v = v.reshape(batch_size, v.shape[1], attn_module.num_heads, -1).transpose(1, 2)
+            q, k = attn_module.q_norm(q), attn_module.k_norm(k)
+
+            if attn_module.fast_attn:
+                if attn_mask is not None:
+                    if torch.is_tensor(attn_mask) and bool(attn_mask.all()):
+                        attn_mask = None
+                    else:
+                        attn_mask = attn_mask[:, None, None].repeat(
+                            (1, attn_module.num_heads, q.shape[-2], 1)
+                        )
+                x = F.scaled_dot_product_attention(
+                    q,
+                    k,
+                    v,
+                    attn_mask=attn_mask,
+                    dropout_p=attn_module.attn_drop.p,
+                )
+            else:
+                if attn_mask is not None and not bool(attn_mask.all()):
+                    raise NotImplementedError
+                q = q * attn_module.scale
+                attn = q @ k.transpose(-2, -1)
+                attn = attn.softmax(dim=-1)
+                attn = attn_module.attn_drop(attn)
+                x = attn @ v
+
+            x = x.transpose(1, 2).reshape(batch_size, num_tokens, channels)
+            x = attn_module.proj(x)
+            return attn_module.proj_drop(x)
+
+        for module in self.model.modules():
+            if module.__class__.__name__ == "Attention" and hasattr(module, "fast_attn"):
+                module.forward = MethodType(patched_forward, module)
 
     def train(self, mode: bool = True) -> "GalileoHFEncoder":
         super().train(mode)
