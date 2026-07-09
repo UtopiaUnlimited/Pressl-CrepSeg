@@ -1,0 +1,56 @@
+seed: 42
+
+data:
+  root: data/PASTIS
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  selected_timesteps: 24
+  image_size: 128
+  num_classes: 20
+  target_channel: 0
+  batch_size: 4
+  num_workers: 0
+
+encoder:
+  name: galileo-base-patch8
+  checkpoint: pretrained/galileo-base-patch8
+  patch_size: 8
+  freeze: true
+  normalize: true
+  local_files_only: true
+  output_hidden_states: false
+  spatial_token_strategy: spacetime_mean
+  hidden_layers: [3, 6, 9, 12]
+  hidden_size: null
+
+model:
+  decoder: multi_layer_dpt
+  decoder_channels: 256
+  decoder_blocks: 3
+  fusion_blocks: 1
+  dropout: 0.1
+
+loss:
+  name: ce_dice
+  ce_weight: 1.0
+  dice_weight: 0.5
+  ignore_index: null
+
+optimizer:
+  name: prodigy
+  lr: 1.0
+  weight_decay: 0.1
+  decouple: true
+  slice_p: 11
+
+scheduler:
+  name: none
+
+train:
+  epochs: 100
+  amp: false
+  log_dir: logs/galileo_multi_layer_dpt_shared
+  checkpoint_dir: checkpoints/galileo_multi_layer_dpt_shared
+  save_best: true
+  monitor: val_loss

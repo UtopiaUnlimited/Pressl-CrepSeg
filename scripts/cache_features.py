@@ -17,6 +17,19 @@ from models.encoders import GalileoHFEncoder  # noqa: E402
 from utils import load_config  # noqa: E402
 
 
+def default_cache_dir(config: dict, split: str) -> str:
+    data_cfg = config["data"]
+    encoder_cfg = config["encoder"]
+    hidden_layers = encoder_cfg.get("hidden_layers") or []
+    layer_suffix = ""
+    if hidden_layers:
+        layer_suffix = "_hl" + "-".join(str(layer) for layer in hidden_layers)
+    return (
+        f"data/cache/{encoder_cfg['name']}/"
+        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}{layer_suffix}_{split}"
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
@@ -34,10 +47,7 @@ def main() -> None:
     data_cfg = config["data"]
     encoder_cfg = config["encoder"]
 
-    output_dir = Path(
-        args.output_dir
-        or f"data/cache/{encoder_cfg['name']}/t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}_{args.split}"
-    )
+    output_dir = Path(args.output_dir or default_cache_dir(config, args.split))
     output_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = PASTISDataset(

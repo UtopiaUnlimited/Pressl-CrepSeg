@@ -34,9 +34,13 @@ def parse_args() -> argparse.Namespace:
 def default_cache_dir(config: dict, split: str) -> str:
     data_cfg = config["data"]
     encoder_cfg = config["encoder"]
+    hidden_layers = encoder_cfg.get("hidden_layers") or []
+    layer_suffix = ""
+    if hidden_layers:
+        layer_suffix = "_hl" + "-".join(str(layer) for layer in hidden_layers)
     return (
         f"data/cache/{encoder_cfg['name']}/"
-        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}_{split}"
+        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}{layer_suffix}_{split}"
     )
 
 
