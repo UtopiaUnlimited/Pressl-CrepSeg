@@ -16,6 +16,12 @@ PASTIS fold1/2/3 -> fold4 -> fold5
 
 它不是最终方法，而是后续多层 hidden states、AdamW 对照、不同 hidden layer 组合和解冻策略的参照点。
 
+如果只讨论 decoder 设计对比，参考：
+
+```text
+docs/DECODER_EXPERIMENTS.md
+```
+
 ## 设备策略
 
 优先使用本地 RTX 4060 Laptop 8GB 做环境检查、one-batch smoke test 和特征缓存小规模验证。
@@ -281,3 +287,15 @@ galileo_base_patch8_frozen_single_layer_dpt_t24_fold123
 - 哪些类别真正受益。
 
 这些问题放到 baseline 稳定之后再做。
+
+## 后续 decoder-only 对比
+
+老师建议后续对比实验先固定 encoder，只比较 decoder 设计。推荐顺序：
+
+```text
+1. single-layer DPT baseline
+2. multi-layer DPT
+3. UPerNet-style decoder
+```
+
+这里的 UPerNet 不是普通英文里的 upper net，而是 Unified Perceptual Parsing Network 一类 segmentation decoder/head。它通常用 PPM 做上下文池化，再用 FPN-style 结构融合多层特征。本项目里应读取相同的 frozen Galileo cached features，而不是换 encoder。

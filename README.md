@@ -47,7 +47,7 @@ frozen Galileo final feature grid + single-layer DPT-style decoder
 
 也就是说，当前代码使用 Galileo 最终输出的 space-time token，将其按 Galileo 的 `[H_grid, W_grid, T, group]` 结构聚合为 `16x16` 空间特征图，再接 lightweight DPT-style decoder 和 segmentation head。
 
-多层 hidden states 接 DPT 是长期方向，不进入第一条 baseline。这样后续比较 `single-layer` 与 `multi-layer` 时，变量关系更清楚。
+多层 hidden states 接 DPT 已经保留了实验开关，但默认 baseline 不启用。也就是说，`model.decoder: single_layer_dpt` 和 `encoder.hidden_layers: []` 是当前主实验；如果后续改成 `multi_layer_dpt` 并设置 hidden layers，需要单独标记为多层 DPT 实验，不能和默认 baseline 混在一起。
 
 ## 数据约定
 
@@ -68,14 +68,14 @@ data/PASTIS/
 ```text
 S2:     [T, 10, 128, 128]
 dates:  [T]
-target: [128, 128]
+target: [128, 128]  # 由 TARGET_*.npy 的第 0 通道取得
 ```
 
 关键约束：
 
 - 保持 PASTIS 原始 `128x128`，不 resize，不 crop。
 - `T > 24` 时按时间顺序 uniform sample 到 24 个时相。
-- `T <= 24` 时保留全部时相，当前优先用 `batch_size=1` 简化处理。
+- `T <= 24` 时保留全部时相，不做空间 resize/crop。当前 wrapper 会逐样本调用 Galileo encoder，因此默认仍建议 `batch_size=1` 起步排查。
 - S2 从 `[T, 10, H, W]` 转为 Galileo processor 所需的 `[H, W, T, 10]`。
 - 月份使用 `0..11` 索引，例如 January = 0。
 - 本地 PASTIS 标签值为 `0..19`，所以 `num_classes=20`，不要改成 19。
@@ -176,6 +176,12 @@ utils/
 docs/BASELINE_RUNBOOK.md
 ```
 
+Decoder-only 对比实验设计见：
+
+```text
+docs/DECODER_EXPERIMENTS.md
+```
+
 环境检查：
 
 ```bash
@@ -222,6 +228,17 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split val
 ```
 
+默认缓存目录形如：
+
+```text
+data/cache/galileo-base-patch8/t24_patch8_train/
+data/cache/galileo-base-patch8/t24_patch8_val/
+```
+
+注意：默认目录名没有包含 fold 列表。当前正式 train split 是 fold1/2/3；如果之前用 fold3-only 缓存过同名目录，请先清空旧 train cache，或用 `--output-dir` 指定新目录，避免不同 split 的缓存混在一起。
+
+缓存文件以 PASTIS `patch_id` 命名。因为每个 fold 的 patch_id 本来就是离散分布，所以看到 `10002 -> 10004 -> 10008` 这类跳号是正常现象，不代表 DataLoader shuffle 或缓存漏样本。
+
 使用缓存训练：
 
 ```bash
@@ -231,6 +248,27 @@ conda run -n presl python -B scripts/train_cached.py ^
   --epochs 100 ^
   --no-amp
 ```
+
+使用缓存评估：
+
+```bash
+conda run -n presl python -B scripts/eval_cached.py ^
+  --config configs/galileo_dpt.yaml ^
+  --checkpoint checkpoints/galileo_dpt_cached/best.pt ^
+  --split val
+```
+
+如果 `encoder.hidden_layers` 为空，缓存只保存默认 `features`，对应 single-layer decoder。如果设置了 hidden layers，缓存会额外保存 `features_by_layer` 和 `hidden_layers`，对应 multi-layer DPT 实验。
+
+做 decoder-only 对比时，建议用 `hidden_layers: [3, 6, 9, 12]` 生成一套共享缓存：single-layer DPT 只读取其中的 `features`，multi-layer DPT 和 UPerNet-style decoder 读取 `features_by_layer`。这样 encoder 前向结果一致，变量更集中在 decoder。
+
+## 显存与 batch size
+
+Galileo 对 PASTIS `128x128`、`T=24`、`patch_size=8` 的单样本输入并不只是 `16x16` 个 token。S2 会被拆成多个 space-time group，默认 `spacetime_mean` 会在 Galileo 输出后按 `[H_grid, W_grid, T, group]` 聚合为空间特征图。
+
+当前 wrapper 对官方 attention 做了一个保守优化：当所有保留下来的 token 都有效时，不再把全 True mask 展开成 `[B, heads, N, N]`，而是传 `None` 给 PyTorch SDPA。这个优化不改变有效 token 的注意力语义，只避免了冗余 mask 占用显存。
+
+当前实现会对 batch 内样本逐个调用 Galileo encoder，所以增大 `batch_size` 不会让 Galileo encoder 的峰值显存严格按 batch size 翻倍，但运行时间会接近线性增加；decoder/head、loss 和 metrics 的显存仍会随 batch size 增大。正式训练和调参优先走特征缓存。
 
 ## 短期任务安排
 
@@ -256,13 +294,14 @@ conda run -n presl python -B scripts/train_cached.py ^
    - 明确当前结果属于 `single-layer final feature + DPT baseline`。
 
 4. 建立对照实验
-   - 增加或整理 ImageNet / non-Galileo baseline。
-   - 保持相同 fold、decoder 容量、训练轮数和 loss。
-   - 对比 Galileo frozen features 是否真正带来增益。
+   - 按老师建议，优先固定 Galileo encoder，只比较 decoder 设计。
+   - 第一组对比：single-layer DPT vs multi-layer DPT。
+   - 第二组对比：DPT-style decoder vs UPerNet-style decoder。
+   - 保持相同 fold、loss、训练轮数和 cached feature 版本。
 
 5. 加入特征缓存流程
    - 缓存 fold1/2/3 / fold4 的 Galileo features。
-   - 验证缓存训练和非缓存训练结果一致。
+   - 验证缓存文件的 patch_id、fold、shape、target 与非缓存数据路径一致。
    - 后续以缓存训练作为主要调试路径。
 
 ## 长期任务安排
@@ -275,26 +314,31 @@ conda run -n presl python -B scripts/train_cached.py ^
    - 构建更合理的 DPT-style 多层 decoder。
    - 对比 single-layer decoder 与 multi-layer decoder 的差异。
 
-2. 完整消融实验
+2. Decoder-only 对比实验
+   - 保持 frozen Galileo encoder 不变。
+   - Galileo single-layer DPT vs Galileo multi-layer DPT。
+   - Galileo multi-layer DPT vs Galileo UPerNet-style decoder。
+   - 使用相同 cached features，确保变量集中在 decoder。
+
+3. 完整消融实验
    - Galileo frozen vs ImageNet frozen。
-   - Galileo single-layer vs Galileo multi-layer。
    - T=1 / T=8 / T=16 / T=24。
    - processor normalize 策略对比。
    - fold3-only 协议与标准 fold1/2/3 协议对比。
 
-3. 类别级分析
+4. 类别级分析
    - 输出 per-class IoU。
    - 分析哪些作物类别受益于 Galileo。
    - 观察提升是否集中在物候差异明显的类别。
    - 生成 confusion matrix 和代表性可视化样本。
 
-4. 训练策略拓展
+5. 训练策略拓展
    - 比较 AdamW 与 Prodigy。
    - 评估 AMP / fp32 / bf16 稳定性。
    - 在显存允许时尝试部分解冻 Galileo 后几层。
    - 记录训练成本和性能收益。
 
-5. 形成科研叙事
+6. 形成科研叙事
    - 明确研究问题、假设、方法、实验协议、结果和局限。
    - 将结果组织为表格和图。
    - 区分工程 smoke test、正式验证集结果、最终测试集结果。
