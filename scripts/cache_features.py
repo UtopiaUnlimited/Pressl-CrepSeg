@@ -56,6 +56,7 @@ def main() -> None:
         normalize=encoder_cfg.get("normalize", True),
         local_files_only=encoder_cfg.get("local_files_only", True),
         spatial_token_strategy=encoder_cfg.get("spatial_token_strategy", "auto"),
+        hidden_layers=encoder_cfg.get("hidden_layers"),
         hidden_size=encoder_cfg.get("hidden_size"),
     ).to(device)
     encoder.eval()
@@ -67,22 +68,31 @@ def main() -> None:
         sample = batch["samples"][0]
         patch_id = sample["patch_id"]
         target = batch["target"][0].numpy()
-        np.savez_compressed(
-            output_dir / f"{patch_id}.npz",
-            patch_id=np.asarray(patch_id),
-            fold=np.asarray(sample["fold"]),
-            dates=sample["dates"].numpy(),
-            selected_indices=sample["selected_indices"].numpy(),
-            months=sample["months"].numpy(),
-            target=target,
-            features=encoded.features.detach().cpu().numpy(),
-            hidden_state=encoded.hidden_state.detach().cpu().numpy(),
-            encoder_name=encoder_cfg["name"],
-            encoder_checkpoint=encoder_cfg["checkpoint"],
-            patch_size=np.asarray(encoder_cfg["patch_size"]),
-            selected_timesteps=np.asarray(data_cfg["selected_timesteps"]),
-            normalization=np.asarray(str(encoder_cfg.get("normalize", True))),
-        )
+        features_by_layer = None
+        if encoded.features_by_layer:
+            features_by_layer = np.stack(
+                [feature.detach().cpu().numpy() for feature in encoded.features_by_layer],
+                axis=0,
+            )
+        payload = {
+            "patch_id": np.asarray(patch_id),
+            "fold": np.asarray(sample["fold"]),
+            "dates": sample["dates"].numpy(),
+            "selected_indices": sample["selected_indices"].numpy(),
+            "months": sample["months"].numpy(),
+            "target": target,
+            "features": encoded.features.detach().cpu().numpy(),
+            "hidden_state": encoded.hidden_state.detach().cpu().numpy(),
+            "hidden_layers": np.asarray(encoder_cfg.get("hidden_layers") or [], dtype=np.int64),
+            "encoder_name": encoder_cfg["name"],
+            "encoder_checkpoint": encoder_cfg["checkpoint"],
+            "patch_size": np.asarray(encoder_cfg["patch_size"]),
+            "selected_timesteps": np.asarray(data_cfg["selected_timesteps"]),
+            "normalization": np.asarray(str(encoder_cfg.get("normalize", True))),
+        }
+        if features_by_layer is not None:
+            payload["features_by_layer"] = features_by_layer
+        np.savez_compressed(output_dir / f"{patch_id}.npz", **payload)
 
 
 if __name__ == "__main__":

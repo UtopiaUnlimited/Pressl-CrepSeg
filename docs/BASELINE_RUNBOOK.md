@@ -3,18 +3,18 @@
 本文档用于执行第一条可信 baseline：
 
 ```text
-PASTIS fold3/fold4/fold5
+PASTIS fold1/2/3 -> fold4 -> fold5
   -> frozen Galileo base patch8 encoder
-  -> single-layer spatial feature grid
-  -> lightweight DPT-style decoder/head
+  -> final space-time feature grid
+  -> single-layer DPT-style decoder/head
   -> 20-class semantic segmentation
 ```
 
 这条 baseline 的研究含义是：
 
-> 在不微调 Galileo、也不额外手写 temporal fusion 的情况下，Galileo 单层时空表征能否被一个轻量空间 decoder 读出为有效的 PASTIS 作物分割结果。
+> 在不微调 Galileo、也不额外手写 temporal fusion 的情况下，Galileo 最终时空表征能否被一个轻量空间 decoder 读出为有效的 PASTIS 作物分割结果。
 
-它不是最终方法，也不是完整多层 DPT。它是后续所有改进和消融的参照点。
+它不是最终方法，而是后续多层 hidden states、AdamW 对照、不同 hidden layer 组合和解冻策略的参照点。
 
 ## 设备策略
 
@@ -55,9 +55,16 @@ encoder.freeze: true
 selected_timesteps: 24
 patch_size: 8
 spatial_token_strategy: spacetime_mean
+hidden_layers: []
+decoder: single_layer_dpt
+optimizer: Prodigy
+optimizer.lr: 1.0
+optimizer.weight_decay: 0.1
+optimizer.decouple: true
+optimizer.slice_p: 11
 image_size: keep 128x128
 num_classes: 20
-train: fold3
+train: fold1, fold2, fold3
 val: fold4
 test: fold5
 ```
@@ -65,6 +72,8 @@ test: fold5
 `spatial_token_strategy=spacetime_mean` 的含义是：如果 Galileo 输出的 token 序列包含 `H_grid * W_grid * T * group` 个 space-time tokens，则先按 Galileo 的 `[H_grid, W_grid, T, group]` 结构恢复，再对 `T` 和 `group` 维度求均值，得到 `[B, D, H_grid, W_grid]`。
 
 不要使用未经核查的 `auto` 策略把 `[B, N, D]` 任意 reshape 成空间特征图。对于 Galileo 这类多时间、多模态模型，`N` 通常不只是空间 patch 数。
+
+多层 hidden states 暂不进入默认 baseline。后续如果启用 `hidden_layers=[3,6,9,12]`，层号使用 1-based 编号；如果 checkpoint 不是 12 层，模型构建时会直接报错，需要重新选择合法层号。
 
 正式 baseline 不要临时改变：
 
@@ -169,6 +178,13 @@ data/cache/galileo-base-patch8/t24_patch8_val/
 data/cache/galileo-base-patch8/t24_patch8_test/
 ```
 
+新缓存会同时保存：
+
+```text
+features: final-layer spatial feature grid
+features_by_layer: only present when encoder.hidden_layers is enabled
+```
+
 缓存完成后训练 decoder/head：
 
 ```bash
@@ -240,26 +256,26 @@ test per_class_iou
 建议在记录表中使用这个实验名：
 
 ```text
-galileo_base_patch8_frozen_single_layer_dpt_t24_fold3
+galileo_base_patch8_frozen_single_layer_dpt_t24_fold123
 ```
 
 含义：
 
 - `galileo_base_patch8`: encoder 权重
 - `frozen`: encoder 不训练
-- `single_layer_dpt`: 当前 decoder 只读单层 feature grid
+- `single_layer_dpt`: decoder 只读最终空间 feature grid
 - `t24`: 最多 24 个时相
-- `fold3`: train fold3, val fold4, test fold5
+- `fold123`: train fold1/2/3, val fold4, test fold5
 
 ## 当前 baseline 的局限
 
 这条 baseline 只回答第一层问题：
 
-> Galileo 单层 frozen feature 是否有可读出的 PASTIS 分割信息？
+> Galileo 单层 frozen final feature 是否有可读出的 PASTIS 分割信息？
 
 它暂时不能回答：
 
-- 多层 hidden states 是否更好。
+- 多层 hidden states 是否显著优于单层 final feature。
 - Galileo 是否显著优于 ImageNet baseline。
 - 性能提升是否来自时间维建模。
 - 哪些类别真正受益。

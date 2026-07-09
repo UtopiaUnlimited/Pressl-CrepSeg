@@ -11,7 +11,8 @@
 ```text
 PASTIS Sentinel-2 time series
   -> frozen Galileo SSL encoder
-  -> spatial DPT-style decoder/head
+  -> final Galileo space-time feature grid
+  -> single-layer DPT-style decoder/head
   -> 20-class semantic segmentation logits
 ```
 
@@ -38,15 +39,15 @@ DPT-style decoder 负责空间 dense prediction
 
 ## 当前实现状态
 
-第一版实现是一个清晰的 baseline：
+当前默认实现是一条尽量干净的 baseline：
 
 ```text
-frozen Galileo single-layer feature decoder
+frozen Galileo final feature grid + single-layer DPT-style decoder
 ```
 
-也就是说，当前代码使用 Galileo 的单层 token 输出，将空间 token 重排为特征图，再接 lightweight DPT-style decoder 和 segmentation head。它不是完整的多层 DPT，也不应被表述为 Galileo 原生多尺度特征金字塔。
+也就是说，当前代码使用 Galileo 最终输出的 space-time token，将其按 Galileo 的 `[H_grid, W_grid, T, group]` 结构聚合为 `16x16` 空间特征图，再接 lightweight DPT-style decoder 和 segmentation head。
 
-后续更完整的方向是从 Galileo 多层 hidden states 中取若干中间层，例如第 3/6/9/12 层，再构造更接近 DPT 的多层 decoder。
+多层 hidden states 接 DPT 是长期方向，不进入第一条 baseline。这样后续比较 `single-layer` 与 `multi-layer` 时，变量关系更清楚。
 
 ## 数据约定
 
@@ -80,20 +81,25 @@ target: [128, 128]
 - 本地 PASTIS 标签值为 `0..19`，所以 `num_classes=20`，不要改成 19。
 - 如果使用 Galileo processor 的 `normalize=True`，不要再对 S2 做 PASTIS norm，避免双重归一化。
 
-默认短期数据划分：
-
-```text
-train: fold3
-val:   fold4
-test:  fold5
-```
-
-标准参考划分可作为后续补充：
+默认数据划分：
 
 ```text
 train: fold1, fold2, fold3
 val:   fold4
 test:  fold5
+```
+
+如果为了本地 smoke test 或显存排查临时只用 fold3，必须把结果标记为 debug，不要和正式 baseline 混在一起。
+
+当前默认优化器：
+
+```text
+optimizer: Prodigy
+lr: 1.0
+weight_decay: 0.1
+decouple: true
+slice_p: 11
+scheduler: none
 ```
 
 test set 只用于最终报告，不用于 early stopping、调参或模型选择。
@@ -245,9 +251,9 @@ conda run -n presl python -B scripts/train_cached.py ^
 
 3. 跑通可信 baseline
    - 完成 one-batch smoke test。
-   - 完成 fold3/fold4 的短训练。
+   - 完成 fold1/2/3 -> fold4 的短训练。
    - 记录 train loss、val loss、mIoU、显存和训练时间。
-   - 明确当前结果属于 `single-layer feature decoder baseline`。
+   - 明确当前结果属于 `single-layer final feature + DPT baseline`。
 
 4. 建立对照实验
    - 增加或整理 ImageNet / non-Galileo baseline。
@@ -255,7 +261,7 @@ conda run -n presl python -B scripts/train_cached.py ^
    - 对比 Galileo frozen features 是否真正带来增益。
 
 5. 加入特征缓存流程
-   - 缓存 fold3 / fold4 的 Galileo features。
+   - 缓存 fold1/2/3 / fold4 的 Galileo features。
    - 验证缓存训练和非缓存训练结果一致。
    - 后续以缓存训练作为主要调试路径。
 

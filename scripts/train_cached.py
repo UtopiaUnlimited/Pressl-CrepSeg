@@ -63,8 +63,13 @@ def main() -> None:
     val_loader = build_loader(val_cache_dir, config, shuffle=False)
 
     first_batch = next(iter(train_loader))
-    in_channels = int(first_batch["features"].shape[1])
-    model = build_cached_feature_model(config, in_channels=in_channels)
+    if "features_by_layer" in first_batch:
+        in_channels = int(first_batch["features_by_layer"].shape[2])
+        num_layers = int(first_batch["features_by_layer"].shape[1])
+    else:
+        in_channels = int(first_batch["features"].shape[1])
+        num_layers = None
+    model = build_cached_feature_model(config, in_channels=in_channels, num_layers=num_layers)
 
     device_name = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device(device_name)

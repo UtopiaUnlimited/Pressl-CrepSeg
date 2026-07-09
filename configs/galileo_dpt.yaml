@@ -2,7 +2,7 @@ seed: 42
 
 data:
   root: data/PASTIS
-  train_folds: [3]
+  train_folds: [1, 2, 3]
   val_folds: [4]
   test_folds: [5]
   selected_timesteps: 24
@@ -21,9 +21,11 @@ encoder:
   local_files_only: true
   output_hidden_states: false
   spatial_token_strategy: spacetime_mean
+  hidden_layers: []
   hidden_size: null
 
 model:
+  decoder: single_layer_dpt
   decoder_channels: 256
   decoder_blocks: 3
   dropout: 0.1
@@ -35,13 +37,14 @@ loss:
   ignore_index: null
 
 optimizer:
-  name: adamw
-  lr: 0.0003
-  weight_decay: 0.01
+  name: prodigy
+  lr: 1.0
+  weight_decay: 0.1
+  decouple: true
+  slice_p: 11
 
 scheduler:
-  name: cosine
-  min_lr: 0.000001
+  name: none
 
 train:
   epochs: 100

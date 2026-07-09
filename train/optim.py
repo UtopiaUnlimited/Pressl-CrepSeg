@@ -15,4 +15,19 @@ def build_optimizer(config: dict, model: torch.nn.Module) -> torch.optim.Optimiz
             lr=float(optim_cfg.get("lr", 3e-4)),
             weight_decay=float(optim_cfg.get("weight_decay", 0.01)),
         )
+    if name in {"prodigy", "prodigyopt"}:
+        try:
+            from prodigyopt import Prodigy
+        except ImportError as exc:
+            raise ImportError(
+                "optimizer.name=prodigy requires the prodigyopt package. "
+                "Install it with `pip install prodigyopt`."
+            ) from exc
+        return Prodigy(
+            params,
+            lr=float(optim_cfg.get("lr", 1.0)),
+            weight_decay=float(optim_cfg.get("weight_decay", 0.1)),
+            decouple=bool(optim_cfg.get("decouple", True)),
+            slice_p=int(optim_cfg.get("slice_p", 11)),
+        )
     raise ValueError(f"Unsupported optimizer: {name}")

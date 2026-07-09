@@ -1,3 +1,3 @@
-from .dpt import DPTSingleLayerDecoder
+from .dpt import DPTMultiLayerDecoder, DPTSingleLayerDecoder
 
-__all__ = ["DPTSingleLayerDecoder"]
+__all__ = ["DPTMultiLayerDecoder", "DPTSingleLayerDecoder"]
