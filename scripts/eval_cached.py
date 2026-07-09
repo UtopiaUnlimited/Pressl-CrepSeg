@@ -32,9 +32,13 @@ def parse_args() -> argparse.Namespace:
 def default_cache_dir(config: dict, split: str) -> str:
     data_cfg = config["data"]
     encoder_cfg = config["encoder"]
+    hidden_layers = encoder_cfg.get("hidden_layers") or []
+    layer_suffix = ""
+    if hidden_layers:
+        layer_suffix = "_hl" + "-".join(str(layer) for layer in hidden_layers)
     return (
         f"data/cache/{encoder_cfg['name']}/"
-        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}_{split}"
+        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}{layer_suffix}_{split}"
     )
 
 
@@ -58,8 +62,13 @@ def main() -> None:
     loader = build_loader(cache_dir, config, args.batch_size)
 
     first_batch = next(iter(loader))
-    in_channels = int(first_batch["features"].shape[1])
-    model = build_cached_feature_model(config, in_channels=in_channels)
+    if "features_by_layer" in first_batch:
+        in_channels = int(first_batch["features_by_layer"].shape[2])
+        num_layers = int(first_batch["features_by_layer"].shape[1])
+    else:
+        in_channels = int(first_batch["features"].shape[1])
+        num_layers = None
+    model = build_cached_feature_model(config, in_channels=in_channels, num_layers=num_layers)
 
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
     checkpoint = torch.load(args.checkpoint, map_location=device)

@@ -14,6 +14,7 @@ class GalileoFeatureGrid(NamedTuple):
     features: torch.Tensor
     grid_size: tuple[int, int]
     hidden_state: torch.Tensor
+    features_by_layer: tuple[torch.Tensor, ...]
 
 
 class GalileoHFEncoder(nn.Module):
@@ -28,6 +29,7 @@ class GalileoHFEncoder(nn.Module):
         local_files_only: bool = True,
         output_hidden_states: bool = False,
         spatial_token_strategy: str = "auto",
+        hidden_layers: list[int] | tuple[int, ...] | None = None,
         hidden_size: int | None = None,
     ) -> None:
         super().__init__()
@@ -38,6 +40,7 @@ class GalileoHFEncoder(nn.Module):
         self.local_files_only = bool(local_files_only)
         self.output_hidden_states = bool(output_hidden_states)
         self.spatial_token_strategy = spatial_token_strategy
+        self.hidden_layers = tuple(int(layer) for layer in (hidden_layers or ()))
 
         if not self.checkpoint.exists():
             raise FileNotFoundError(
@@ -65,6 +68,7 @@ class GalileoHFEncoder(nn.Module):
             local_files_only=self.local_files_only,
         )
         self._patch_all_true_attention_masks()
+        self._validate_hidden_layers()
 
         if self.freeze:
             for parameter in self.model.parameters():
@@ -72,6 +76,23 @@ class GalileoHFEncoder(nn.Module):
             self.model.eval()
 
         self.hidden_size = hidden_size or self._infer_hidden_size()
+
+    def _validate_hidden_layers(self) -> None:
+        if not self.hidden_layers:
+            return
+        blocks = self._encoder_blocks()
+        if blocks is None:
+            raise ValueError("Cannot collect Galileo hidden layers: model.encoder.blocks was not found.")
+        depth = len(blocks)
+        invalid = [layer for layer in self.hidden_layers if layer < 1 or layer > depth]
+        if invalid:
+            raise ValueError(
+                f"Requested Galileo hidden_layers={invalid}, but available layers are 1..{depth}."
+            )
+
+    def _encoder_blocks(self):
+        encoder = getattr(self.model, "encoder", None)
+        return getattr(encoder, "blocks", None)
 
     def _patch_all_true_attention_masks(self) -> None:
         """Avoid materializing [B, heads, N, N] masks when every token is valid."""
@@ -145,12 +166,15 @@ class GalileoHFEncoder(nn.Module):
     def forward(self, samples: list[dict]) -> GalileoFeatureGrid:
         feature_grids = []
         hidden_states = []
+        layer_feature_grids: list[list[torch.Tensor]] = [[] for _ in self.hidden_layers]
         grid_size: tuple[int, int] | None = None
 
         for sample in samples:
             result = self._forward_one(sample)
             feature_grids.append(result.features)
             hidden_states.append(result.hidden_state)
+            for layer_index, layer_features in enumerate(result.features_by_layer):
+                layer_feature_grids[layer_index].append(layer_features)
             if grid_size is None:
                 grid_size = result.grid_size
             elif grid_size != result.grid_size:
@@ -161,11 +185,13 @@ class GalileoHFEncoder(nn.Module):
             hidden_state = torch.cat(hidden_states, dim=0)
         else:
             hidden_state = features.new_empty(0)
+        features_by_layer = tuple(torch.cat(layer_features, dim=0) for layer_features in layer_feature_grids)
 
         return GalileoFeatureGrid(
             features=features,
             grid_size=grid_size or (0, 0),
             hidden_state=hidden_state,
+            features_by_layer=features_by_layer,
         )
 
     def _forward_one(self, sample: dict) -> GalileoFeatureGrid:
@@ -186,15 +212,21 @@ class GalileoHFEncoder(nn.Module):
         processor_inputs = self._build_processor_inputs(s2=s2, months=months)
         processor_inputs = self._move_to_device(processor_inputs, model_device)
 
-        with torch.set_grad_enabled(not self.freeze):
-            try:
-                outputs = self.model(
-                    **processor_inputs,
-                    output_hidden_states=self.output_hidden_states,
-                    return_dict=True,
-                )
-            except TypeError:
-                outputs = self.model(**processor_inputs)
+        captured_hidden_layers: dict[int, torch.Tensor] = {}
+        hooks = self._register_hidden_layer_hooks(captured_hidden_layers)
+        try:
+            with torch.set_grad_enabled(not self.freeze):
+                try:
+                    outputs = self.model(
+                        **processor_inputs,
+                        output_hidden_states=self.output_hidden_states,
+                        return_dict=True,
+                    )
+                except TypeError:
+                    outputs = self.model(**processor_inputs)
+        finally:
+            for hook in hooks:
+                hook.remove()
 
         hidden = self._extract_hidden(outputs)
         spatial_tokens = self._select_spatial_tokens(
@@ -204,7 +236,62 @@ class GalileoHFEncoder(nn.Module):
             timesteps=int(s2.shape[0]),
         )
         features = spatial_tokens.transpose(1, 2).reshape(1, spatial_tokens.shape[-1], grid_h, grid_w)
-        return GalileoFeatureGrid(features=features, grid_size=(grid_h, grid_w), hidden_state=hidden)
+        features_by_layer = tuple(
+            self._hidden_to_feature_grid(
+                captured_hidden_layers[layer],
+                grid_h=grid_h,
+                grid_w=grid_w,
+                timesteps=int(s2.shape[0]),
+            )
+            for layer in self.hidden_layers
+        )
+        return GalileoFeatureGrid(
+            features=features,
+            grid_size=(grid_h, grid_w),
+            hidden_state=hidden,
+            features_by_layer=features_by_layer,
+        )
+
+    def _register_hidden_layer_hooks(self, captured: dict[int, torch.Tensor]):
+        if not self.hidden_layers:
+            return []
+        blocks = self._encoder_blocks()
+        if blocks is None:
+            raise ValueError("Cannot collect Galileo hidden layers: model.encoder.blocks was not found.")
+
+        hooks = []
+        for layer in self.hidden_layers:
+            block = blocks[layer - 1]
+
+            def capture_hidden(_module, _inputs, output, layer=layer):
+                if isinstance(output, (tuple, list)):
+                    output = output[0]
+                if not torch.is_tensor(output):
+                    raise TypeError(f"Galileo layer {layer} returned non-tensor output: {type(output)}")
+                captured[layer] = output
+
+            hooks.append(block.register_forward_hook(capture_hidden))
+        return hooks
+
+    def _hidden_to_feature_grid(
+        self,
+        hidden: torch.Tensor,
+        grid_h: int,
+        grid_w: int,
+        timesteps: int,
+    ) -> torch.Tensor:
+        spatial_tokens = self._select_spatial_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=timesteps,
+        )
+        return spatial_tokens.transpose(1, 2).reshape(
+            hidden.shape[0],
+            spatial_tokens.shape[-1],
+            grid_h,
+            grid_w,
+        )
 
     def _build_processor_inputs(self, s2: torch.Tensor, months: torch.Tensor):
         s2_hw_t_c = s2.permute(2, 3, 0, 1).contiguous().cpu().numpy()

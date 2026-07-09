@@ -30,24 +30,44 @@ class CachedFeatureDataset(Dataset):
             if features.ndim != 3:
                 raise ValueError(f"Expected cached features [D, H, W], got {features.shape} in {path}")
 
+            features_by_layer = None
+            if "features_by_layer" in data:
+                features_by_layer = data["features_by_layer"].astype(np.float32, copy=False)
+                if features_by_layer.ndim == 5 and features_by_layer.shape[1] == 1:
+                    features_by_layer = features_by_layer[:, 0]
+                if features_by_layer.ndim != 4:
+                    raise ValueError(
+                        f"Expected cached features_by_layer [L, D, H, W], "
+                        f"got {features_by_layer.shape} in {path}"
+                    )
+
             target = data["target"].astype(np.int64, copy=False)
             if target.ndim != 2:
                 raise ValueError(f"Expected cached target [H, W], got {target.shape} in {path}")
 
-            return {
+            item = {
                 "features": torch.from_numpy(features),
                 "target": torch.from_numpy(target),
                 "patch_id": int(data["patch_id"]),
                 "fold": int(data["fold"]),
                 "cache_path": str(path),
             }
+            if features_by_layer is not None:
+                item["features_by_layer"] = torch.from_numpy(features_by_layer)
+            return item
 
 
 def cached_feature_collate_fn(batch: list[dict]) -> dict:
-    return {
+    collated = {
         "features": torch.stack([item["features"] for item in batch], dim=0),
         "target": torch.stack([item["target"] for item in batch], dim=0),
         "patch_id": [item["patch_id"] for item in batch],
         "fold": torch.tensor([item["fold"] for item in batch], dtype=torch.long),
         "cache_path": [item["cache_path"] for item in batch],
     }
+    if all("features_by_layer" in item for item in batch):
+        collated["features_by_layer"] = torch.stack(
+            [item["features_by_layer"] for item in batch],
+            dim=0,
+        )
+    return collated
