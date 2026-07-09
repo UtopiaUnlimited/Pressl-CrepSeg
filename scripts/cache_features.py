@@ -37,6 +37,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--device", default=None)
     parser.add_argument("--max-samples", type=int, default=None)
+    parser.add_argument(
+        "--save-hidden-state",
+        action="store_true",
+        help="Also save full Galileo token hidden_state. This is large and not needed for cached decoder training.",
+    )
     return parser.parse_args()
 
 
@@ -92,7 +97,6 @@ def main() -> None:
             "months": sample["months"].numpy(),
             "target": target,
             "features": encoded.features.detach().cpu().numpy(),
-            "hidden_state": encoded.hidden_state.detach().cpu().numpy(),
             "hidden_layers": np.asarray(encoder_cfg.get("hidden_layers") or [], dtype=np.int64),
             "encoder_name": encoder_cfg["name"],
             "encoder_checkpoint": encoder_cfg["checkpoint"],
@@ -100,6 +104,8 @@ def main() -> None:
             "selected_timesteps": np.asarray(data_cfg["selected_timesteps"]),
             "normalization": np.asarray(str(encoder_cfg.get("normalize", True))),
         }
+        if args.save_hidden_state:
+            payload["hidden_state"] = encoded.hidden_state.detach().cpu().numpy()
         if features_by_layer is not None:
             payload["features_by_layer"] = features_by_layer
         np.savez_compressed(output_dir / f"{patch_id}.npz", **payload)

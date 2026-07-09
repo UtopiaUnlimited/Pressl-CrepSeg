@@ -193,6 +193,8 @@ features           # final-layer spatial feature grid
 features_by_layer  # layer 3/6/9/12 spatial feature grids
 ```
 
+缓存默认不保存完整 `hidden_state`，下游训练只需要上面两个特征字段。旧版 80MB 以上的 `.npz` 文件通常包含 `hidden_state`，建议删除后重跑缓存。
+
 训练 single-layer DPT：
 
 ```bash

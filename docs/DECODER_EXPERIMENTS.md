@@ -96,6 +96,8 @@ features           # final-layer spatial feature grid
 features_by_layer  # layer 3/6/9/12 spatial feature grids
 ```
 
+缓存脚本默认不保存完整 token 序列 `hidden_state`，因为下游 cached decoder 训练不读取它，而且单样本可能额外占用约 90MB。只有调试 Galileo token 输出时才需要显式加 `--save-hidden-state`。
+
 single-layer DPT 只读取 `features`；multi-layer DPT 和 UPerNet-style decoder 读取 `features_by_layer`。这样三组实验可以共用同一批 encoder 前向结果，变量更集中在 decoder。
 
 项目里提供了三份 shared config：
@@ -117,6 +119,8 @@ data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_test/
 ```
 
 如果手动指定 `--output-dir`，务必确认它不是旧的 `hidden_layers: []` 缓存；否则没有 `features_by_layer`，不能给 multi-layer DPT 或 UPerNet-style decoder 用。
+
+如果目录里已经有旧版 80MB 以上的 `.npz` 文件，说明它们保存了 `hidden_state`，建议删除该 split 的旧缓存后重新生成。
 
 ## 运行前检查
 
