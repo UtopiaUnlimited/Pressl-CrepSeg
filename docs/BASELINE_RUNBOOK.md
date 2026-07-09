@@ -22,6 +22,14 @@ PASTIS fold3/fold4/fold5
 
 如果本地 8GB 显存无法完成完整 Galileo feature cache，则租用更大显存机器或交给组员运行。baseline 的命令和输出目录保持一致，便于不同机器之间合并结果。
 
+当前这台机器已经验证可用的 Python 解释器是：
+
+```text
+D:\Miniconda3\envs\llm\python.exe
+```
+
+后续命令如果在本机运行，优先使用这个绝对路径，避免 Agent/PowerShell 找不到 `conda` 或没有激活环境。组员在其他机器运行时，把下面命令中的 Python 路径替换为自己环境里的 `python` 即可。
+
 建议策略：
 
 ```text
@@ -46,12 +54,17 @@ encoder: pretrained/galileo-base-patch8
 encoder.freeze: true
 selected_timesteps: 24
 patch_size: 8
+spatial_token_strategy: spacetime_mean
 image_size: keep 128x128
 num_classes: 20
 train: fold3
 val: fold4
 test: fold5
 ```
+
+`spatial_token_strategy=spacetime_mean` 的含义是：如果 Galileo 输出的 token 序列包含 `H_grid * W_grid * T * group` 个 space-time tokens，则先按 Galileo 的 `[H_grid, W_grid, T, group]` 结构恢复，再对 `T` 和 `group` 维度求均值，得到 `[B, D, H_grid, W_grid]`。
+
+不要使用未经核查的 `auto` 策略把 `[B, N, D]` 任意 reshape 成空间特征图。对于 Galileo 这类多时间、多模态模型，`N` 通常不只是空间 patch 数。
 
 正式 baseline 不要临时改变：
 
@@ -82,7 +95,7 @@ pretrained/galileo-base-patch8/modeling_galileo.py
 环境检查：
 
 ```bash
-conda run -n presl python -B scripts/check_env.py --config configs/galileo_dpt.yaml
+D:\Miniconda3\envs\llm\python.exe -B scripts\check_env.py --config configs\galileo_dpt.yaml --try-model
 ```
 
 如果这里失败，先不要训练。优先修：
@@ -97,7 +110,7 @@ conda run -n presl python -B scripts/check_env.py --config configs/galileo_dpt.y
 先跑 one-batch，确认完整链路能 forward/backward：
 
 ```bash
-conda run -n presl python -B scripts/train.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\train.py ^
   --config configs/galileo_dpt.yaml ^
   --batch-size 1 ^
   --epochs 1 ^
@@ -127,7 +140,7 @@ conda run -n presl python -B scripts/train.py ^
 缓存 train：
 
 ```bash
-conda run -n presl python -B scripts/cache_features.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\cache_features.py ^
   --config configs/galileo_dpt.yaml ^
   --split train
 ```
@@ -135,7 +148,7 @@ conda run -n presl python -B scripts/cache_features.py ^
 缓存 val：
 
 ```bash
-conda run -n presl python -B scripts/cache_features.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\cache_features.py ^
   --config configs/galileo_dpt.yaml ^
   --split val
 ```
@@ -143,7 +156,7 @@ conda run -n presl python -B scripts/cache_features.py ^
 缓存 test，只在最终评估前做：
 
 ```bash
-conda run -n presl python -B scripts/cache_features.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\cache_features.py ^
   --config configs/galileo_dpt.yaml ^
   --split test
 ```
@@ -159,7 +172,7 @@ data/cache/galileo-base-patch8/t24_patch8_test/
 缓存完成后训练 decoder/head：
 
 ```bash
-conda run -n presl python -B scripts/train_cached.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\train_cached.py ^
   --config configs/galileo_dpt.yaml ^
   --batch-size 4 ^
   --epochs 100 ^
@@ -179,7 +192,7 @@ checkpoints/galileo_dpt_cached/best.pt
 验证集评估：
 
 ```bash
-conda run -n presl python -B scripts/eval_cached.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\eval_cached.py ^
   --config configs/galileo_dpt.yaml ^
   --checkpoint checkpoints/galileo_dpt_cached/best.pt ^
   --split val
@@ -188,7 +201,7 @@ conda run -n presl python -B scripts/eval_cached.py ^
 测试集评估，只在模型和超参数全部固定后执行：
 
 ```bash
-conda run -n presl python -B scripts/eval_cached.py ^
+D:\Miniconda3\envs\llm\python.exe -B scripts\eval_cached.py ^
   --config configs/galileo_dpt.yaml ^
   --checkpoint checkpoints/galileo_dpt_cached/best.pt ^
   --split test

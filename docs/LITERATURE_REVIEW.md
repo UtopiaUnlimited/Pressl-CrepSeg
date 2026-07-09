@@ -221,3 +221,42 @@ Prithvi
 Remote sensing foundation model survey
 Pixel-Set Encoder / LTAE
 ```
+
+## 8. Galileo token layout 核查结论
+
+当前项目不能把 Galileo 的 `last_hidden_state: [B, N, D]` 简单理解为 `[B, H_grid * W_grid, D]`。
+
+PASTIS 输入是多时间、多光谱序列：
+
+```text
+[B, T, C, H, W]
+```
+
+送入 Galileo processor 后接近：
+
+```text
+space_time_x: [B, H, W, T, C]
+```
+
+因此 Galileo 内部 token 数通常不只由空间 patch 数决定，还会包含时间维度、模态/通道组维度，以及可能的 time/static/space tokens。对于 `128x128`、`patch_size=8`、`T=24`，空间 grid 是 `16x16=256`，但 space-time token 数可能是：
+
+```text
+16 * 16 * 24 * group_count
+```
+
+所以当前 baseline 的安全做法不是任意取前 256 个 token，也不是按 `[group, spatial]` 直接平均，而是：
+
+```text
+hidden: [B, N, D]
+if N == H_grid * W_grid * T * group_count:
+  reshape -> [B, H_grid, W_grid, T, group_count, D]
+  mean over T and group_count
+  -> [B, H_grid, W_grid, D]
+  permute -> [B, D, H_grid, W_grid]
+else:
+  fail loudly and inspect official token layout
+```
+
+这就是当前代码中 `spatial_token_strategy=spacetime_mean` 的含义。
+
+这个策略仍然是一个有条件的 baseline 假设：它假设 Galileo 输出序列的主要部分按 `[H_grid, W_grid, T, group]` 展平。如果后续官方代码核查显示 token 顺序或输出内容不同，应改为直接从 Galileo collapse 前的结构化 hidden states 或官方 processor/model 中间输出构造空间特征。

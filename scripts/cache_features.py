@@ -23,6 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split", choices=["train", "val", "test"], default="train")
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--max-samples", type=int, default=None)
     return parser.parse_args()
 
 
@@ -59,7 +60,9 @@ def main() -> None:
     ).to(device)
     encoder.eval()
 
-    for batch in tqdm(loader, desc=f"cache {args.split}"):
+    for batch_index, batch in enumerate(tqdm(loader, desc=f"cache {args.split}"), start=1):
+        if args.max_samples is not None and batch_index > args.max_samples:
+            break
         encoded = encoder(batch["samples"])
         sample = batch["samples"][0]
         patch_id = sample["patch_id"]

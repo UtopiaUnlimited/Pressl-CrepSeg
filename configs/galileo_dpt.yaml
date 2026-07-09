@@ -20,7 +20,7 @@ encoder:
   normalize: true
   local_files_only: true
   output_hidden_states: false
-  spatial_token_strategy: auto
+  spatial_token_strategy: spacetime_mean
   hidden_size: null
 
 model:

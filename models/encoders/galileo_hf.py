@@ -197,7 +197,12 @@ class GalileoHFEncoder(nn.Module):
                 outputs = self.model(**processor_inputs)
 
         hidden = self._extract_hidden(outputs)
-        spatial_tokens = self._select_spatial_tokens(hidden, grid_h=grid_h, grid_w=grid_w)
+        spatial_tokens = self._select_spatial_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=int(s2.shape[0]),
+        )
         features = spatial_tokens.transpose(1, 2).reshape(1, spatial_tokens.shape[-1], grid_h, grid_w)
         return GalileoFeatureGrid(features=features, grid_size=(grid_h, grid_w), hidden_state=hidden)
 
@@ -240,7 +245,13 @@ class GalileoHFEncoder(nn.Module):
             return outputs[0]
         raise RuntimeError("Could not find a token tensor in Galileo model outputs.")
 
-    def _select_spatial_tokens(self, hidden: torch.Tensor, grid_h: int, grid_w: int) -> torch.Tensor:
+    def _select_spatial_tokens(
+        self,
+        hidden: torch.Tensor,
+        grid_h: int,
+        grid_w: int,
+        timesteps: int,
+    ) -> torch.Tensor:
         if hidden.ndim != 3:
             raise ValueError(f"Expected hidden state [B, N, D], got {tuple(hidden.shape)}")
         grid_tokens = grid_h * grid_w
@@ -261,6 +272,13 @@ class GalileoHFEncoder(nn.Module):
             return hidden[:, :grid_tokens]
         if strategy == "last":
             return hidden[:, -grid_tokens:]
+        if strategy == "spacetime_mean":
+            return self._aggregate_spacetime_tokens(
+                hidden,
+                grid_h=grid_h,
+                grid_w=grid_w,
+                timesteps=timesteps,
+            )
         if strategy != "auto":
             raise ValueError(f"Unknown spatial_token_strategy: {strategy}")
 
@@ -268,7 +286,52 @@ class GalileoHFEncoder(nn.Module):
             return hidden
         if token_count == grid_tokens + 1:
             return hidden[:, 1:]
-        if token_count % grid_tokens == 0:
-            grouped = hidden.reshape(hidden.shape[0], token_count // grid_tokens, grid_tokens, hidden.shape[-1])
-            return grouped.mean(dim=1)
-        return hidden[:, -grid_tokens:]
+        return self._aggregate_spacetime_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=timesteps,
+        )
+
+    @staticmethod
+    def _aggregate_spacetime_tokens(
+        hidden: torch.Tensor,
+        grid_h: int,
+        grid_w: int,
+        timesteps: int,
+    ) -> torch.Tensor:
+        """Aggregate Galileo space-time tokens into one token per spatial patch.
+
+        Galileo's sequence can contain one token per spatial patch, timestep, and
+        modality/band group. For PASTIS S2 this is expected to be laid out as
+        [H_grid, W_grid, T, group] before flattening. We therefore reduce over
+        T and group, not over arbitrary contiguous chunks of length H*W.
+
+        If the returned sequence does not match this structure, fail loudly
+        instead of silently reshaping mixed token types into a wrong feature map.
+        """
+        if timesteps <= 0:
+            raise ValueError(f"timesteps must be positive, got {timesteps}")
+
+        grid_tokens = grid_h * grid_w
+        token_count = hidden.shape[1]
+        tokens_per_group = grid_tokens * timesteps
+        if token_count % tokens_per_group != 0:
+            raise ValueError(
+                "Cannot safely recover a spatial feature grid from Galileo tokens: "
+                f"token_count={token_count}, grid_tokens={grid_tokens}, timesteps={timesteps}. "
+                "Set encoder.spatial_token_strategy to an explicit strategy only after "
+                "verifying the Galileo token layout."
+            )
+
+        group_count = token_count // tokens_per_group
+        grouped = hidden.reshape(
+            hidden.shape[0],
+            grid_h,
+            grid_w,
+            timesteps,
+            group_count,
+            hidden.shape[-1],
+        )
+        spatial = grouped.mean(dim=(3, 4))
+        return spatial.reshape(hidden.shape[0], grid_tokens, hidden.shape[-1])
