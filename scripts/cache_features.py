@@ -37,6 +37,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--device", default=None)
     parser.add_argument("--max-samples", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None)
+    parser.add_argument("--num-workers", type=int, default=None)
     parser.add_argument(
         "--save-hidden-state",
         action="store_true",
@@ -61,7 +63,16 @@ def main() -> None:
         selected_timesteps=data_cfg["selected_timesteps"],
         target_channel=data_cfg.get("target_channel", 0),
     )
-    loader = DataLoader(dataset, batch_size=1, shuffle=False, collate_fn=pastis_collate_fn)
+    batch_size = int(args.batch_size or data_cfg.get("batch_size", 1))
+    num_workers = int(args.num_workers if args.num_workers is not None else data_cfg.get("num_workers", 0))
+    loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=pastis_collate_fn,
+        pin_memory=torch.cuda.is_available(),
+    )
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
 
     encoder = GalileoHFEncoder(
@@ -76,39 +87,43 @@ def main() -> None:
     ).to(device)
     encoder.eval()
 
-    for batch_index, batch in enumerate(tqdm(loader, desc=f"cache {args.split}"), start=1):
-        if args.max_samples is not None and batch_index > args.max_samples:
+    saved_samples = 0
+    for batch in tqdm(loader, desc=f"cache {args.split}"):
+        if args.max_samples is not None and saved_samples >= args.max_samples:
             break
         encoded = encoder(batch["samples"])
-        sample = batch["samples"][0]
-        patch_id = sample["patch_id"]
-        target = batch["target"][0].numpy()
-        features_by_layer = None
-        if encoded.features_by_layer:
-            features_by_layer = np.stack(
-                [feature.detach().cpu().numpy() for feature in encoded.features_by_layer],
-                axis=0,
-            )
-        payload = {
-            "patch_id": np.asarray(patch_id),
-            "fold": np.asarray(sample["fold"]),
-            "dates": sample["dates"].numpy(),
-            "selected_indices": sample["selected_indices"].numpy(),
-            "months": sample["months"].numpy(),
-            "target": target,
-            "features": encoded.features.detach().cpu().numpy(),
-            "hidden_layers": np.asarray(encoder_cfg.get("hidden_layers") or [], dtype=np.int64),
-            "encoder_name": encoder_cfg["name"],
-            "encoder_checkpoint": encoder_cfg["checkpoint"],
-            "patch_size": np.asarray(encoder_cfg["patch_size"]),
-            "selected_timesteps": np.asarray(data_cfg["selected_timesteps"]),
-            "normalization": np.asarray(str(encoder_cfg.get("normalize", True))),
-        }
-        if args.save_hidden_state:
-            payload["hidden_state"] = encoded.hidden_state.detach().cpu().numpy()
-        if features_by_layer is not None:
-            payload["features_by_layer"] = features_by_layer
-        np.savez_compressed(output_dir / f"{patch_id}.npz", **payload)
+        for sample_index, sample in enumerate(batch["samples"]):
+            if args.max_samples is not None and saved_samples >= args.max_samples:
+                break
+
+            patch_id = sample["patch_id"]
+            payload = {
+                "patch_id": np.asarray(patch_id),
+                "fold": np.asarray(sample["fold"]),
+                "dates": sample["dates"].numpy(),
+                "selected_indices": sample["selected_indices"].numpy(),
+                "months": sample["months"].numpy(),
+                "target": batch["target"][sample_index].numpy(),
+                "features": encoded.features[sample_index].detach().cpu().numpy(),
+                "hidden_layers": np.asarray(encoder_cfg.get("hidden_layers") or [], dtype=np.int64),
+                "encoder_name": encoder_cfg["name"],
+                "encoder_checkpoint": encoder_cfg["checkpoint"],
+                "patch_size": np.asarray(encoder_cfg["patch_size"]),
+                "selected_timesteps": np.asarray(data_cfg["selected_timesteps"]),
+                "normalization": np.asarray(str(encoder_cfg.get("normalize", True))),
+            }
+            if args.save_hidden_state:
+                payload["hidden_state"] = encoded.hidden_state[sample_index].detach().cpu().numpy()
+            if encoded.features_by_layer:
+                payload["features_by_layer"] = np.stack(
+                    [
+                        feature[sample_index].detach().cpu().numpy()
+                        for feature in encoded.features_by_layer
+                    ],
+                    axis=0,
+                )
+            np.savez_compressed(output_dir / f"{patch_id}.npz", **payload)
+            saved_samples += 1
 
 
 if __name__ == "__main__":

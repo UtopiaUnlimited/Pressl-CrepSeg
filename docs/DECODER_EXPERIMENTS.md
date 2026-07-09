@@ -249,6 +249,8 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_mu
 
 如果 decoder/head 训练 OOM，把 config 或命令里的 batch size 改为 `2` 或 `1`。这只影响训练吞吐，不改变缓存里的 Galileo features。
 
+缓存阶段也会读取 config 里的 `data.batch_size` 和 `data.num_workers`。当 batch 内样本的 `T/H/W` 一致时，Galileo encoder 会真正批量前向；如果遇到形状不一致，会自动退回逐样本前向。8GB 显存建议共享缓存先用 `batch_size: 2`，OOM 再退回 `1`。
+
 ## 对比方案
 
 | 实验名 | Encoder | Cached features | Decoder | 目的 |

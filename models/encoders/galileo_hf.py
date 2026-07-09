@@ -18,7 +18,7 @@ class GalileoFeatureGrid(NamedTuple):
 
 
 class GalileoHFEncoder(nn.Module):
-    """Hugging Face Galileo wrapper for one-sample-at-a-time PASTIS batches."""
+    """Hugging Face Galileo wrapper for PASTIS batches."""
 
     def __init__(
         self,
@@ -164,6 +164,11 @@ class GalileoHFEncoder(nn.Module):
         return None
 
     def forward(self, samples: list[dict]) -> GalileoFeatureGrid:
+        if samples and self._can_forward_as_batch(samples):
+            return self._forward_many(samples)
+        return self._forward_sequential(samples)
+
+    def _forward_sequential(self, samples: list[dict]) -> GalileoFeatureGrid:
         feature_grids = []
         hidden_states = []
         layer_feature_grids: list[list[torch.Tensor]] = [[] for _ in self.hidden_layers]
@@ -191,6 +196,80 @@ class GalileoHFEncoder(nn.Module):
             features=features,
             grid_size=grid_size or (0, 0),
             hidden_state=hidden_state,
+            features_by_layer=features_by_layer,
+        )
+
+    @staticmethod
+    def _can_forward_as_batch(samples: list[dict]) -> bool:
+        if not samples:
+            return False
+        first_shape = tuple(samples[0]["s2"].shape)
+        first_months_shape = tuple(samples[0]["months"].shape)
+        return all(
+            tuple(sample["s2"].shape) == first_shape
+            and tuple(sample["months"].shape) == first_months_shape
+            for sample in samples
+        )
+
+    def _forward_many(self, samples: list[dict]) -> GalileoFeatureGrid:
+        s2 = samples[0]["s2"]
+        if s2.ndim != 4:
+            raise ValueError(f"Expected S2 [T, C, H, W], got {tuple(s2.shape)}")
+
+        timesteps, _, height, width = s2.shape
+        grid_h = height // self.patch_size
+        grid_w = width // self.patch_size
+        if height % self.patch_size or width % self.patch_size:
+            raise ValueError(
+                f"Image size {(height, width)} is not divisible by patch_size={self.patch_size}"
+            )
+
+        model_device = next(self.model.parameters()).device
+        processor_inputs = self._build_batched_processor_inputs(samples)
+        processor_inputs = self._move_to_device(processor_inputs, model_device)
+
+        captured_hidden_layers: dict[int, torch.Tensor] = {}
+        hooks = self._register_hidden_layer_hooks(captured_hidden_layers)
+        try:
+            with torch.set_grad_enabled(not self.freeze):
+                try:
+                    outputs = self.model(
+                        **processor_inputs,
+                        output_hidden_states=self.output_hidden_states,
+                        return_dict=True,
+                    )
+                except TypeError:
+                    outputs = self.model(**processor_inputs)
+        finally:
+            for hook in hooks:
+                hook.remove()
+
+        hidden = self._extract_hidden(outputs)
+        spatial_tokens = self._select_spatial_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=int(timesteps),
+        )
+        features = spatial_tokens.transpose(1, 2).reshape(
+            len(samples),
+            spatial_tokens.shape[-1],
+            grid_h,
+            grid_w,
+        )
+        features_by_layer = tuple(
+            self._hidden_to_feature_grid(
+                captured_hidden_layers[layer],
+                grid_h=grid_h,
+                grid_w=grid_w,
+                timesteps=int(timesteps),
+            )
+            for layer in self.hidden_layers
+        )
+        return GalileoFeatureGrid(
+            features=features,
+            grid_size=(grid_h, grid_w),
+            hidden_state=hidden,
             features_by_layer=features_by_layer,
         )
 
@@ -307,6 +386,31 @@ class GalileoHFEncoder(nn.Module):
             kwargs.pop("patch_size")
             inputs = self.processor(**kwargs)
         return inputs
+
+    def _build_batched_processor_inputs(self, samples: list[dict]):
+        processed = [
+            self._build_processor_inputs(s2=sample["s2"], months=sample["months"])
+            for sample in samples
+        ]
+        first = dict(processed[0])
+        batched = {}
+        for key in first:
+            values = [dict(inputs)[key] for inputs in processed]
+            first_value = values[0]
+            if key == "patch_size":
+                batched[key] = first_value
+                continue
+            if torch.is_tensor(first_value):
+                try:
+                    batched[key] = torch.cat(values, dim=0)
+                except RuntimeError as exc:
+                    shapes = [tuple(value.shape) for value in values]
+                    raise ValueError(f"Cannot batch Galileo processor input {key}: {shapes}") from exc
+            else:
+                if any(value != first_value for value in values):
+                    raise ValueError(f"Cannot batch differing Galileo processor input {key}: {values}")
+                batched[key] = first_value
+        return batched
 
     @staticmethod
     def _move_to_device(inputs, device: torch.device):
