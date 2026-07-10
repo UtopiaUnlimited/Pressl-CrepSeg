@@ -67,6 +67,7 @@ class GalileoHFEncoder(nn.Module):
             trust_remote_code=True,
             local_files_only=self.local_files_only,
         )
+        self._materialize_flexi_patch_pinvs()
         self._patch_all_true_attention_masks()
         self._validate_hidden_layers()
 
@@ -89,6 +90,19 @@ class GalileoHFEncoder(nn.Module):
             raise ValueError(
                 f"Requested Galileo hidden_layers={invalid}, but available layers are 1..{depth}."
             )
+
+    def _materialize_flexi_patch_pinvs(self) -> None:
+        """Rebuild deterministic FlexiViT resize matrices left on meta by HF loading."""
+
+        for module in self.model.modules():
+            pinvs = getattr(module, "pinvs", None)
+            calculate_pinv = getattr(module, "_calculate_pinv", None)
+            base_patch_size = getattr(module, "patch_size", None)
+            if not isinstance(pinvs, dict) or not callable(calculate_pinv) or base_patch_size is None:
+                continue
+            for patch_size, pinv in list(pinvs.items()):
+                if torch.is_tensor(pinv) and pinv.is_meta:
+                    pinvs[patch_size] = calculate_pinv(base_patch_size, patch_size)
 
     def _encoder_blocks(self):
         encoder = getattr(self.model, "encoder", None)

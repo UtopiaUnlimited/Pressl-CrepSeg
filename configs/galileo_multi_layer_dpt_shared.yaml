@@ -5,19 +5,27 @@ data:
   train_folds: [1, 2, 3]
   val_folds: [4]
   test_folds: [5]
-  selected_timesteps: 24
-  image_size: 128
-  num_classes: 20
+  temporal_aggregation: monthly
+  selected_timesteps: 12
+  monthly_start_offset: 1
+  source_image_size: 128
+  tile_size: 64
+  image_size: 64
+  num_classes: 19
   target_channel: 0
+  void_label: 19
+  ignore_index: -1
+  normalization: galileo_norm_no_clip
+  normalization_std_multiplier: 2.0
   batch_size: 4
   num_workers: 0
 
 encoder:
   name: galileo-base-patch8
   checkpoint: pretrained/galileo-base-patch8
-  patch_size: 8
+  patch_size: 4
   freeze: true
-  normalize: true
+  normalize: false
   local_files_only: true
   output_hidden_states: false
   spatial_token_strategy: spacetime_mean
@@ -35,7 +43,7 @@ loss:
   name: ce_dice
   ce_weight: 1.0
   dice_weight: 0.5
-  ignore_index: null
+  ignore_index: -1
 
 optimizer:
   name: prodigy
@@ -50,7 +58,7 @@ scheduler:
 train:
   epochs: 100
   amp: false
-  log_dir: logs/galileo_multi_layer_dpt_shared
-  checkpoint_dir: checkpoints/galileo_multi_layer_dpt_shared
+  log_dir: logs/galileo_multi_layer_dpt_shared_paper_input
+  checkpoint_dir: checkpoints/galileo_multi_layer_dpt_shared_paper_input
   save_best: true
   monitor: val_loss

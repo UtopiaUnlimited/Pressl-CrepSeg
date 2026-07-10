@@ -10,7 +10,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from data import PASTISDataset  # noqa: E402
+from data import build_pastis_dataset  # noqa: E402
 from models import build_model  # noqa: E402
 from utils import load_config  # noqa: E402
 
@@ -35,19 +35,20 @@ def check_gitignore() -> None:
 
 def check_dataset(config: dict) -> None:
     data_cfg = config["data"]
-    dataset = PASTISDataset(
-        root=data_cfg["root"],
-        folds=data_cfg["train_folds"],
-        selected_timesteps=data_cfg["selected_timesteps"],
-        target_channel=data_cfg.get("target_channel", 0),
-    )
+    dataset = build_pastis_dataset(data_cfg, "train")
     sample = dataset[0]
     target = sample["target"].numpy()
     print(f"dataset_train_samples={len(dataset)}")
     print(f"s2_shape={tuple(sample['s2'].shape)} dtype={sample['s2'].dtype}")
     print(f"months_minmax={int(sample['months'].min())},{int(sample['months'].max())}")
-    print(f"target_shape={tuple(sample['target'].shape)} labels={int(target.min())}..{int(target.max())}")
-    if int(target.max()) >= int(data_cfg["num_classes"]):
+    print(
+        f"target_shape={tuple(sample['target'].shape)} labels={int(target.min())}..{int(target.max())}"
+    )
+    ignore_index = int(data_cfg.get("ignore_index", -1))
+    valid_target = target[target != ignore_index]
+    if valid_target.size == 0:
+        raise ValueError("Semantic target contains only ignored pixels.")
+    if int(valid_target.min()) < 0 or int(valid_target.max()) >= int(data_cfg["num_classes"]):
         raise ValueError("Semantic target labels exceed configured num_classes.")
 
 

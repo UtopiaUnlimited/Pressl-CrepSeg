@@ -11,7 +11,7 @@ from tqdm import tqdm
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from data import PASTISDataset, pastis_collate_fn  # noqa: E402
+from data import build_pastis_dataset, pastis_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
 from metrics import ConfusionMatrix, mean_iou  # noqa: E402
 from models import build_model  # noqa: E402
@@ -34,12 +34,7 @@ def main() -> None:
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
 
     data_cfg = config["data"]
-    dataset = PASTISDataset(
-        root=data_cfg["root"],
-        folds=data_cfg[f"{args.split}_folds"],
-        selected_timesteps=data_cfg["selected_timesteps"],
-        target_channel=data_cfg.get("target_channel", 0),
-    )
+    dataset = build_pastis_dataset(data_cfg, args.split)
     loader = DataLoader(
         dataset,
         batch_size=int(data_cfg.get("batch_size", 1)),

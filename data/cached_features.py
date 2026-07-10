@@ -49,6 +49,10 @@ class CachedFeatureDataset(Dataset):
                 "features": torch.from_numpy(features),
                 "target": torch.from_numpy(target),
                 "patch_id": int(data["patch_id"]),
+                "sample_id": str(data["sample_id"]) if "sample_id" in data else path.stem,
+                "tile_id": int(data["tile_id"]) if "tile_id" in data else 0,
+                "tile_y": int(data["tile_y"]) if "tile_y" in data else 0,
+                "tile_x": int(data["tile_x"]) if "tile_x" in data else 0,
                 "fold": int(data["fold"]),
                 "cache_path": str(path),
             }
@@ -62,6 +66,10 @@ def cached_feature_collate_fn(batch: list[dict]) -> dict:
         "features": torch.stack([item["features"] for item in batch], dim=0),
         "target": torch.stack([item["target"] for item in batch], dim=0),
         "patch_id": [item["patch_id"] for item in batch],
+        "sample_id": [item["sample_id"] for item in batch],
+        "tile_id": torch.tensor([item["tile_id"] for item in batch], dtype=torch.long),
+        "tile_y": torch.tensor([item["tile_y"] for item in batch], dtype=torch.long),
+        "tile_x": torch.tensor([item["tile_x"] for item in batch], dtype=torch.long),
         "fold": torch.tensor([item["fold"] for item in batch], dtype=torch.long),
         "cache_path": [item["cache_path"] for item in batch],
     }

@@ -14,7 +14,7 @@ from data import CachedFeatureDataset, cached_feature_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
 from models import build_cached_feature_model  # noqa: E402
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
-from utils import load_config, merge_cli_overrides, seed_everything  # noqa: E402
+from utils import feature_cache_dir, load_config, merge_cli_overrides, seed_everything  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -29,19 +29,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default=None)
     parser.add_argument("--no-amp", action="store_true")
     return parser.parse_args()
-
-
-def default_cache_dir(config: dict, split: str) -> str:
-    data_cfg = config["data"]
-    encoder_cfg = config["encoder"]
-    hidden_layers = encoder_cfg.get("hidden_layers") or []
-    layer_suffix = ""
-    if hidden_layers:
-        layer_suffix = "_hl" + "-".join(str(layer) for layer in hidden_layers)
-    return (
-        f"data/cache/{encoder_cfg['name']}/"
-        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}{layer_suffix}_{split}"
-    )
 
 
 def build_loader(cache_dir: str, config: dict, shuffle: bool) -> DataLoader:
@@ -61,8 +48,8 @@ def main() -> None:
     config = merge_cli_overrides(load_config(args.config), args)
     seed_everything(int(config.get("seed", 42)))
 
-    train_cache_dir = args.train_cache_dir or default_cache_dir(config, "train")
-    val_cache_dir = args.val_cache_dir or default_cache_dir(config, "val")
+    train_cache_dir = args.train_cache_dir or feature_cache_dir(config, "train")
+    val_cache_dir = args.val_cache_dir or feature_cache_dir(config, "val")
     train_loader = build_loader(train_cache_dir, config, shuffle=True)
     val_loader = build_loader(val_cache_dir, config, shuffle=False)
 

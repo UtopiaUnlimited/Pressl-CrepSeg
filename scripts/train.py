@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from data import PASTISDataset, pastis_collate_fn  # noqa: E402
+from data import build_pastis_dataset, pastis_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
 from models import build_model  # noqa: E402
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
@@ -33,12 +33,7 @@ def parse_args() -> argparse.Namespace:
 
 def build_loader(config: dict, split: str, shuffle: bool) -> DataLoader:
     data_cfg = config["data"]
-    dataset = PASTISDataset(
-        root=data_cfg["root"],
-        folds=data_cfg[f"{split}_folds"],
-        selected_timesteps=data_cfg["selected_timesteps"],
-        target_channel=data_cfg.get("target_channel", 0),
-    )
+    dataset = build_pastis_dataset(data_cfg, split)
     return DataLoader(
         dataset,
         batch_size=int(data_cfg.get("batch_size", 1)),

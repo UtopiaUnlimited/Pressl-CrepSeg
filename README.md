@@ -2,61 +2,48 @@
 
 本项目研究 **frozen Galileo 遥感自监督表征在 PASTIS 作物语义分割上的迁移能力**。
 
-当前主线固定为：
+当前实验固定同一个 Galileo encoder 和同一套缓存，只比较 decoder：
 
 ```text
 PASTIS Sentinel-2 time series
-  -> frozen Galileo SSL encoder
-  -> cached / online Galileo spatial features
-  -> decoder/head
-  -> 20-class semantic segmentation logits
+  -> Galileo 论文输入协议
+  -> frozen Galileo encoder
+  -> shared cached features
+  -> single-layer DPT / multi-layer DPT / UPerNet-style decoder
+  -> 19-class semantic segmentation logits
 ```
 
-核心原则：**encoder 不变，只比较 decoder 如何读取同一套 Galileo 特征。**
+single-layer DPT 是当前 baseline。multi-layer DPT 和后续 UPerNet-style decoder 都必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
 
-## 当前状态
+## 当前实现
 
-默认 baseline：
+已经支持：
 
-```text
-frozen Galileo final feature grid
-  -> single-layer DPT-style decoder/head
-```
-
-当前代码已经支持：
-
-- single-layer DPT decoder
-- multi-layer DPT decoder
-- Galileo feature cache
-- cached feature training / evaluation
-- decoder-only 对比实验配置
+- Galileo 论文 PASTIS split 与输入协议
+- single-layer DPT-style decoder
+- multi-layer DPT-style decoder
+- 多层 Galileo 特征共享缓存
+- cached feature 训练与评估
+- TensorBoard loss / val mIoU 日志
 
 尚未实现：
 
 - UPerNet-style decoder 代码
 
-UPerNet 的实验设计已经写在 [docs/DECODER_EXPERIMENTS.md](G:/Pressl-CrepSeg/docs/DECODER_EXPERIMENTS.md)。
-
-## 重要文档
-
-```text
-docs/DECODER_EXPERIMENTS.md   # baseline 与 decoder-only 对比实验流程
-docs/LITERATURE_REVIEW.md     # 相关文献和写作素材
-```
+详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。
 
 ## 数据与权重
 
-PASTIS 数据放在：
+PASTIS 放在：
 
 ```text
 data/PASTIS/
   metadata.geojson
-  NORM_S2_patch.json
   DATA_S2/S2_*.npy
   ANNOTATIONS/TARGET_*.npy
 ```
 
-Galileo 权重放在：
+Galileo Hugging Face 权重放在：
 
 ```text
 pretrained/galileo-base-patch8/
@@ -64,169 +51,187 @@ pretrained/galileo-base-patch8/
   model.safetensors
   modeling_galileo.py
   processing_galileo.py
-  pipeline_galileo.py
   preprocessor_config.json
 ```
 
-这些目录不会提交到 Git：
+以下大文件目录保持 Git 忽略，不会上传：
 
 ```text
 data/PASTIS/
-pretrained/
 data/cache/
+pretrained/
+.hf_cache/
 logs/
 checkpoints/
-.hf_cache/
+__pycache__/
 ```
 
-## 数据协议
+## 论文输入协议
 
-默认 split：
+Galileo 官方论文和仓库中的 PASTIS 设置为：
 
 ```text
-train: fold1, fold2, fold3
+train: fold1 + fold2 + fold3
 val:   fold4
 test:  fold5
+
+原图:          [T, 10, 128, 128]
+月度聚合后:    [12, 10, 128, 128]
+空间切块后:    [12, 10, 64, 64]，每张原图生成4个样本
+Galileo patch: 4
+特征图:        [D, 16, 16]
+有效类别:      0..18，共19类
+void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 ```
 
-PASTIS 样本约定：
+当前 raw PASTIS 转换规则：
 
-```text
-S2:     [T, 10, 128, 128]
-target: [128, 128]  # TARGET_*.npy 第 0 通道
-classes: 0..19      # num_classes = 20
-```
+1. 去掉首尾不完整月份，取 `2018-10` 到 `2019-09` 的12个月作物年。
+2. 同月多个 Sentinel-2 观测逐像素取均值。
+3. 个别区域缺少 `2018-12`，使用相邻月线性插值。
+4. 每个 `128x128` 样本按行优先切成四个 `64x64` 子块。
+5. 使用 Galileo 官方 probing 的 `OURS + norm_no_clip + std_multiplier=2.0` 缩放。
+6. 数据已完成官方缩放，因此 HF processor 设置 `encoder.normalize=false`，避免二次归一化。
 
-关键约束：
+官方评测数据类读取预生成的 `(N, 12, 13, 64, 64)` 张量。13波段包含为其他 baseline 补齐的 B1/B9/B10；Galileo 官方 wrapper 实际只选择 PASTIS 原生10波段，因此本项目直接保留原生10波段。
 
-- 不 resize、不 crop，保持 `128x128`。
-- `T > 24` 时 uniform sample 到 24 个时相。
-- 月份使用 `0..11`，不是 `1..12`。
-- 使用 Galileo processor `normalize=True` 时，不再做 PASTIS norm。
-- test set 只用于最终报告，不用于 early stopping 或调参。
+论文 Table 17 还会在验证集上搜索多种归一化统计量、缩放倍数和学习率，并运行5次。因此当前输入已经对齐论文公开协议，但要严格复现 `39.2% mIoU`，仍需补做论文的 normalization/LR sweep 和多次运行。
+
+参考：
+
+- [Galileo 官方论文](https://openreview.net/pdf?id=gqZO3eSZRy)
+- [Galileo 官方仓库](https://github.com/nasaharvest/galileo)
+- [官方 PASTIS 数据类](https://github.com/nasaharvest/galileo/blob/main/src/eval/datasets/pastis.py)
 
 ## 配置文件
 
 | 配置 | 用途 |
 | --- | --- |
-| `configs/galileo_dpt.yaml` | 默认 baseline：single-layer DPT，`hidden_layers: []` |
-| `configs/galileo_shared_cache.yaml` | 生成 decoder 对比共享缓存，`hidden_layers: [3, 6, 9, 12]` |
-| `configs/galileo_single_layer_dpt_shared.yaml` | 用共享缓存训练 single-layer DPT |
-| `configs/galileo_multi_layer_dpt_shared.yaml` | 用共享缓存训练 multi-layer DPT |
+| `configs/galileo_dpt.yaml` | 最小 single-layer DPT baseline，`hidden_layers: []` |
+| `configs/galileo_shared_cache.yaml` | 生成 layer 3/6/9/12 共享缓存 |
+| `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练 single-layer DPT |
+| `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练 multi-layer DPT |
 
-`configs/galileo_dpt.yaml` 保持最小 baseline，不要为了 decoder 对比随手改乱。decoder 对比优先使用 shared 系列配置。
+四份配置都固定：
 
-## 快速检查
+```yaml
+data:
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  temporal_aggregation: monthly
+  selected_timesteps: 12
+  tile_size: 64
+  num_classes: 19
+  void_label: 19
+  ignore_index: -1
+  normalization: galileo_norm_no_clip
+  normalization_std_multiplier: 2.0
 
-```bash
-conda run -n presl python -B scripts/check_env.py --config configs/galileo_dpt.yaml --try-model
+encoder:
+  patch_size: 4
+  freeze: true
+  normalize: false
+  spatial_token_strategy: spacetime_mean
 ```
 
-one-batch smoke test：
+## 环境检查
 
 ```bash
-conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 1 --epochs 1 --max-train-batches 1 --max-val-batches 1 --no-amp
+conda run -n presl python -B -m unittest discover -s tests -v
+conda run -n presl python -B scripts/check_env.py --config configs/galileo_shared_cache.yaml --try-model
 ```
 
-## 默认 baseline
-
-直接在线训练 baseline：
-
-```bash
-conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 1 --epochs 100 --no-amp
-```
-
-更推荐先缓存，再训练：
-
-```bash
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split train
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split val
-```
-
-默认 baseline 缓存目录：
+预期数据检查结果：
 
 ```text
-data/cache/galileo-base-patch8/t24_patch8_train/
-data/cache/galileo-base-patch8/t24_patch8_val/
+dataset_train_samples=5820
+s2_shape=(12, 10, 64, 64)
+months_minmax=0,11
+target labels=-1..18
 ```
 
-训练 cached baseline：
+## 生成共享缓存
 
-```bash
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_dpt.yaml --batch-size 4 --epochs 100 --no-amp
-```
+旧的 `t24_patch8_*` 缓存不符合论文协议，不能在本分支继续使用。新目录名包含完整协议，不会覆盖旧缓存。
 
-评估 cached baseline：
-
-```bash
-conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_dpt.yaml --checkpoint checkpoints/galileo_dpt_cached/best.pt --split val
-```
-
-## Decoder 对比
-
-老师建议当前阶段固定 encoder，只比较 decoder：
-
-```text
-1. single-layer DPT baseline
-2. multi-layer DPT
-3. UPerNet-style decoder  # 设计已写，代码未实现
-```
-
-公平做法是先生成一套共享缓存：
+先生成 train 和 val：
 
 ```bash
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split train
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split val
 ```
 
-共享缓存目录会自动带 hidden layer 后缀：
+默认目录：
 
 ```text
-data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_train/
-data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_val/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_train/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_val/
 ```
 
-这套缓存同时包含：
+每个文件按原始 patch 和子块位置命名：
 
 ```text
-features           # final-layer spatial feature grid
-features_by_layer  # layer 3/6/9/12 spatial feature grids
+10000_y0_x0.npz
+10000_y0_x64.npz
+10000_y64_x0.npz
+10000_y64_x64.npz
 ```
 
-缓存默认不保存完整 `hidden_state`，下游训练只需要上面两个特征字段。旧版 80MB 以上的 `.npz` 文件通常包含 `hidden_state`，建议删除后重跑缓存。
+每个缓存包含：
 
-训练 single-layer DPT：
+```text
+features             # final layer [D, 16, 16]
+features_by_layer    # layers 3/6/9/12 [4, D, 16, 16]
+target               # [64, 64]，void 为 -1
+patch_id / sample_id / tile_id / tile_y / tile_x
+dates / months / aggregation_counts
+```
+
+缓存默认不保存巨大的完整 `hidden_state`。只有调试 token 时才显式添加 `--save-hidden-state`。
+
+8GB 显存建议从共享配置的 `data.batch_size: 2` 开始；OOM 时命令行加 `--batch-size 1`。本协议的 `64x64 + T12 + patch4` 仍输出 `16x16` grid，但时序比旧缓存更短。
+
+## 训练 Decoder
+
+single-layer DPT baseline：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_single_layer_dpt_shared.yaml
 ```
 
-训练 multi-layer DPT：
+multi-layer DPT：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
 ```
 
-注意：如果旧缓存是用 `hidden_layers: []` 生成的，它没有 `features_by_layer`，不能给 multi-layer DPT 或 UPerNet-style decoder 用。
+TensorBoard：
 
-## 特征与编号说明
-
-缓存文件按 PASTIS `patch_id` 命名。每个 fold 的 patch_id 本来就是离散的，所以看到这种跳号是正常的：
-
-```text
-fold4/val: 10002, 10004, 10008, 10011, ...
+```bash
+tensorboard --logdir logs --reload_interval 5
 ```
 
-这不是 DataLoader shuffle，也不是缓存漏样本。
+当前 checkpoint 仍按最低 `val_loss` 保存为 `best.pt`。正式论文结果还应同时保存最高 `val_mIoU` checkpoint 并运行多个 seed。
 
-## 显存说明
+## 最终评估
 
-Galileo 对 `128x128`、`T=24`、`patch_size=8` 的输入并不只是 `16x16` 个空间 token。S2 会被拆成多个 space-time group，默认 `spacetime_mean` 会按 `[H_grid, W_grid, T, group]` 聚合为空间特征图。
+调参只使用 fold4。模型、学习率和训练轮数固定后，再生成 fold5 test 缓存：
 
-当前 wrapper 对官方 attention 做了一个保守优化：当有效 token mask 全为 True 时，不再把 mask 展开成 `[B, heads, N, N]`，而是传 `None` 给 PyTorch SDPA。这个优化不改变注意力语义，只避免冗余显存占用。
+```bash
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split test
+```
 
-当前 wrapper 会在样本形状一致时批量调用 Galileo encoder；如果一个 batch 内出现不同 `T/H/W`，会自动退回逐样本调用。共享缓存配置里的 `data.batch_size` 会影响缓存阶段的 Galileo 前向，建议本地 8GB 从 `2` 起步，OOM 时退回 `1`。
+评估 single-layer DPT：
 
-## 一句话
+```bash
+conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_cached/best.pt --split test
+```
 
-本项目用 PASTIS 作物语义分割任务，研究 frozen Galileo 时空表征能否被不同 decoder 有效读出；当前优先固定 encoder，通过特征缓存公平比较 single-layer DPT、multi-layer DPT 和后续 UPerNet-style decoder。
+## 实验原则
+
+- decoder 对比只改变 `model.decoder` 及其专属结构参数。
+- 所有 decoder 共用同一批 `monthly12_tile64_patch4_hl3-6-9-12` 缓存。
+- 不改变 fold、输入缩放、月份、patch size、loss 或评测口径。
+- test fold 只用于最终报告，不用于 early stopping 或选超参数。
+- `data/PASTIS`、缓存、权重、日志、checkpoint 和 Python cache 都不提交到 Git。

@@ -15,7 +15,7 @@ from data import CachedFeatureDataset, cached_feature_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
 from metrics import ConfusionMatrix, mean_iou  # noqa: E402
 from models import build_cached_feature_model  # noqa: E402
-from utils import load_config  # noqa: E402
+from utils import feature_cache_dir, load_config  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,19 +27,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--device", default=None)
     return parser.parse_args()
-
-
-def default_cache_dir(config: dict, split: str) -> str:
-    data_cfg = config["data"]
-    encoder_cfg = config["encoder"]
-    hidden_layers = encoder_cfg.get("hidden_layers") or []
-    layer_suffix = ""
-    if hidden_layers:
-        layer_suffix = "_hl" + "-".join(str(layer) for layer in hidden_layers)
-    return (
-        f"data/cache/{encoder_cfg['name']}/"
-        f"t{data_cfg['selected_timesteps']}_patch{encoder_cfg['patch_size']}{layer_suffix}_{split}"
-    )
 
 
 def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLoader:
@@ -58,7 +45,7 @@ def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLo
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
-    cache_dir = args.cache_dir or default_cache_dir(config, args.split)
+    cache_dir = args.cache_dir or feature_cache_dir(config, args.split)
     loader = build_loader(cache_dir, config, args.batch_size)
 
     first_batch = next(iter(loader))

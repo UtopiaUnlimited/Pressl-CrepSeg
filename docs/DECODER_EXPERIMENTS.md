@@ -1,282 +1,217 @@
 # Decoder 对比实验
 
-本文档是当前实验主线的唯一说明：**encoder 固定为同一个 frozen Galileo，实验变量只放在 decoder/head。**
-
-因此，一层 DPT 不是另一个单独方向，而是本阶段的 baseline；multi-layer DPT 和后续 UPerNet-style decoder 都要围绕它做对比。
-
-## 核心原则
+本文档是当前实验主线的定义：**输入协议和 frozen Galileo encoder 固定，实验变量只放在 decoder/head。**
 
 ```text
-PASTIS S2 time series
+PASTIS paper-aligned input
   -> frozen Galileo encoder
-  -> cached Galileo features
+  -> one shared feature cache
   -> different decoder/head
-  -> semantic segmentation logits
+  -> 19-class semantic segmentation
 ```
 
-实验变量只放在 decoder：
+single-layer DPT 是 baseline；multi-layer DPT 和后续 UPerNet-style decoder 都围绕它做对比。
 
-- 不改变 Galileo 权重。
-- 不解冻 Galileo。
-- 不改变 PASTIS split。
-- 不改变 `selected_timesteps=24`、`patch_size=8`、`normalize=True`。
-- 尽量复用同一批 cached features，避免每个 decoder 重新跑 encoder。
-- test set 只在模型和超参数固定后做最终报告，不用于调参。
+## 固定实验条件
 
-默认 split：
+所有 decoder 必须保持：
 
-```text
-train: fold1, fold2, fold3
-val:   fold4
-test:  fold5
-```
+- Galileo base 权重相同且完全冻结。
+- train=`fold1/2/3`、val=`fold4`、test=`fold5`。
+- 原始 PASTIS 时序聚合为12个月。
+- `128x128` 原图切成4个 `64x64` 子块。
+- Galileo `patch_size=4`。
+- 原始 void label `19` 映射为 `-1` 并忽略。
+- 有效类别 `0..18`，`num_classes=19`。
+- 官方 `OURS + norm_no_clip + std_multiplier=2.0` 输入缩放。
+- 相同 loss、optimizer 和模型选择规则。
+- test 只在模型与超参数固定后运行。
 
-PASTIS 样本约定：
-
-```text
-S2:     [T, 10, 128, 128]
-target: [128, 128]  # TARGET_*.npy 第 0 通道
-classes: 0..19      # num_classes = 20
-```
-
-## 一层 DPT Baseline
-
-默认 baseline 是：
+配置中的固定字段：
 
 ```yaml
-config: configs/galileo_dpt.yaml
+data:
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  temporal_aggregation: monthly
+  selected_timesteps: 12
+  monthly_start_offset: 1
+  source_image_size: 128
+  tile_size: 64
+  image_size: 64
+  num_classes: 19
+  void_label: 19
+  ignore_index: -1
+  normalization: galileo_norm_no_clip
+  normalization_std_multiplier: 2.0
 
 encoder:
+  patch_size: 4
   freeze: true
-  selected_timesteps: 24
-  patch_size: 8
+  normalize: false
   spatial_token_strategy: spacetime_mean
-  hidden_layers: []
-
-model:
-  decoder: single_layer_dpt
 ```
 
-含义：
+月度 raw-data 重建细节和官方公开协议边界见项目 [README](../README.md)。
+
+## Single-Layer DPT Baseline
+
+baseline 配置：
+
+```text
+configs/galileo_single_layer_dpt_shared.yaml
+```
+
+数据流：
 
 ```text
 Galileo final hidden sequence
   -> 按 [H_grid, W_grid, T, group] 聚合
-  -> [B, D, 16, 16]
-  -> single-layer DPT-style decoder
-  -> [B, 20, 128, 128]
+  -> [B, 768, 16, 16]
+  -> projection + 3 residual conv blocks
+  -> bilinear upsample + smoothing
+  -> [B, 19, 64, 64]
 ```
 
-它回答的是第一层问题：在不微调 Galileo 的情况下，Galileo 最终层 frozen feature 是否能被一个轻量空间 decoder 读出为有效的 PASTIS 作物分割结果。
+这里“一层”表示 decoder 只读取 Galileo 最终层，不表示 decoder 只有一个卷积层。它回答的是：在 encoder 完全冻结时，最终层特征能否被一个轻量空间 decoder 有效读出。
 
-正式 baseline 不要临时改变：
+正式 baseline 不允许临时改变：
 
-- `selected_timesteps`
-- `patch_size`
-- `num_classes`
-- fold 划分
+- PASTIS 月份窗口与子块方式
+- Galileo patch size
+- 输入缩放
+- 类别和 void 处理
 - decoder 容量
 - loss 权重
+- fold 划分
 
-如果为了排查 OOM 临时改小 `selected_timesteps` 或 decoder，请把结果标记为 debug，不要和正式 baseline 混在一起。
+OOM 排查时可以临时减小 batch size。batch size 只影响吞吐，不改变已经生成的缓存特征。
 
 ## 共享缓存
 
-公平比较 decoder 时，推荐生成一套“对比实验共享缓存”：
-
-```yaml
-encoder:
-  hidden_layers: [3, 6, 9, 12]
-```
-
-这套缓存会同时包含：
+decoder 对比统一使用：
 
 ```text
-features           # final-layer spatial feature grid
-features_by_layer  # layer 3/6/9/12 spatial feature grids
+configs/galileo_shared_cache.yaml
 ```
 
-缓存脚本默认不保存完整 token 序列 `hidden_state`，因为下游 cached decoder 训练不读取它，而且单样本可能额外占用约 90MB。只有调试 Galileo token 输出时才需要显式加 `--save-hidden-state`。
-
-single-layer DPT 只读取 `features`；multi-layer DPT 和 UPerNet-style decoder 读取 `features_by_layer`。这样三组实验可以共用同一批 encoder 前向结果，变量更集中在 decoder。
-
-项目里提供了三份 shared config：
+它一次保存：
 
 ```text
-configs/galileo_shared_cache.yaml              # 只用于生成共享缓存
-configs/galileo_single_layer_dpt_shared.yaml   # 用共享缓存训练 single-layer DPT
-configs/galileo_multi_layer_dpt_shared.yaml    # 用共享缓存训练 multi-layer DPT
+features           # Galileo final layer
+features_by_layer  # Galileo layers 3/6/9/12
 ```
 
-默认 baseline `configs/galileo_dpt.yaml` 保持 `hidden_layers: []`，用于单层 DPT 的最小主线；decoder 对比时优先使用上面这组三个 config，避免把 baseline 和对比实验混在一起。
-
-使用 `configs/galileo_shared_cache.yaml` 时，默认目录会自动带 hidden layer 后缀：
+默认目录：
 
 ```text
-data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_train/
-data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_val/
-data/cache/galileo-base-patch8/t24_patch8_hl3-6-9-12_test/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_train/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_val/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_test/
 ```
 
-如果手动指定 `--output-dir`，务必确认它不是旧的 `hidden_layers: []` 缓存；否则没有 `features_by_layer`，不能给 multi-layer DPT 或 UPerNet-style decoder 用。
-
-如果目录里已经有旧版 80MB 以上的 `.npz` 文件，说明它们保存了 `hidden_state`，建议删除该 split 的旧缓存后重新生成。
-
-## 运行前检查
-
-确认数据和权重存在：
+旧的以下缓存均不兼容：
 
 ```text
-data/PASTIS/metadata.geojson
-data/PASTIS/DATA_S2/S2_*.npy
-data/PASTIS/ANNOTATIONS/TARGET_*.npy
-
-pretrained/galileo-base-patch8/config.json
-pretrained/galileo-base-patch8/model.safetensors
-pretrained/galileo-base-patch8/processing_galileo.py
-pretrained/galileo-base-patch8/modeling_galileo.py
+t24_patch8_*
+t24_patch8_hl3-6-9-12_*
 ```
 
-环境检查：
+原因不只是目录名不同；旧缓存使用了不同的时序、空间切块、patch size、归一化和20类标签，不能通过重命名复用。
 
-```bash
-conda run -n presl python -B scripts/check_env.py --config configs/galileo_dpt.yaml --try-model
-```
-
-one-batch smoke test：
-
-```bash
-conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 1 --epochs 1 --max-train-batches 1 --max-val-batches 1 --no-amp
-```
-
-成功标准：
-
-- 没有 shape error。
-- 没有 CUDA OOM。
-- 输出 `train_loss`、`val_loss`、`val_miou`。
-- 写出对应 checkpoint。
-
-如果本地 8GB 显存不够完整跑 Galileo cache 或训练，优先本地做 smoke test，再交给更大显存机器运行完整缓存和训练。
-
-## Baseline 运行
-
-直接在线训练 baseline：
-
-```bash
-conda run -n presl python -B scripts/train.py --config configs/galileo_dpt.yaml --batch-size 1 --epochs 100 --no-amp
-```
-
-更推荐先缓存，再训练 decoder/head：
-
-```bash
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split train
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split val
-```
-
-默认 baseline 缓存目录：
+缓存文件使用 `patch_id + tile origin` 命名。例如：
 
 ```text
-data/cache/galileo-base-patch8/t24_patch8_train/
-data/cache/galileo-base-patch8/t24_patch8_val/
+10000_y0_x0.npz
+10000_y0_x64.npz
+10000_y64_x0.npz
+10000_y64_x64.npz
 ```
 
-训练 cached baseline：
+这保证一张原始 PASTIS patch 的四个子块不会互相覆盖。缓存还记录 `aggregation_counts`，可检查每个月由多少原始 Sentinel-2 观测组成；值为0表示该月使用了相邻月插值。
+
+## 运行顺序
+
+环境和协议测试：
 
 ```bash
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_dpt.yaml --batch-size 4 --epochs 100 --no-amp
+conda run -n presl python -B -m unittest discover -s tests -v
+conda run -n presl python -B scripts/check_env.py --config configs/galileo_shared_cache.yaml --try-model
 ```
 
-评估验证集：
+先做两样本缓存 smoke test：
 
 ```bash
-conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_dpt.yaml --checkpoint checkpoints/galileo_dpt_cached/best.pt --split val
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split val --max-samples 2 --output-dir data/cache/paper_input_smoke
 ```
 
-最终测试集评估：
-
-```bash
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_dpt.yaml --split test
-conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_dpt.yaml --checkpoint checkpoints/galileo_dpt_cached/best.pt --split test
-```
-
-需要记录：
-
-```text
-使用的 git commit
-使用的 config 文件
-GPU 型号和显存
-cache_features train/val/test 是否完成
-val_loss / val_miou / val per_class_iou
-test_loss / test_miou / test per_class_iou
-checkpoint 路径
-TensorBoard 日志路径
-```
-
-## Decoder 对比流程
-
-推荐顺序：
-
-```text
-1. single-layer DPT baseline
-2. multi-layer DPT
-3. UPerNet-style decoder
-```
-
-先生成共享缓存：
+检查通过后生成正式共享缓存：
 
 ```bash
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split train
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split val
 ```
 
-最终报告前再生成 test：
-
-```bash
-conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split test
-```
-
-用共享缓存训练一层 DPT baseline：
+训练 single-layer DPT：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_single_layer_dpt_shared.yaml
 ```
 
-用共享缓存训练 multi-layer DPT：
+训练 multi-layer DPT：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
 ```
 
-如果 decoder/head 训练 OOM，把 config 或命令里的 batch size 改为 `2` 或 `1`。这只影响训练吞吐，不改变缓存里的 Galileo features。
+模型和超参数固定后才生成 test：
 
-缓存阶段也会读取 config 里的 `data.batch_size` 和 `data.num_workers`。当 batch 内样本的 `T/H/W` 一致时，Galileo encoder 会真正批量前向；如果遇到形状不一致，会自动退回逐样本前向。8GB 显存建议共享缓存先用 `batch_size: 2`，OOM 再退回 `1`。
+```bash
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split test
+```
 
-## 对比方案
+最终评估示例：
 
-| 实验名 | Encoder | Cached features | Decoder | 目的 |
-| --- | --- | --- | --- | --- |
-| `galileo_single_layer_dpt` | frozen Galileo base patch8 | final `features` | single-layer DPT | 本阶段 baseline |
-| `galileo_multi_layer_dpt` | frozen Galileo base patch8 | `features_by_layer` from 3/6/9/12 | multi-layer DPT | 看多层特征是否有收益 |
-| `galileo_upernet` | frozen Galileo base patch8 | `features_by_layer` from 3/6/9/12 | UPerNet-style | 比较另一类 segmentation decoder |
+```bash
+conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_cached/best.pt --split test
+```
 
-为保证公平，三组实验应保持：
+## 记录要求
 
-- 相同 train/val/test fold。
-- 相同 loss。
-- 相同 optimizer 设置，除非专门做 optimizer 消融。
-- 相同训练轮数或相同 early-stopping 规则。
-- 相同 cached feature 版本。
-- test set 只在最后报告一次。
-
-推荐 baseline 结果命名：
+每组实验至少记录：
 
 ```text
-galileo_base_patch8_frozen_single_layer_dpt_t24_fold123
+git branch / commit
+config 文件
+cache 目录
+GPU 与显存
+seed
+最佳 epoch
+val_loss / val_mIoU / per-class IoU
+test_loss / test_mIoU / per-class IoU
+checkpoint 与 TensorBoard 路径
+```
+
+当前 `best.pt` 按最低 `val_loss` 保存。由于论文主要指标是 mIoU，正式批量实验应增加最高 `val_mIoU` checkpoint，并采用一致的 early-stopping 规则和多个 seed。
+
+## 对比矩阵
+
+| 实验 | Frozen encoder | 读取特征 | Decoder | 目的 |
+| --- | --- | --- | --- | --- |
+| single-layer DPT | Galileo base, patch4 | final `features` | single-layer DPT-style | baseline |
+| multi-layer DPT | 相同 | layers 3/6/9/12 | multi-layer fusion DPT-style | 检查多层特征收益 |
+| UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
+
+推荐结果名：
+
+```text
+galileo_base_frozen_single_layer_dpt_monthly12_tile64_patch4_fold123
 ```
 
 ## Multi-Layer DPT
 
-multi-layer DPT 的变量仍然是 decoder 侧如何使用特征。Galileo encoder 不变，只是额外读取若干中间层 hidden states：
+multi-layer DPT 不更换 encoder，也不重新生成另一套输入。它读取同一个共享缓存中的中间层：
 
 ```yaml
 encoder:
@@ -286,87 +221,38 @@ model:
   decoder: multi_layer_dpt
 ```
 
-含义：
-
 ```text
-Galileo layer 3/6/9/12 hidden states
-  -> 每层都聚合成 [B, D, 16, 16]
-  -> DPT-style multi-layer fusion decoder
-  -> [B, 20, 128, 128]
+Galileo layer 3/6/9/12
+  -> each [B, 768, 16, 16]
+  -> projection and progressive fusion
+  -> [B, 19, 64, 64]
 ```
 
-注意：这里不是换 encoder。encoder 权重、输入和前向过程不变；变化的是 decoder 能读取 final layer 还是读取多层 frozen hidden states。
-
-在 decoder 对比实验中，如果缓存是用 `hidden_layers: [3, 6, 9, 12]` 生成的，single-layer DPT 仍然可以只读取同一个 `.npz` 里的 `features` 字段，不需要重新缓存一份 `hidden_layers: []` 版本。
+single-layer DPT 使用同一 `.npz` 的 `features`；multi-layer DPT 使用 `features_by_layer`。二者不需要分别跑 encoder。
 
 ## UPerNet-Style Decoder
 
-老师说的 “upper net” 很可能是 **UPerNet**，不是普通英文里的 upper net。UPerNet 通常指 **Unified Perceptual Parsing Network**。
-
-UPerNet 是一种语义分割 decoder/head 设计，常见结构是：
+老师所说的 “upper net” 应理解为 **UPerNet（Unified Perceptual Parsing Network）**。典型结构是：
 
 ```text
 backbone multi-level features
   -> PPM / Pyramid Pooling Module
-  -> FPN-style top-down feature fusion
+  -> FPN top-down fusion
   -> segmentation head
 ```
 
-直观理解：
+在本项目中它仍然读取同一套 Galileo layer 3/6/9/12 缓存，不允许引入新 encoder。
 
-- DPT 更像 Transformer dense prediction 里的 reassemble + fusion decoder。
-- UPerNet 更像语义分割里常用的 “PPM + FPN” decoder。
-- PPM 负责在最高层特征上做多尺度上下文池化。
-- FPN 负责把不同层级特征融合起来。
+需要明确的限制：标准 UPerNet 通常接收 `1/4、1/8、1/16、1/32` 多分辨率 CNN 特征；Galileo 的不同 transformer layer 聚合后都是 `16x16`。因此本项目实现应称为 **UPerNet-style decoder**：复用 PPM 和 FPN 的多层融合思想，但输入不是标准多尺度金字塔。
 
-在本项目里，UPerNet 不应该引入新的 encoder。它应该读取同一套 cached Galileo hidden features：
-
-```yaml
-encoder:
-  hidden_layers: [3, 6, 9, 12]
-
-model:
-  decoder: upernet
-```
-
-推荐理解为：
-
-```text
-Galileo layer 3/6/9/12 hidden states
-  -> 每层聚合成 [B, D, 16, 16]
-  -> UPerNet-style PPM + FPN decoder
-  -> [B, 20, 128, 128]
-```
-
-一个重要限制：标准 UPerNet 通常接 CNN backbone 的多尺度特征，例如 `1/4, 1/8, 1/16, 1/32`。Galileo transformer 各层 hidden states 聚合后目前都是同一个 `16x16` 空间分辨率。因此本项目里的 UPerNet 更准确地说是 **UPerNet-style decoder**：复用 PPM 和 FPN 融合思想，但输入是 Galileo 多层同分辨率特征。论文或汇报里需要把这一点讲清楚。
-
-## UPerNet 代码落点
-
-后续实现 UPerNet 时，建议放在：
+后续代码位置：
 
 ```text
 models/decoders/upernet.py
-```
-
-并在这些位置接入：
-
-```text
 models/decoders/__init__.py
 models/model.py
 models/cached.py
-configs/galileo_dpt.yaml
+configs/galileo_upernet_shared.yaml
 ```
 
-建议新增 decoder 名称：
-
-```yaml
-model:
-  decoder: upernet
-```
-
-缓存流程不用变，但 UPerNet 需要多层特征，因此要先设置：
-
-```yaml
-encoder:
-  hidden_layers: [3, 6, 9, 12]
-```
+共享缓存流程无需变化。

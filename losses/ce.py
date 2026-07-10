@@ -11,4 +11,6 @@ def cross_entropy_loss(
 ) -> torch.Tensor:
     if ignore_index is None:
         return F.cross_entropy(logits, target)
+    if not torch.any(target != ignore_index):
+        return logits.sum() * 0.0
     return F.cross_entropy(logits, target, ignore_index=ignore_index)
