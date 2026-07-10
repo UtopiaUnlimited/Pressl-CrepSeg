@@ -8,6 +8,7 @@ numpy>=1.24.0
 pandas>=2.0.0
 geopandas>=0.14.0
 pyyaml>=6.0
+Pillow>=10.0.0
 
 # Segmentation models
 segmentation-models-pytorch>=0.4.0

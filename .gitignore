@@ -5,6 +5,7 @@ pretrained/
 .cache/
 logs/
 checkpoints/
+outputs/
 
 __pycache__/
 *.pyc
