@@ -206,11 +206,13 @@ multi-layer DPT：
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
 ```
 
-TensorBoard：
+TensorBoard（在项目根目录的另一个 PowerShell 终端运行；若已有旧服务，先在其终端按 `Ctrl+C`）：
 
-```bash
-tensorboard --logdir logs --reload_interval 5
+```powershell
+conda run -n presl tensorboard --logdir .\logs\galileo_single_layer_dpt_shared_paper_input_bs16_cached --port 6006 --reload_interval 1 --reload_multifile true --load_fast false
 ```
+
+浏览器访问 `http://localhost:6006`。`--reload_interval 1` 让后端每秒扫描一次新日志；网页通常按自身周期刷新，也可以点击右上角圆形刷新按钮。右上角的 `INACTIVE` 是未启用面板菜单，不表示自动刷新已停止。`train_cached.py` 会在配置中的 `log_dir` 后自动追加 `_cached`；更换实验名后，TensorBoard 路径也要同步更换，避免混合不同实验曲线。
 
 当前 checkpoint 仍按最低 `val_loss` 保存为 `best.pt`。正式论文结果还应同时保存最高 `val_mIoU` checkpoint 并运行多个 seed。
 
@@ -225,7 +227,7 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 评估 single-layer DPT：
 
 ```bash
-conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_cached/best.pt --split test
+conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_cached/best.pt --split test
 ```
 
 ## 实验原则
