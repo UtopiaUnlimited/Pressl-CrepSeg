@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from models.decoders import DPTMultiLayerDecoder, DPTSingleLayerDecoder
+from models.decoders import DPTMultiLayerDecoder, DPTSingleLayerDecoder, UPerNetDecoder
 
 
 class CachedFeatureSegmentation(nn.Module):
@@ -25,7 +25,10 @@ class CachedFeatureSegmentation(nn.Module):
             if features_by_layer is None:
                 raise ValueError("This cached decoder needs caches produced with encoder.hidden_layers.")
             features_by_layer = features_by_layer.to(device, non_blocking=True)
-            features = tuple(features_by_layer[:, layer_index] for layer_index in range(features_by_layer.shape[1]))
+            features = tuple(
+                features_by_layer[:, layer_index]
+                for layer_index in range(features_by_layer.shape[1])
+            )
             return self.decoder(features, target_size=target_size)
 
         features = batch["features"].to(device, non_blocking=True)
@@ -58,6 +61,17 @@ def build_cached_feature_model(
             decoder_channels=int(model_cfg.get("decoder_channels", 256)),
             decoder_blocks=int(model_cfg.get("decoder_blocks", 3)),
             fusion_blocks=int(model_cfg.get("fusion_blocks", 1)),
+            dropout=float(model_cfg.get("dropout", 0.0)),
+        )
+    elif decoder_name in {"upernet", "upernet_style", "upernet-style"}:
+        hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        decoder = UPerNetDecoder(
+            in_channels=int(in_channels),
+            num_classes=int(data_cfg["num_classes"]),
+            num_layers=int(num_layers or len(hidden_layers)),
+            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
+            ppm_channels=int(model_cfg.get("ppm_channels", 64)),
+            ppm_scales=tuple(model_cfg.get("ppm_scales", (1, 2, 3, 6))),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
     else:

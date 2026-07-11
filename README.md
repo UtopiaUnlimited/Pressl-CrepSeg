@@ -13,7 +13,7 @@ PASTIS Sentinel-2 time series
   -> 19-class semantic segmentation logits
 ```
 
-single-layer DPT 是当前 baseline。multi-layer DPT 和后续 UPerNet-style decoder 都必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
+single-layer DPT 是当前 baseline。multi-layer DPT 和 UPerNet-style decoder 都必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
 
 ## 当前实现
 
@@ -22,13 +22,10 @@ single-layer DPT 是当前 baseline。multi-layer DPT 和后续 UPerNet-style de
 - Galileo 论文 PASTIS split 与输入协议
 - single-layer DPT-style decoder
 - multi-layer DPT-style decoder
+- UPerNet-style decoder（PPM + FPN）
 - 多层 Galileo 特征共享缓存
 - cached feature 训练与评估
 - TensorBoard loss / val mIoU 日志
-
-尚未实现：
-
-- UPerNet-style decoder 代码
 
 详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。
 
@@ -111,8 +108,9 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_shared_cache.yaml` | 生成 layer 3/6/9/12 共享缓存 |
 | `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练 single-layer DPT |
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练 multi-layer DPT |
+| `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
 
-四份配置都固定：
+五份配置都固定：
 
 ```yaml
 data:
@@ -206,13 +204,19 @@ multi-layer DPT：
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
 ```
 
-TensorBoard（在项目根目录的另一个 PowerShell 终端运行；若已有旧服务，先在其终端按 `Ctrl+C`）：
+UPerNet-style decoder：
 
-```powershell
-conda run -n presl tensorboard --logdir .\logs\galileo_single_layer_dpt_shared_paper_input_bs16_cached --port 6006 --reload_interval 1 --reload_multifile true --load_fast false
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_shared.yaml
 ```
 
-浏览器访问 `http://localhost:6006`。`--reload_interval 1` 让后端每秒扫描一次新日志；网页通常按自身周期刷新，也可以点击右上角圆形刷新按钮。右上角的 `INACTIVE` 是未启用面板菜单，不表示自动刷新已停止。`train_cached.py` 会在配置中的 `log_dir` 后自动追加 `_cached`；更换实验名后，TensorBoard 路径也要同步更换，避免混合不同实验曲线。
+TensorBoard：
+
+```powershell
+conda run -n presl tensorboard --logdir logs
+```
+
+浏览器访问 `http://localhost:6006`。如果已经激活 `presl` 环境，也可以直接运行 `tensorboard --logdir logs`。
 
 当前 checkpoint 仍按最低 `val_loss` 保存为 `best.pt`。正式论文结果还应同时保存最高 `val_mIoU` checkpoint 并运行多个 seed。
 

@@ -10,7 +10,7 @@ PASTIS paper-aligned input
   -> 19-class semantic segmentation
 ```
 
-single-layer DPT 是 baseline；multi-layer DPT 和后续 UPerNet-style decoder 都围绕它做对比。
+single-layer DPT 是 baseline；multi-layer DPT 和 UPerNet-style decoder 都围绕它做对比。
 
 ## 固定实验条件
 
@@ -165,6 +165,12 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_si
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
 ```
 
+训练 UPerNet-style decoder：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_shared.yaml
+```
+
 模型和超参数固定后才生成 test：
 
 ```bash
@@ -245,7 +251,7 @@ backbone multi-level features
 
 需要明确的限制：标准 UPerNet 通常接收 `1/4、1/8、1/16、1/32` 多分辨率 CNN 特征；Galileo 的不同 transformer layer 聚合后都是 `16x16`。因此本项目实现应称为 **UPerNet-style decoder**：复用 PPM 和 FPN 的多层融合思想，但输入不是标准多尺度金字塔。
 
-后续代码位置：
+实现位置：
 
 ```text
 models/decoders/upernet.py
@@ -256,3 +262,5 @@ configs/galileo_upernet_shared.yaml
 ```
 
 共享缓存流程无需变化。
+
+当前实现对最深的 layer 12 特征执行 `1/2/3/6` 四级 PPM，对 layer 3/6/9 执行 lateral projection，再由深到浅完成 FPN top-down 融合。由于四层 Galileo 特征均为 `16x16`，FPN 在这里融合的是 transformer 深度层级，而不是 CNN 的空间分辨率层级。

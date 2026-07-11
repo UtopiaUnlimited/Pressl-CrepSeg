@@ -33,10 +33,10 @@ encoder:
   hidden_size: null
 
 model:
-  decoder: multi_layer_dpt
+  decoder: upernet
   decoder_channels: 256
-  decoder_blocks: 3
-  fusion_blocks: 1
+  ppm_channels: 64
+  ppm_scales: [1, 2, 3, 6]
   dropout: 0.1
 
 loss:
@@ -58,7 +58,7 @@ scheduler:
 train:
   epochs: 100
   amp: false
-  log_dir: logs/galileo_multi_layer_dpt_shared_paper_input_bs16
-  checkpoint_dir: checkpoints/galileo_multi_layer_dpt_shared_paper_input_bs16
+  log_dir: logs/galileo_upernet_shared_paper_input_bs16
+  checkpoint_dir: checkpoints/galileo_upernet_shared_paper_input_bs16
   save_best: true
   monitor: val_loss

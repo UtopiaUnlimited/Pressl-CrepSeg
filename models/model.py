@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from models.decoders import DPTMultiLayerDecoder, DPTSingleLayerDecoder
+from models.decoders import DPTMultiLayerDecoder, DPTSingleLayerDecoder, UPerNetDecoder
 from models.encoders import GalileoHFEncoder
 
 
@@ -65,6 +65,17 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
             decoder_channels=int(model_cfg.get("decoder_channels", 256)),
             decoder_blocks=int(model_cfg.get("decoder_blocks", 3)),
             fusion_blocks=int(model_cfg.get("fusion_blocks", 1)),
+            dropout=float(model_cfg.get("dropout", 0.0)),
+        )
+    elif decoder_name in {"upernet", "upernet_style", "upernet-style"}:
+        hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        decoder = UPerNetDecoder(
+            in_channels=int(hidden_size),
+            num_classes=int(data_cfg["num_classes"]),
+            num_layers=len(hidden_layers),
+            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
+            ppm_channels=int(model_cfg.get("ppm_channels", 64)),
+            ppm_scales=tuple(model_cfg.get("ppm_scales", (1, 2, 3, 6))),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
     else:
