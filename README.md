@@ -27,7 +27,7 @@ single-layer DPT 是当前 baseline。multi-layer DPT 和 UPerNet-style decoder 
 - cached feature 训练与评估
 - TensorBoard loss / val mIoU 日志
 
-详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。
+详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。Single-layer 与 multi-layer DPT 的首轮完整结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)。
 
 ## 数据与权重
 
