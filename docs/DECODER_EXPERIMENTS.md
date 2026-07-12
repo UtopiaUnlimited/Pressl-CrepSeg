@@ -10,7 +10,9 @@ PASTIS paper-aligned input
   -> 19-class semantic segmentation
 ```
 
-single-layer DPT 是 baseline；multi-layer DPT 和 UPerNet-style decoder 都围绕它做对比。
+当前已经完成的 `single_layer_dpt` 和 `multi_layer_dpt` 是历史配置名：前者实际为**最终层卷积 decoder**，后者实际为**多层同尺度融合 decoder**。二者用于建立受控 baseline，均不是 DPT 原论文的完整复现。
+
+组员正在实现的**多尺度 Galileo-DPT**才是当前 DPT 主方法：它需要将 layer 3/6/9/12 的同尺寸特征重组为多尺度金字塔，并进行深到浅渐进融合。其配置、参数量、结果和结论在实现与训练完成前保持待定。
 
 ## 固定实验条件
 
@@ -55,7 +57,7 @@ encoder:
 
 月度 raw-data 重建细节和官方公开协议边界见项目 [README](../README.md)。
 
-## Single-Layer DPT Baseline
+## 最终层卷积 Baseline（历史名：Single-Layer DPT）
 
 baseline 配置：
 
@@ -74,7 +76,7 @@ Galileo final hidden sequence
   -> [B, 19, 64, 64]
 ```
 
-这里“一层”表示 decoder 只读取 Galileo 最终层，不表示 decoder 只有一个卷积层。它回答的是：在 encoder 完全冻结时，最终层特征能否被一个轻量空间 decoder 有效读出。
+这里“一层”表示 decoder 只读取 Galileo 最终层，不表示 decoder 只有一个卷积层。它回答的是：在 encoder 完全冻结时，最终层特征能否被一个轻量空间 decoder 有效读出。该结构没有多层 reassemble 和渐进融合，因此科研表述中不再将它称为 DPT。
 
 正式 baseline 不允许临时改变：
 
@@ -153,13 +155,13 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split val
 ```
 
-训练 single-layer DPT：
+训练最终层卷积 baseline（沿用历史配置名）：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_single_layer_dpt_shared.yaml
 ```
 
-训练 multi-layer DPT：
+训练多层同尺度融合 baseline（沿用历史配置名）：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml
@@ -205,8 +207,9 @@ checkpoint 与 TensorBoard 路径
 
 | 实验 | Frozen encoder | 读取特征 | Decoder | 目的 |
 | --- | --- | --- | --- | --- |
-| single-layer DPT | Galileo base, patch4 | final `features` | single-layer DPT-style | baseline |
-| multi-layer DPT | 相同 | layers 3/6/9/12 | multi-layer fusion DPT-style | 检查多层特征收益 |
+| 最终层卷积 baseline | Galileo base, patch4 | final `features` | projection + residual conv + upsample | 检查空间细化读取能力 |
+| 多层同尺度融合 baseline | 相同 | layers 3/6/9/12，均为16×16 | projection + additive residual fusion | 检查跨层信息收益 |
+| 多尺度 Galileo-DPT | 相同 | layers 3/6/9/12，重组为多尺度 | reassemble + progressive fusion | 正在实现，结果待补 |
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
 
 推荐结果名：
@@ -215,9 +218,9 @@ checkpoint 与 TensorBoard 路径
 galileo_base_frozen_single_layer_dpt_monthly12_tile64_patch4_fold123
 ```
 
-## Multi-Layer DPT
+## 多层同尺度融合 Baseline（历史名：Multi-Layer DPT）
 
-multi-layer DPT 不更换 encoder，也不重新生成另一套输入。它读取同一个共享缓存中的中间层：
+该 baseline 不更换 encoder，也不重新生成另一套输入。它读取同一个共享缓存中的中间层：
 
 ```yaml
 encoder:
@@ -230,11 +233,43 @@ model:
 ```text
 Galileo layer 3/6/9/12
   -> each [B, 768, 16, 16]
-  -> projection and progressive fusion
+  -> independent projection
+  -> deep-to-shallow same-resolution additive fusion
   -> [B, 19, 64, 64]
 ```
 
-single-layer DPT 使用同一 `.npz` 的 `features`；multi-layer DPT 使用 `features_by_layer`。二者不需要分别跑 encoder。
+最终层 baseline 使用同一 `.npz` 的 `features`；多层同尺度 baseline 使用 `features_by_layer`。二者不需要分别跑 encoder。由于所有输入层在运行时都是 `16×16`，这里没有形成 DPT 原论文的多尺度特征金字塔。
+
+## 多尺度 Galileo-DPT（正在实现）
+
+目标结构：
+
+```text
+Galileo layers 3/6/9/12，each [B, 768, 16, 16]
+  -> independent projection / reassemble
+  -> [B, C, 64, 64]
+     [B, C, 32, 32]
+     [B, C, 16, 16]
+     [B, C,  8,  8]
+  -> deep-to-shallow progressive fusion
+  -> segmentation head
+  -> [B, 19, 64, 64]
+```
+
+该结构应继续读取现有共享缓存，不重新训练 Galileo，不改变 PASTIS 输入和 fold。由于 Galileo 的 token 结构与图像 ViT 不完全相同，本项目复用已经验证的结构化空间聚合，不机械复制 DPT 的 class-token readout；因此准确表述是“适配 Galileo 的多尺度 DPT”，而不是逐行复现原始代码。
+
+训练完成后补充：
+
+| 项目 | 数值 |
+| --- | --- |
+| 配置与 commit | 待补 |
+| 可训练参数 | 待补 |
+| 峰值显存 / 训练时间 | 待补 |
+| best val mIoU / epoch | 待补 |
+| fold5 test loss / mIoU | 待补 |
+| per-class IoU 与定性观察 | 待补 |
+
+在数据产生前，不预写“优于 baseline”或“多尺度融合有效”等结论。
 
 ## UPerNet-Style Decoder
 

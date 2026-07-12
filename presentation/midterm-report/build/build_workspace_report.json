@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "workspace": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+  "run": {
+    "status": "succeeded",
+    "returncode": 0,
+    "failed_step": "",
+    "step_returncodes": {
+      "qa": 0
+    }
+  },
+  "style_preset": "lab-report",
+  "renderer": {
+    "requested": "auto",
+    "used": "pptxgenjs"
+  },
+  "options": {
+    "qa": true,
+    "skip_render": true,
+    "visual_review": false,
+    "fail_on_visual_review_warnings": false,
+    "fail_on_visual_warnings": true,
+    "fail_on_design_warnings": true,
+    "strict_geometry": true,
+    "fast_first_pass": false,
+    "fail_on_whitespace_warnings": true,
+    "fail_on_planning_warnings": false,
+    "skip_preflight": false,
+    "strict_preflight": true,
+    "skip_asset_staging": false,
+    "allow_network_assets": false,
+    "allow_generated_images": false,
+    "plan_research_assets": false,
+    "scaffold_data_artifacts": false,
+    "data_paths": [],
+    "skip_data_artifact_run": false,
+    "overwrite_data_artifacts": false,
+    "auto_bind_artifacts": false,
+    "artifact_bind_variants": "image-sidebar,chart,lab-run-results",
+    "artifact_bind_mode": "all",
+    "strict_provenance": false,
+    "overwrite": true
+  },
+  "manifest": {
+    "build_dir": "build",
+    "outline": "outline.json",
+    "style_contract": "style_contract.json"
+  },
+  "source_files": {
+    "workspace_manifest": {
+      "path": "workspace.json",
+      "exists": true,
+      "size_bytes": 567,
+      "sha256": "168922a490960c5e4eb9354c002fdd43aae36d0fad84ffdd781208dbd2526239"
+    },
+    "style_contract": {
+      "path": "style_contract.json",
+      "exists": true,
+      "size_bytes": 9634,
+      "sha256": "47b8ea8fdbf4f01f940d4b21c8e895bc64d00b99114aa0c4f3a786478f9f07e0"
+    },
+    "deck_start_packet": {
+      "path": "deck_start_packet.json",
+      "exists": false
+    },
+    "intake_answers": {
+      "path": "intake_answers.json",
+      "exists": false
+    },
+    "intake_apply_report": {
+      "path": "intake_apply_report.json",
+      "exists": false
+    },
+    "design_contract": {
+      "path": "design_contract.json",
+      "exists": false
+    },
+    "design_contract_apply_report": {
+      "path": "design_contract_apply_report.json",
+      "exists": false
+    },
+    "style_extract_report": {
+      "path": "style_extract_report.json",
+      "exists": false
+    },
+    "style_extract_design_brief": {
+      "path": "style_extract_design_brief.json",
+      "exists": false
+    },
+    "style_fragment_apply_report": {
+      "path": "style_fragment_apply_report.json",
+      "exists": false
+    },
+    "data_analysis_handoff": {
+      "path": "data_analysis_handoff.json",
+      "exists": false
+    },
+    "data_analysis_handoff_apply_report": {
+      "path": "data_analysis_handoff_apply_report.json",
+      "exists": false
+    },
+    "data_analysis_handoff_selection": {
+      "path": "artifact_selections.scout.json",
+      "exists": false
+    },
+    "outline_authoring_handoff": {
+      "path": "outline_authoring_handoff.json",
+      "exists": false
+    },
+    "outline_authoring_handoff_apply_report": {
+      "path": "outline_authoring_handoff_apply_report.json",
+      "exists": false
+    },
+    "design_brief": {
+      "path": "design_brief.json",
+      "exists": true,
+      "size_bytes": 6115,
+      "sha256": "256edd7417b9feef499c676e962480c2fc6ab84105a1ef99abb1deb4107c3c88"
+    },
+    "content_plan": {
+      "path": "content_plan.json",
+      "exists": true,
+      "size_bytes": 3227,
+      "sha256": "6e2e764eccab9b6db124a68c3fe29793c529205b63e6f16db84b834af31894ee"
+    },
+    "evidence_plan": {
+      "path": "evidence_plan.json",
+      "exists": true,
+      "size_bytes": 2157,
+      "sha256": "33bc71f138b4760d20f3dab83e0d346507cd4f898cd604b8daea7fee65dbff09"
+    },
+    "asset_plan": {
+      "path": "asset_plan.json",
+      "exists": true,
+      "size_bytes": 345,
+      "sha256": "026a967f9976e6f9d674765764585ddfb2cedded8bf948f0d73aea7a8c06de04"
+    },
+    "outline_source": {
+      "path": "outline.json",
+      "exists": true,
+      "size_bytes": 13833,
+      "sha256": "c7c5212c4e23f4b29ff59c11870cc83d66f86317fe606c670aafae1afb967f8e"
+    },
+    "outline_used": {
+      "path": "build\\outline_resolved.json",
+      "exists": true,
+      "size_bytes": 78787,
+      "sha256": "050e988f16f9073b30a7a45b3813c88bfe1822a56e74c6e7baa331a3b307e894"
+    },
+    "artifact_manifest": {
+      "path": "assets\\artifacts_manifest.json",
+      "exists": false
+    },
+    "artifact_selection": {
+      "path": "artifact_selections.auto.json",
+      "exists": false
+    },
+    "artifact_manifest_apply_report": {
+      "path": "build\\artifact_manifest_apply.json",
+      "exists": false
+    }
+  },
+  "artifact_selection": {
+    "path": "artifact_selections.auto.json",
+    "exists": false
+  },
+  "artifact_context": {},
+  "data_analysis_handoff": {
+    "status": "none",
+    "applied": false,
+    "stale_apply": false,
+    "selection_count": 0,
+    "binding_count": 0,
+    "selection_binding_count": 0,
+    "bound_output_ids": [],
+    "slide_ids": [],
+    "variants": [],
+    "applied_bindings": false,
+    "script_edit_count": 0,
+    "artifact_rebuild_context": {
+      "present": false,
+      "applied": false,
+      "context_version": "",
+      "source": "",
+      "producer_path": "",
+      "artifact_manifest": "",
+      "analysis_summary": "",
+      "source_count": 0,
+      "output_count": 0,
+      "command_count": 0,
+      "commands": []
+    },
+    "artifact_contracts": {
+      "figure_export_contract_applied": false,
+      "figure_export_output_count": 0,
+      "artifact_registry_update_count": 0,
+      "asset_plan_update_counts": {}
+    },
+    "scout_analysis": {
+      "present": false,
+      "applied": false,
+      "persisted": false,
+      "schema": "",
+      "analysis_task_ids": [],
+      "computed_finding_ids": [],
+      "visual_recommendation_ids": [],
+      "target_slide_ids": [],
+      "variants": [],
+      "quality_flags": [],
+      "open_questions": [],
+      "recommended_workflow_mode": "",
+      "analysis_task_count": 0,
+      "computed_finding_count": 0,
+      "visual_recommendation_count": 0,
+      "outline_binding_count": 0,
+      "quality_flag_count": 0,
+      "open_question_count": 0
+    }
+  },
+  "quality_context": {},
+  "speed": {
+    "schema": "build_workspace_speed_v1",
+    "total_duration_ms": 3838,
+    "step_count": 6,
+    "steps": [
+      {
+        "step": "planning_validation",
+        "duration_ms": 167,
+        "status": "failed",
+        "returncode": 1,
+        "command": [
+          "D:\\Miniconda3\\envs\\llm\\python.exe",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\validate_planning.py",
+          "--workspace",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+          "--report",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\planning_validation.json"
+        ]
+      },
+      {
+        "step": "preflight",
+        "duration_ms": 227,
+        "status": "succeeded",
+        "returncode": 0,
+        "command": [
+          "D:\\Miniconda3\\envs\\llm\\python.exe",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\preflight.py",
+          "--outline",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_resolved.json",
+          "--asset-root",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+          "--design-brief",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\design_brief.json"
+        ]
+      },
+      {
+        "step": "asset_staging",
+        "duration_ms": 199,
+        "status": "succeeded",
+        "returncode": 0,
+        "command": [
+          "D:\\Miniconda3\\envs\\llm\\python.exe",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\asset_stage.py",
+          "--manifest",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\asset_plan.json",
+          "--output-dir",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\assets\\staged",
+          "--attribution-csv",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\assets\\attribution.csv"
+        ]
+      },
+      {
+        "step": "render_deck",
+        "duration_ms": 287,
+        "status": "succeeded",
+        "returncode": 0,
+        "command": [
+          "node",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\build_deck_pptxgenjs.js",
+          "--outline",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_resolved.json",
+          "--output",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\galileo.pptx",
+          "--style-preset",
+          "lab-report",
+          "--asset-root",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report"
+        ]
+      },
+      {
+        "step": "qa",
+        "duration_ms": 2738,
+        "status": "succeeded",
+        "returncode": 0,
+        "command": [
+          "D:\\Miniconda3\\envs\\llm\\python.exe",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\qa_gate.py",
+          "--input",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\galileo.pptx",
+          "--outdir",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa",
+          "--style-preset",
+          "lab-report",
+          "--strict-geometry",
+          "--skip-manual-review",
+          "--fail-on-visual-warnings",
+          "--fail-on-design-warnings",
+          "--outline",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_resolved.json",
+          "--design-brief",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\design_brief.json",
+          "--report",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa\\report.json",
+          "--skip-render",
+          "--fail-on-whitespace-warnings"
+        ]
+      },
+      {
+        "step": "verify_narration",
+        "duration_ms": 101,
+        "status": "succeeded",
+        "returncode": 0,
+        "command": [
+          "D:\\Miniconda3\\envs\\llm\\python.exe",
+          "C:\\Users\\ycy\\.codex\\skills\\presentation-skill\\scripts\\verify_narration.py",
+          "--workspace",
+          "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report"
+        ]
+      }
+    ],
+    "longest_step": {
+      "step": "qa",
+      "duration_ms": 2738
+    },
+    "renderer_used": "pptxgenjs",
+    "fast_first_pass": false,
+    "skip_render": true,
+    "visual_review": false
+  },
+  "outputs": {
+    "pptx": {
+      "path": "build\\galileo.pptx",
+      "exists": true,
+      "size_bytes": 398364,
+      "sha256": "639f9cdd3bd7c3bd16be0206dde58785ee33b00e82550f13322d99fc81aa64f2",
+      "normalized_sha256": "2202ecce3945cd933cc7b6c9554ed4d324463f1b6e589a8a3c4457421b7388af",
+      "normalized_sha256_algorithm": "office_package_normalized_v1"
+    },
+    "build_dir": "build",
+    "staged_manifest": {
+      "path": "assets\\staged\\staged_manifest.json",
+      "exists": true,
+      "size_bytes": 894,
+      "sha256": "5c9dd33d72b5eb663ff9e6b31f8c79961a80db01f5cb3892a31af827518eed16"
+    },
+    "attribution_csv": {
+      "path": "assets\\attribution.csv",
+      "exists": true,
+      "size_bytes": 89,
+      "sha256": "f22e870242a68e4516c464441a7e5a7d54e5680460f0409c2051407e25a7dde1"
+    },
+    "build_report": "build\\build_workspace_report.json"
+  },
+  "reports": {
+    "research_assets": {
+      "path": "",
+      "exists": false
+    },
+    "data_artifact_scaffold": {
+      "path": "",
+      "exists": false
+    },
+    "artifact_apply": {
+      "path": "",
+      "exists": false
+    },
+    "planning": {
+      "path": "build\\planning_validation.json",
+      "exists": true,
+      "counts": {
+        "error_count": 0,
+        "warning_count": 2
+      }
+    },
+    "preflight": {
+      "path": "build\\preflight.json",
+      "exists": true,
+      "counts": {
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "qa": {
+      "path": "build\\qa\\report.json",
+      "exists": true,
+      "counts": {
+        "overflow_count": 0,
+        "overlap_count": 0,
+        "geometry_error_count": 0,
+        "geometry_warning_count": 0,
+        "whitespace_warning_count": 0,
+        "design_error_count": 0,
+        "design_warning_count": 0,
+        "visual_warning_count": 0,
+        "visual_review_warning_count": 0
+      }
+    },
+    "verify_narration_log": {
+      "path": "",
+      "exists": false
+    }
+  },
+  "next_commands": {
+    "repeat_build": [
+      "python3",
+      "scripts/build_workspace.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--qa",
+      "--skip-render",
+      "--fail-on-whitespace-warnings",
+      "--strict-preflight",
+      "--overwrite"
+    ],
+    "planning_only": [
+      "python3",
+      "scripts/validate_planning.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--report",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\planning_validation.json"
+    ],
+    "qa_only": [
+      "python3",
+      "scripts/qa_gate.py",
+      "--input",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\galileo.pptx",
+      "--outdir",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa",
+      "--style-preset",
+      "lab-report",
+      "--strict-geometry",
+      "--skip-render",
+      "--outline",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_resolved.json",
+      "--design-brief",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\design_brief.json",
+      "--report",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa\\report.json"
+    ]
+  }
+}

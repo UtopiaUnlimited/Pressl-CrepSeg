@@ -1,0 +1,296 @@
+{
+  "workspace_version": 1,
+  "deck_title": "冻结 Galileo 表征上的作物语义分割解码器研究",
+  "deck_slug": "galileo",
+  "build": {
+    "style_preset": "lab-report",
+    "font_pair": null,
+    "palette_key": null,
+    "output_pptx": "build/galileo.pptx",
+    "qa_dir": "build/qa",
+    "qa_report": "build/qa/report.json"
+  },
+  "layout_rules": {
+    "alignment_first": true,
+    "zero_overlap_required": true,
+    "title_subtitle_stack_dynamic": true,
+    "footer_safe_region_required": true,
+    "cards_use_measured_text_fit": true
+  },
+  "preset_tokens": {
+    "name": "lab-report",
+    "palette": {
+      "bg_primary": "FFFFFF",
+      "bg_dark": "0B2545",
+      "surface": "FFFFFF",
+      "text_primary": "1B2838",
+      "text_muted": "4B5563",
+      "accent_primary": "0B2545",
+      "accent_secondary": "C9302C",
+      "line": "D1D5DB"
+    },
+    "typography": {
+      "title_max": 32,
+      "title_min": 22,
+      "section_max": 22,
+      "section_min": 15,
+      "body_max": 14,
+      "body_min": 10,
+      "caption_max": 11,
+      "caption_min": 9
+    },
+    "layout": {
+      "margin_x": 0.4,
+      "top_safe": 1.2,
+      "bottom_safe": 0.3,
+      "gutter": 0.24,
+      "rhythm": 0.22,
+      "rail_height": 0.04,
+      "radius_style": "rectangle",
+      "edge_tolerance": 0.05,
+      "gutter_tolerance": 0.05,
+      "max_density": 0.78,
+      "max_empty_ratio": 0.55
+    },
+    "allowed_layout_families": [
+      "card-grid",
+      "split-panel",
+      "timeline",
+      "closing-summary"
+    ]
+  },
+  "style_reference": {
+    "catalog_version": "style_reference_catalog_v1",
+    "reference_id": "ref-clean-assay-report",
+    "reference_name": "Clean Assay Report",
+    "source_status": "synthetic_original_publish_safe",
+    "style_dna": "Lab report source-first pages: specimen/run metadata, evidence objects, compact interpretation, and traceable refs.",
+    "style_metric_profile": {
+      "density_level": "high clean lab report",
+      "whitespace_ratio_target": 0.19,
+      "body_words_per_content_slide": [
+        36,
+        62
+      ],
+      "max_primary_objects": 4,
+      "visual_hierarchy": "run metadata, result table, figure panel, and refs stay traceable",
+      "evidence_object_mix": {
+        "chart": 0.22,
+        "table": 0.34,
+        "figure": 0.36,
+        "prose": 0.08
+      },
+      "source_burden": "very high; method, run, sample, source IDs, and refs must remain auditable",
+      "footer_posture": "source-line with bottom rule, refs text, and page number",
+      "artifact_bias": [
+        "lab-run-results table",
+        "scientific figure",
+        "editable references table"
+      ],
+      "readability_bias": [
+        "body 12-14 pt",
+        "caption 7.5-9 pt",
+        "split dense assay pages before shrinking text"
+      ],
+      "metric_profile_version": "style_reference_metric_profile_v1",
+      "style_preset": "lab-report",
+      "metric_signature": "8bab7de139941b70873231c8c7f6846e96272070e1be02f6357368c8294e2119"
+    },
+    "layout_playbook_version": "style_reference_layout_playbook_v1",
+    "preferred_variants": [
+      "title",
+      "lab-run-results",
+      "scientific-figure",
+      "comparison-2col",
+      "chart",
+      "table",
+      "image-sidebar",
+      "standard"
+    ],
+    "starter_outline_version": "style_reference_starter_outline_v1"
+  },
+  "style_atom_context": {
+    "schema_version": "normal_workflow_atom_context_v1",
+    "route_id": "atom_composition",
+    "status": "seeded_optional",
+    "strict_json_instruction": "Use strict JSON only. Return no markdown, comments, or prose.",
+    "target_family": "arctic-minimal",
+    "selection_basis": "style_reference_mix_plan.primary",
+    "slide_count": 8,
+    "topic_terms": [
+      "galileo",
+      "表征上的作物语义分割解码器研究"
+    ],
+    "preferred_variants": [
+      "title",
+      "section",
+      "flow",
+      "chart",
+      "table",
+      "comparison-2col",
+      "scientific-figure"
+    ],
+    "narrative_arc": [
+      "title",
+      "context",
+      "architecture",
+      "spec",
+      "tradeoff",
+      "conclusion"
+    ],
+    "deck_style_delta": {
+      "chart_treatment": "sparse-wide",
+      "table_treatment": "journal-grid",
+      "header_mode": "bar",
+      "footer_mode": "source-line",
+      "visual_density": "low",
+      "decorative_signals": [
+        "wide-margin-quiet-page",
+        "thin-frame-around-canvas",
+        "thin-rule-under-title"
+      ],
+      "arc_beats": [
+        "title",
+        "context",
+        "architecture",
+        "spec",
+        "tradeoff",
+        "conclusion"
+      ],
+      "style_seed_families": [
+        "arctic-minimal"
+      ],
+      "composition_mode": "deterministic-fallback"
+    },
+    "design_brief_delta": {
+      "palette_signals": [
+        "cool-gray"
+      ],
+      "typography_signals": [
+        "quiet-technical-labels"
+      ],
+      "layout_signals": [
+        "architecture-frame",
+        "sparse-technical-grid"
+      ],
+      "rhythm_signature": "thin-rules-quiet-grid",
+      "style_atom_composition": {
+        "schema_version": "style_atom_composition_v1",
+        "target_family": "arctic-minimal",
+        "source_families": [
+          "arctic-minimal"
+        ],
+        "composition_mode": "deterministic-fallback",
+        "topic_terms": [
+          "galileo",
+          "表征上的作物语义分割解码器研究"
+        ],
+        "palette": "palette:cool-gray",
+        "typography": "typography:quiet-technical-labels",
+        "layout_motifs": [
+          "layout_motif:architecture-frame",
+          "layout_motif:sparse-technical-grid"
+        ],
+        "chart_treatment": "chart_treatment:sparse-wide",
+        "table_treatment": "table_treatment:journal-grid",
+        "header_treatment": "header_treatment:bar",
+        "footer_treatment": "footer_treatment:source-line",
+        "decorative_motifs": [
+          "decorative_motif:wide-margin-quiet-page",
+          "decorative_motif:thin-frame-around-canvas",
+          "decorative_motif:thin-rule-under-title"
+        ],
+        "density": "density:low",
+        "arc_beats": [
+          "arc_beat:title",
+          "arc_beat:context",
+          "arc_beat:architecture",
+          "arc_beat:spec",
+          "arc_beat:tradeoff",
+          "arc_beat:conclusion"
+        ],
+        "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+        "preferred_variants": [
+          "title",
+          "section",
+          "flow",
+          "chart",
+          "table",
+          "comparison-2col",
+          "scientific-figure"
+        ],
+        "artifact_density": 0.7
+      }
+    },
+    "style_atom_composition": {
+      "schema_version": "style_atom_composition_v1",
+      "target_family": "arctic-minimal",
+      "source_families": [
+        "arctic-minimal"
+      ],
+      "composition_mode": "deterministic-fallback",
+      "topic_terms": [
+        "galileo",
+        "表征上的作物语义分割解码器研究"
+      ],
+      "palette": "palette:cool-gray",
+      "typography": "typography:quiet-technical-labels",
+      "layout_motifs": [
+        "layout_motif:architecture-frame",
+        "layout_motif:sparse-technical-grid"
+      ],
+      "chart_treatment": "chart_treatment:sparse-wide",
+      "table_treatment": "table_treatment:journal-grid",
+      "header_treatment": "header_treatment:bar",
+      "footer_treatment": "footer_treatment:source-line",
+      "decorative_motifs": [
+        "decorative_motif:wide-margin-quiet-page",
+        "decorative_motif:thin-frame-around-canvas",
+        "decorative_motif:thin-rule-under-title"
+      ],
+      "density": "density:low",
+      "arc_beats": [
+        "arc_beat:title",
+        "arc_beat:context",
+        "arc_beat:architecture",
+        "arc_beat:spec",
+        "arc_beat:tradeoff",
+        "arc_beat:conclusion"
+      ],
+      "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+      "preferred_variants": [
+        "title",
+        "section",
+        "flow",
+        "chart",
+        "table",
+        "comparison-2col",
+        "scientific-figure"
+      ],
+      "artifact_density": 0.7
+    },
+    "normal_workflow_contract": {
+      "decision_rule": "Treat this as a first-class optional route. Accept it when the atom choices fit the topic, refine it by returning the strict JSON atom shape, or skip it with a recorded reason.",
+      "persist_when_used": [
+        "design_contract.json:choice_resolution.atom_composition",
+        "design_contract.json:style_system.style_atom_composition",
+        "design_brief.json:style_atom_composition",
+        "design_brief.json:style_system.style_atom_preferred_variants",
+        "design_brief.json:style_system.style_atom_narrative_arc",
+        "outline.json:deck_style supported fields from deck_style_delta",
+        "content_plan.json:narrative_arc or slide_plan variants where topic-fit"
+      ],
+      "do_not_force": [
+        "Do not use every preferred variant just because it appears in the atom packet.",
+        "Do not override explicit user style, brand, source, or accessibility constraints.",
+        "Do not copy external slide geometry; atoms are descriptor-only grammar signals."
+      ]
+    },
+    "prompt_packet_summary": {
+      "schema_version": null,
+      "target_family": null,
+      "related_families": null,
+      "candidate_type_count": 0
+    }
+  }
+}

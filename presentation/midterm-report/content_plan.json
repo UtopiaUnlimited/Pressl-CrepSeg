@@ -1,0 +1,28 @@
+{
+  "topic": "冻结 Galileo 表征上的 PASTIS 作物语义分割解码器研究",
+  "audience": "导师、课题组教师与同学",
+  "objective": "用阶段证据说明 decoder 研究的合理性、当前边界和下一步决策",
+  "thesis": "空间 decoder 对冻结 Galileo 表征有初步收益，多层特征呈微弱正向信号，但当前绝对性能与实验强度不足以形成最终结论。",
+  "narrative_arc": [
+    {"act": "问题与依据", "purpose": "说明为什么研究 decoder，而非只追求跑通", "slides": ["s1", "s2", "s3", "s4"]},
+    {"act": "方法与控制", "purpose": "展示输入、缓存和 decoder 公平比较链路", "slides": ["s5", "s6", "s7", "s8"]},
+    {"act": "证据与诊断", "purpose": "报告结果，同时主动界定证据强度", "slides": ["s9", "s10", "s11"]},
+    {"act": "讨论与计划", "purpose": "让老师参与决定研究深度", "slides": ["s12", "s13", "s14"]}
+  ],
+  "slide_plan": [
+    {"slide_id": "s1", "role": "title", "message": "研究对象是冻结 Galileo 上的 decoder，而不是 SOTA 宣称", "variant": "title", "visual_strategy": "轻量遥感网格封面"},
+    {"slide_id": "s2", "role": "question", "message": "一个假设、两个研究问题", "variant": "comparison-2col", "visual_strategy": "瓶颈与假设对照"},
+    {"slide_id": "s3", "role": "context", "message": "PASTIS 的数据、类别和指标定义", "variant": "stats", "visual_strategy": "四个可编辑统计量"},
+    {"slide_id": "s4", "role": "evidence", "message": "四篇论文共同支持研究链条", "variant": "table", "visual_strategy": "三列表格"},
+    {"slide_id": "s5", "role": "method", "message": "固定 encoder，只比较 decoder", "variant": "timeline", "visual_strategy": "四阶段可编辑流程"},
+    {"slide_id": "s6", "role": "method", "message": "输入和 token 聚合已经修正", "variant": "timeline", "visual_strategy": "shape 演进链"},
+    {"slide_id": "s7", "role": "comparison", "message": "三条 decoder 路线及状态", "variant": "table", "visual_strategy": "实验矩阵"},
+    {"slide_id": "s8", "role": "evidence", "message": "共同训练条件与容量差异", "variant": "lab-run-results", "visual_strategy": "双表结果页"},
+    {"slide_id": "s9", "role": "result", "message": "46.32% 是阶段结果，不是高性能", "variant": "chart", "visual_strategy": "原生柱状图 + 三个事实"},
+    {"slide_id": "s10", "role": "diagnosis", "message": "过拟合和 checkpoint 规则错位", "variant": "chart", "visual_strategy": "峰值与末轮对比图"},
+    {"slide_id": "s11", "role": "boundary", "message": "成果和不能下结论的部分并列", "variant": "comparison-2col", "visual_strategy": "证据边界对照"},
+    {"slide_id": "s12", "role": "decision", "message": "三条未来研究尺度由老师讨论", "variant": "table", "visual_strategy": "价值与风险矩阵"},
+    {"slide_id": "s13", "role": "plan", "message": "先补证据，再扩研究边界", "variant": "timeline", "visual_strategy": "近期—中期—进阶"},
+    {"slide_id": "s14", "role": "references", "message": "来源可追溯", "variant": "table", "visual_strategy": "可编辑参考文献表"}
+  ]
+}

@@ -9,25 +9,31 @@ PASTIS Sentinel-2 time series
   -> Galileo 论文输入协议
   -> frozen Galileo encoder
   -> shared cached features
-  -> single-layer DPT / multi-layer DPT / UPerNet-style decoder
+  -> final-layer conv baseline / same-resolution multi-layer baseline
+  -> multi-scale Galileo-DPT / UPerNet-style decoder
   -> 19-class semantic segmentation logits
 ```
 
-single-layer DPT 是当前 baseline。multi-layer DPT 和 UPerNet-style decoder 都必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
+现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。组员正在实现的多尺度 Galileo-DPT 才包含多尺度 reassemble 与渐进融合。所有 decoder 必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
 
 ## 当前实现
 
 已经支持：
 
 - Galileo 论文 PASTIS split 与输入协议
-- single-layer DPT-style decoder
-- multi-layer DPT-style decoder
+- 最终层卷积 decoder（历史配置名 `single_layer_dpt`）
+- 多层同尺度融合 decoder（历史配置名 `multi_layer_dpt`）
 - UPerNet-style decoder（PPM + FPN）
 - 多层 Galileo 特征共享缓存
 - cached feature 训练与评估
 - TensorBoard loss / val mIoU 日志
 
-详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。Single-layer 与 multi-layer DPT 的首轮完整结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)。
+正在推进：
+
+- 多尺度 Galileo-DPT：layer 3/6/9/12 多尺度重组与深到浅渐进融合
+- 其参数量、训练结果和研究结论待实现完成后补充
+
+详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。两个既有 baseline 的首轮完整结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)。
 
 ## 数据与权重
 
@@ -104,10 +110,10 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 
 | 配置 | 用途 |
 | --- | --- |
-| `configs/galileo_dpt.yaml` | 最小 single-layer DPT baseline，`hidden_layers: []` |
+| `configs/galileo_dpt.yaml` | 最终层卷积 baseline 的旧配置，`hidden_layers: []` |
 | `configs/galileo_shared_cache.yaml` | 生成 layer 3/6/9/12 共享缓存 |
-| `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练 single-layer DPT |
-| `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练 multi-layer DPT |
+| `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练最终层卷积 baseline |
+| `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
 
 五份配置都固定：
@@ -192,13 +198,13 @@ dates / months / aggregation_counts
 
 ## 训练 Decoder
 
-single-layer DPT baseline：
+最终层卷积 baseline（历史配置名）：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_single_layer_dpt_shared.yaml
 ```
 
-multi-layer DPT：
+多层同尺度融合 baseline（历史配置名）：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_shared.yaml

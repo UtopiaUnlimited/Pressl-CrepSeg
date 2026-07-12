@@ -1,0 +1,439 @@
+{
+  "input": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\galileo.pptx",
+  "outline": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_resolved.json",
+  "outdir": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa\\visual_review",
+  "renders_dir": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\qa\\renders",
+  "render_status": "Error: Required binary not found in PATH: soffice\n",
+  "rendered_slide_count": 0,
+  "contact_sheet": "",
+  "warning_count": 1,
+  "info_count": 46,
+  "issue_count": 47,
+  "issues": [
+    {
+      "slide": 4,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 9.0pt.",
+      "shape_id": "shape-3",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 9.0
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-5",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-7",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-10",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-12",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-15",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-17",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-20",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 5,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-22",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-7",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-9",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-12",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-14",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-17",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-19",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-22",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 6,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-24",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 7,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 9.0pt.",
+      "shape_id": "shape-3",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 9.0
+    },
+    {
+      "slide": 9,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-9",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-10",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-11",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 9,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-14",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-15",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-16",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 9,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-19",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-20",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 9,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-21",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 10,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-7",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-8",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-9",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 10,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-12",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-13",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-14",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 10,
+      "type": "text_box_tight",
+      "severity": "info",
+      "message": "Estimated text height uses 89% of its box.",
+      "shape_id": "shape-17",
+      "suggestion": "Check the rendered slide for clipping or awkward wrap.",
+      "estimated_height_in": 0.27,
+      "box_height_in": 0.3
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.2pt.",
+      "shape_id": "shape-18",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.2
+    },
+    {
+      "slide": 10,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 7.2pt.",
+      "shape_id": "shape-19",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 7.2
+    },
+    {
+      "slide": 12,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 9.0pt.",
+      "shape_id": "shape-3",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 9.0
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-4",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-6",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-9",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-11",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.0pt.",
+      "shape_id": "shape-14",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.0
+    },
+    {
+      "slide": 13,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 8.8pt.",
+      "shape_id": "shape-16",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 8.8
+    },
+    {
+      "slide": 14,
+      "type": "body_font_small",
+      "severity": "info",
+      "message": "Body-like text is 9.0pt.",
+      "shape_id": "shape-3",
+      "suggestion": "Check readability; use larger text or split dense content if this is not a table/caption.",
+      "font_pt": 9.0
+    },
+    {
+      "slide": 0,
+      "type": "source_image_absent",
+      "severity": "info",
+      "message": "No content slide uses a photographic/source-backed image or figure.",
+      "suggestion": "For public-topic decks, consider one image-sidebar or scientific-figure slide with attribution rather than relying only on cards, tables, or synthetic charts."
+    },
+    {
+      "slide": 0,
+      "type": "icon_system_absent",
+      "severity": "info",
+      "message": "Several card-family slides are present but none use assets.icons.",
+      "suggestion": "Use react-icons slugs on conceptual cards/timelines when icons would clarify categories."
+    },
+    {
+      "slide": 0,
+      "type": "render_unavailable",
+      "severity": "warning",
+      "message": "Slides could not be rendered for visual contact-sheet review.",
+      "suggestion": "Install LibreOffice/Poppler or rerun with a valid --renders-dir.",
+      "render_output": "Error: Required binary not found in PATH: soffice\n"
+    }
+  ],
+  "passed": false
+}

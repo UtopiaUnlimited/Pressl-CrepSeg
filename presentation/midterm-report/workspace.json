@@ -1,0 +1,16 @@
+{
+  "workspace_version": 1,
+  "deck_title": "\u51bb\u7ed3 Galileo \u8868\u5f81\u4e0a\u7684\u4f5c\u7269\u8bed\u4e49\u5206\u5272\u89e3\u7801\u5668\u7814\u7a76",
+  "deck_slug": "galileo",
+  "style_contract": "style_contract.json",
+  "content_plan": "content_plan.json",
+  "design_brief": "design_brief.json",
+  "evidence_plan": "evidence_plan.json",
+  "outline": "outline.json",
+  "asset_plan": "asset_plan.json",
+  "notes": "notes.md",
+  "assets_dir": "assets",
+  "staged_assets_dir": "assets/staged",
+  "build_dir": "build",
+  "reference_pptx": null
+}

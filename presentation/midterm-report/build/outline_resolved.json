@@ -1,0 +1,1415 @@
+{
+  "title": "\u51bb\u7ed3 Galileo \u8868\u5f81\u4e0a\u7684\u4f5c\u7269\u8bed\u4e49\u5206\u5272\u89e3\u7801\u5668\u7814\u7a76",
+  "subtitle": "PASTIS \u4e2d\u671f\u6c47\u62a5",
+  "deck_style": {
+    "style_seed": "galileo-pastis-midterm",
+    "header_variants": [
+      "left-accent",
+      "split-rule",
+      "side-rail",
+      "plain"
+    ],
+    "header_variant": "auto",
+    "title_layout": "light-atlas",
+    "timeline_mode": "bands",
+    "chart_treatment": "facts-right",
+    "table_treatment": "compact-ledger",
+    "summary_callout_mode": "lab-box",
+    "footer_mode": "source-line",
+    "font_pair": "system_clean_v1",
+    "visual_density": "medium",
+    "emoji_mode": "none",
+    "research_visual_mode": false,
+    "header_mode": "lab-clean",
+    "footer_page_numbers": true,
+    "title_motif": "network"
+  },
+  "compliance": {
+    "require_attribution": false,
+    "auto_image_sources": false
+  },
+  "slides": [
+    {
+      "slide_id": "s1",
+      "type": "title",
+      "kicker": "RESEARCH MIDTERM",
+      "title": "\u51bb\u7ed3 Galileo \u8868\u5f81\u4e0a\u7684\n\u4f5c\u7269\u8bed\u4e49\u5206\u5272\u89e3\u7801\u5668\u7814\u7a76",
+      "subtitle": "PASTIS \u4e2d\u671f\u6c47\u62a5\uff5c\u56fa\u5b9a\u9065\u611f\u9884\u8bad\u7ec3\u7f16\u7801\u5668\uff0c\u6bd4\u8f83\u50cf\u7d20\u7ea7\u89e3\u7801\u65b9\u5f0f",
+      "chips": [
+        "PASTIS",
+        "Galileo",
+        "Decoder Study"
+      ]
+    },
+    {
+      "slide_id": "s2",
+      "type": "content",
+      "variant": "comparison-2col",
+      "slide_intent": "message",
+      "visual_intent": "comparison",
+      "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+      "subtitle": "\u4ece\u201c\u8dd1\u901a\u6a21\u578b\u201d\u8f6c\u5411\u53ef\u68c0\u9a8c\u7684 decoder \u5047\u8bbe",
+      "left": {
+        "title": "\u73b0\u5b9e\u74f6\u9888",
+        "body": [
+          "\u50cf\u7d20\u7ea7\u6807\u6ce8\u6602\u8d35\uff0c\u9065\u611f\u9884\u8bad\u7ec3\u5177\u6709\u73b0\u5b9e\u4ef7\u503c",
+          "Transformer token \u4e0d\u80fd\u76f4\u63a5\u7b49\u540c\u4e8e\u5206\u5272\u56fe",
+          "\u6700\u7ec8\u5c42\u8bed\u4e49\u5f3a\uff0c\u4f46\u5c40\u90e8\u8fb9\u754c\u53ef\u80fd\u4e0d\u8db3"
+        ]
+      },
+      "right": {
+        "title": "\u6838\u5fc3\u5047\u8bbe",
+        "body": [
+          "Galileo \u51bb\u7ed3\u8868\u5f81\u5305\u542b\u53ef\u8fc1\u79fb\u7684\u4f5c\u7269\u4fe1\u606f",
+          "\u7a7a\u95f4\u7ec6\u5316 decoder \u53ef\u6539\u5584\u7ebf\u6027\u8bfb\u53d6",
+          "\u8de8\u5c42\u878d\u5408\u53ef\u80fd\u8865\u5145\u5c40\u90e8\u7ec6\u8282\u4e0e\u6df1\u5c42\u8bed\u4e49"
+        ]
+      },
+      "verdict": "RQ1\uff1a\u7a7a\u95f4 decoder \u662f\u5426\u6539\u5584 linear probe\uff1f\u3000RQ2\uff1a\u591a\u5c42\u7279\u5f81\u662f\u5426\u4f18\u4e8e\u6700\u7ec8\u5c42\uff1f",
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "comparison",
+          "source_variant": "comparison-2col",
+          "resolved_variant": "comparison-2col",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+          "content_recipe_primary_variants": [
+            "comparison-2col",
+            "split",
+            "matrix"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-comparison-frame",
+          "content_recipe_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "content_recipe_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d",
+          "treatment_archetype_id": "clean-assay-report-comparison-frame",
+          "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s3",
+      "type": "content",
+      "variant": "stats",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+      "subtitle": "18 \u79cd\u4f5c\u7269 + \u80cc\u666f\uff1bvoid \u50cf\u7d20\u4e0d\u53c2\u4e0e\u8bad\u7ec3\u4e0e\u8bc4\u4ef7",
+      "facts": [
+        {
+          "value": "2,433",
+          "label": "\u539f\u59cb\u7a7a\u95f4 patch",
+          "detail": "\u6bcf\u4e2a 128\u00d7128\uff0c10 m/px",
+          "accent": "accent_secondary"
+        },
+        {
+          "value": "10",
+          "label": "Sentinel-2 \u6ce2\u6bb5",
+          "detail": "\u591a\u5149\u8c31\u65f6\u95f4\u5e8f\u5217"
+        },
+        {
+          "value": "19",
+          "label": "\u6709\u6548\u8bed\u4e49\u7c7b\u522b",
+          "detail": "\u80cc\u666f + 18 \u79cd\u4f5c\u7269",
+          "accent": "accent_secondary"
+        },
+        {
+          "value": "5",
+          "label": "\u5b98\u65b9 folds",
+          "detail": "\u5f53\u524d\u4f7f\u7528 1/2/3 \u2192 4 \u2192 5"
+        }
+      ],
+      "bullets": [
+        "\u4e3b\u8981\u6307\u6807\uff1amIoU \u4e0e per-class IoU",
+        "\u539f\u59cb label 19 \u4e3a void\uff0c\u6620\u5c04\u4e3a -1 \u5e76\u5ffd\u7565"
+      ],
+      "sources": [
+        "[PASTIS21]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "dashboard",
+          "source_variant": "stats",
+          "resolved_variant": "stats",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "dashboard::clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::lab-run-results|stats::primary metric|supporting metric|state/threshold|owner or implication::{'value': '24', 'label': 'Samples', 'detail': 'synthetic run'}|{'value': '2', 'label': 'Review calls', 'detail': 'borderline'}::{'value': '24', 'label': 'samples', 'context': 'Use run metadata, not decorative lab icons.'}",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "stats"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-dashboard-state-board",
+          "content_recipe_archetype_signature": "clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::lab-run-results|stats::Run dashboard: samples, controls, failures, borderline calls.",
+          "content_recipe_archetype_semantic_signature": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd",
+          "treatment_archetype_id": "clean-assay-report-dashboard-state-board",
+          "treatment_archetype_signature": "clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::lab-run-results|stats::Run dashboard: samples, controls, failures, borderline calls.",
+          "treatment_archetype_semantic_signature": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s4",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+      "table": {
+        "headers": [
+          "\u6587\u732e",
+          "\u5173\u952e\u7ed3\u8bba",
+          "\u5bf9\u672c\u9879\u76ee\u7684\u4f5c\u7528"
+        ],
+        "rows": [
+          [
+            "PASTIS / U-TAE",
+            "\u591a\u65f6\u76f8\u663e\u8457\u4f18\u4e8e\u5355\u65f6\u76f8",
+            "\u5b9a\u4e49\u4efb\u52a1\u4e0e\u65f6\u95f4\u5efa\u6a21\u9700\u6c42"
+          ],
+          [
+            "Seasonal Contrast",
+            "\u9065\u611f\u57df\u5185 SSL \u66f4\u9002\u5408\u8fc1\u79fb",
+            "\u652f\u6301\u9884\u8bad\u7ec3\u8868\u5f81\u8def\u7ebf"
+          ],
+          [
+            "Galileo",
+            "\u5168\u5c40 + \u5c40\u90e8\u76ee\u6807\u5b66\u4e60\u9065\u611f\u8868\u5f81",
+            "\u63d0\u4f9b\u51bb\u7ed3\u591a\u5c42 token \u7279\u5f81"
+          ],
+          [
+            "DPT",
+            "\u591a\u5c42 token \u91cd\u7ec4\u5e76\u6e10\u8fdb\u878d\u5408",
+            "\u6307\u5bfc decoder \u4e0e\u8de8\u5c42\u5b9e\u9a8c"
+          ]
+        ],
+        "column_weights": [
+          1.2,
+          2.0,
+          2.2
+        ],
+        "caption": "\u6587\u732e\u7ed9\u51fa\u7814\u7a76\u52a8\u673a\uff1b\u672c\u9879\u76ee\u4ecd\u9700\u901a\u8fc7\u53d7\u63a7\u5b9e\u9a8c\u68c0\u9a8c\u5177\u4f53\u5047\u8bbe\u3002"
+      },
+      "sources": [
+        "[PASTIS21] [SeCo21] [Galileo25] [DPT21]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-table-ledger",
+          "content_recipe_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "content_recipe_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s5",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "process",
+      "visual_intent": "timeline",
+      "title": "\u603b\u4f53\u6280\u672f\u8def\u7ebf\uff1a\u56fa\u5b9a encoder\uff0c\u53ea\u6bd4\u8f83 decoder",
+      "subtitle": "\u5171\u4eab\u8f93\u5165\u4e0e\u7f13\u5b58\uff0c\u907f\u514d\u628a\u534f\u8bae\u53d8\u5316\u8bef\u8ba4\u4e3a\u7ed3\u6784\u6536\u76ca",
+      "milestones": [
+        {
+          "label": "01",
+          "title": "PASTIS \u8f93\u5165",
+          "body": "12 \u6708 \u00d7 10 \u6ce2\u6bb5 \u00d7 64\u00d764"
+        },
+        {
+          "label": "02",
+          "title": "\u51bb\u7ed3 Galileo",
+          "body": "ViT-Base\uff1bpatch size 4"
+        },
+        {
+          "label": "03",
+          "title": "\u5171\u4eab\u7f13\u5b58",
+          "body": "final + layers 3/6/9/12"
+        },
+        {
+          "label": "04",
+          "title": "Decoder \u5bf9\u6bd4",
+          "body": "DPT / UPerNet \u2192 19 \u7c7b"
+        }
+      ],
+      "message": "\u5b9e\u9a8c\u539f\u5219\uff1a\u8f93\u5165\u3001encoder\u3001loss \u4e0e\u8bc4\u6d4b\u53e3\u5f84\u56fa\u5b9a\uff1b\u53d8\u91cf\u96c6\u4e2d\u5728 decoder\u3002",
+      "sources": [
+        "[ProjectProtocol]"
+      ],
+      "resolved_treatments": {
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s6",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "process",
+      "visual_intent": "timeline",
+      "title": "\u8f93\u5165\u534f\u8bae\u4e0e\u5173\u952e\u5de5\u7a0b\u4fee\u6b63",
+      "subtitle": "\u4ece\u539f\u59cb\u4e0d\u89c4\u5219\u65f6\u5e8f\u5230 Galileo \u53ef\u590d\u73b0\u7a7a\u95f4\u7279\u5f81",
+      "milestones": [
+        {
+          "label": "T\u00d710\u00d7128\u00b2",
+          "title": "\u539f\u59cb PASTIS",
+          "body": "\u4fdd\u7559\u539f\u751f 10 \u6ce2\u6bb5"
+        },
+        {
+          "label": "12\u00d710\u00d7128\u00b2",
+          "title": "\u6708\u5ea6\u805a\u5408",
+          "body": "2018-10 \u81f3 2019-09"
+        },
+        {
+          "label": "12\u00d710\u00d764\u00b2",
+          "title": "\u7a7a\u95f4\u5207\u5757",
+          "body": "\u6bcf\u4e2a patch \u751f\u6210 4 \u4e2a tile"
+        },
+        {
+          "label": "768\u00d716\u00b2",
+          "title": "\u7ed3\u6784\u5316 token \u805a\u5408",
+          "body": "\u6309 H/W/T/group \u6062\u590d\u7a7a\u95f4\u7f51\u683c"
+        }
+      ],
+      "message": "\u4e0d\u80fd\u628a\u5b8c\u6574 Galileo token \u5e8f\u5217\u6309 256 \u4e2a\u4f4d\u7f6e\u76f4\u63a5\u5206\u5757\u5e73\u5747\uff1b\u5f53\u524d\u5b9e\u73b0\u5148\u6062\u590d\u7a7a\u95f4\u8bed\u4e49\uff0c\u518d\u805a\u5408\u65f6\u95f4\u4e0e\u901a\u9053\u7ec4\u3002",
+      "sources": [
+        "[Galileo25] [ProjectProtocol]"
+      ],
+      "resolved_treatments": {
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s7",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+      "table": {
+        "headers": [
+          "\u8def\u7ebf",
+          "Galileo \u7279\u5f81",
+          "\u6838\u5fc3\u95ee\u9898",
+          "\u72b6\u6001"
+        ],
+        "rows": [
+          [
+            "Single-layer DPT-style",
+            "\u6700\u7ec8\u5c42",
+            "\u6700\u7ec8\u8bed\u4e49\u7279\u5f81\u80fd\u5426\u88ab\u6709\u6548\u8bfb\u51fa\uff1f",
+            "\u5df2\u5b8c\u6210"
+          ],
+          [
+            "Multi-layer DPT",
+            "3 / 6 / 9 / 12",
+            "\u8de8\u5c42\u4fe1\u606f\u662f\u5426\u4e92\u8865\uff1f",
+            "\u9996\u8f6e\u5b8c\u6210"
+          ],
+          [
+            "UPerNet-style",
+            "3 / 6 / 9 / 12",
+            "PPM + FPN \u662f\u5426\u66f4\u9002\u5408\u878d\u5408\uff1f",
+            "\u5df2\u5b9e\u73b0\uff0c\u5f85\u8bad\u7ec3"
+          ]
+        ],
+        "column_weights": [
+          1.5,
+          1.2,
+          2.4,
+          1.1
+        ],
+        "cell_styles": {
+          "0,3": {
+            "fill": "#D9EAD3",
+            "bold": true
+          },
+          "1,3": {
+            "fill": "#FFF2CC",
+            "bold": true
+          },
+          "2,3": {
+            "fill": "#D9EAF7",
+            "bold": true
+          }
+        },
+        "caption": "\u6240\u6709\u8def\u7ebf\u8bfb\u53d6\u540c\u4e00\u6279 Galileo \u5171\u4eab\u7f13\u5b58\u3002"
+      },
+      "sources": [
+        "[DPT21] [ProjectProtocol]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-table-ledger",
+          "content_recipe_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "content_recipe_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s8",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+      "tables": [
+        {
+          "title": "\u5171\u540c\u8bad\u7ec3\u8bbe\u7f6e",
+          "headers": [
+            "\u9879\u76ee",
+            "\u8bbe\u7f6e"
+          ],
+          "rows": [
+            [
+              "Encoder",
+              "Galileo ViT-Base\uff0c\u5b8c\u5168\u51bb\u7ed3"
+            ],
+            [
+              "Loss",
+              "CE + 0.5 \u00d7 Dice"
+            ],
+            [
+              "Optimizer",
+              "Prodigy\uff0clr=1\uff0cwd=0.1"
+            ],
+            [
+              "Batch / Seed",
+              "16 / 42"
+            ],
+            [
+              "Checkpoint",
+              "\u6700\u4f4e val loss"
+            ]
+          ]
+        },
+        {
+          "title": "\u8d44\u6e90\u4e0e\u6a21\u578b\u89c4\u6a21",
+          "headers": [
+            "\u9879\u76ee",
+            "Single",
+            "Multi"
+          ],
+          "rows": [
+            [
+              "\u53ef\u8bad\u7ec3\u53c2\u6570",
+              "4.92M",
+              "9.06M"
+            ],
+            [
+              "\u8bad\u7ec3\u8017\u65f6",
+              "3.24 h",
+              "3.94 h"
+            ],
+            [
+              "\u5cf0\u503c\u663e\u5b58",
+              "698 MiB",
+              "880 MiB"
+            ]
+          ]
+        }
+      ],
+      "interpretation": "\u591a\u5c42\u6a21\u578b\u53c2\u6570\u91cf\u7ea6\u4e3a\u5355\u5c42\u7684 1.84 \u500d\uff1b\u5f53\u524d\u7ed3\u6784\u6bd4\u8f83\u4ecd\u6df7\u5165\u5bb9\u91cf\u5dee\u5f02\u3002",
+      "sources": [
+        "[Run2026]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "table",
+          "source_variant": "lab-run-results",
+          "resolved_variant": "lab-run-results",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-table-ledger",
+          "content_recipe_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "content_recipe_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "side-rail",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s9",
+      "type": "content",
+      "variant": "chart",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+      "subtitle": "Fold5 test mIoU\uff1b\u8bba\u6587 39.2% \u4e3a linear probe \u53c2\u8003\uff0c\u4e0d\u662f\u540c\u5bb9\u91cf\u6bd4\u8f83",
+      "chart_treatment": "facts-right",
+      "chart": {
+        "type": "bar",
+        "series": [
+          {
+            "name": "Test mIoU (%)",
+            "labels": [
+              "\u8bba\u6587 linear probe",
+              "Single-layer",
+              "Multi-layer"
+            ],
+            "values": [
+              39.2,
+              45.78,
+              46.32
+            ]
+          }
+        ],
+        "options": {
+          "catAxisTitle": "\u4e0b\u6e38\u65b9\u6848",
+          "valAxisTitle": "mIoU (%)",
+          "showValue": true
+        }
+      },
+      "facts": [
+        {
+          "value": "6.58",
+          "label": "pp \u00b7 Single vs \u8bba\u6587\u53c2\u8003",
+          "detail": "\u5b8c\u6574\u4e0b\u6e38\u65b9\u6848\u5dee\u5f02"
+        },
+        {
+          "value": "0.54",
+          "label": "pp \u00b7 Multi vs Single",
+          "detail": "\u5355 seed \u7684\u5fae\u5f31\u6b63\u5411\u4fe1\u53f7"
+        },
+        {
+          "value": "46.32%",
+          "label": "\u5f53\u524d\u6700\u9ad8 test mIoU",
+          "detail": "\u4ecd\u6709\u660e\u663e\u63d0\u5347\u7a7a\u95f4"
+        }
+      ],
+      "caption": "PASTIS/U-TAE \u7684 63.1% \u4f7f\u7528\u4e0d\u540c\u8f93\u5165\u3001\u7aef\u5230\u7aef\u8bad\u7ec3\u548c\u4e94\u6298\u534f\u8bae\uff0c\u4ec5\u4f5c\u4e3a\u4efb\u52a1\u6027\u80fd\u80cc\u666f\u3002",
+      "sources": [
+        "[Galileo25] [PASTIS21] [Run2026]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "chart",
+          "source_variant": "chart",
+          "resolved_variant": "chart",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+          "content_recipe_primary_variants": [
+            "chart"
+          ],
+          "content_recipe_required_slot_count": 5,
+          "content_recipe_archetype_id": "clean-assay-report-chart-readout",
+          "content_recipe_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "content_recipe_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee",
+          "treatment_archetype_id": "clean-assay-report-chart-readout",
+          "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s10",
+      "type": "content",
+      "variant": "chart",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+      "subtitle": "\u6700\u9ad8 validation mIoU \u4e0e epoch 100 \u5bf9\u6bd4",
+      "chart": {
+        "type": "bar",
+        "categories": [
+          "Single-layer",
+          "Multi-layer"
+        ],
+        "series": [
+          {
+            "name": "\u6700\u9ad8 val mIoU",
+            "values": [
+              47.15,
+              49.34
+            ]
+          },
+          {
+            "name": "epoch 100",
+            "values": [
+              44.16,
+              42.54
+            ]
+          }
+        ],
+        "options": {
+          "catAxisTitle": "\u6a21\u578b",
+          "valAxisTitle": "mIoU (%)",
+          "showValue": true
+        }
+      },
+      "facts": [
+        {
+          "value": "25 / 11",
+          "label": "\u6700\u4f4e val loss epoch",
+          "detail": "Single / Multi"
+        },
+        {
+          "value": "47 / 22",
+          "label": "\u6700\u9ad8 val mIoU epoch",
+          "detail": "\u4e0e\u4fdd\u5b58\u89c4\u5219\u4e0d\u4e00\u81f4"
+        },
+        {
+          "value": "\u22126.80 pp",
+          "label": "Multi \u540e\u671f\u56de\u843d",
+          "detail": "100 epochs \u660e\u663e\u8fc7\u957f"
+        }
+      ],
+      "message": "\u4e0b\u4e00\u8f6e\uff1a\u540c\u65f6\u4fdd\u5b58 best_val_loss \u4e0e best_val_mIoU\uff0c\u5e76\u9884\u5148\u56fa\u5b9a early stopping\u3002",
+      "sources": [
+        "[Run2026]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "chart",
+          "source_variant": "chart",
+          "resolved_variant": "chart",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+          "content_recipe_primary_variants": [
+            "chart"
+          ],
+          "content_recipe_required_slot_count": 5,
+          "content_recipe_archetype_id": "clean-assay-report-chart-readout",
+          "content_recipe_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "content_recipe_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee",
+          "treatment_archetype_id": "clean-assay-report-chart-readout",
+          "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s11",
+      "type": "content",
+      "variant": "comparison-2col",
+      "slide_intent": "decision",
+      "visual_intent": "comparison",
+      "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+      "left": {
+        "title": "\u5df2\u7ecf\u5efa\u7acb",
+        "body": [
+          "Galileo \u5b98\u65b9 PASTIS \u8f93\u5165\u534f\u8bae",
+          "\u6b63\u786e token \u7a7a\u95f4\u805a\u5408\u4e0e\u5171\u4eab\u7f13\u5b58",
+          "\u4e24\u79cd DPT \u7684\u5b8c\u6574 train / val / test \u94fe\u8def",
+          "UPerNet\u3001TensorBoard \u4e0e\u5b9a\u6027\u53ef\u89c6\u5316\u5de5\u5177"
+        ]
+      },
+      "right": {
+        "title": "\u5c1a\u4e0d\u80fd\u4e0b\u7ed3\u8bba",
+        "body": [
+          "46.32% \u4e0d\u662f\u9ad8\u6027\u80fd\u7ed3\u679c",
+          "\u4ec5\u4e00\u4e2a seed\uff0c\u7f3a\u5c11\u5747\u503c\u4e0e\u65b9\u5dee",
+          "Multi \u53c2\u6570\u66f4\u591a\uff0c\u672a\u505a\u5bb9\u91cf\u63a7\u5236",
+          "\u5f53\u524d\u4ec5\u540c\u5206\u8fa8\u7387\u6295\u5f71\u540e\u7b49\u6743\u76f8\u52a0"
+        ]
+      },
+      "verdict": "\u5f53\u524d\u7ed3\u679c\u4e0d\u80fd\u4ee3\u8868\u5b8c\u5584 DPT \u7684\u4e0a\u9650\uff1b\u4e2d\u671f\u4ef7\u503c\u5728\u4e8e\u5efa\u7acb\u53ef\u4fe1\u94fe\u8def\u4e0e\u53ef\u68c0\u9a8c\u95ee\u9898\u3002",
+      "sources": [
+        "[Run2026]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "comparison",
+          "source_variant": "comparison-2col",
+          "resolved_variant": "comparison-2col",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+          "content_recipe_primary_variants": [
+            "comparison-2col",
+            "split",
+            "matrix"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-comparison-frame",
+          "content_recipe_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "content_recipe_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d",
+          "treatment_archetype_id": "clean-assay-report-comparison-frame",
+          "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s12",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "decision",
+      "visual_intent": "data",
+      "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+      "table": {
+        "headers": [
+          "\u5019\u9009\u65b9\u5411",
+          "\u7814\u7a76\u95ee\u9898",
+          "\u4ef7\u503c",
+          "\u98ce\u9669 / \u4ee3\u4ef7"
+        ],
+        "rows": [
+          [
+            "DPT \u673a\u5236\u6df1\u5316",
+            "\u7b80\u5355\u76f8\u52a0\u662f\u5426\u9650\u5236\u591a\u5c42\u6536\u76ca\uff1f",
+            "\u5f62\u6210\u660e\u786e\u65b9\u6cd5\u6d88\u878d",
+            "\u9700\u8981\u7cfb\u7edf\u8c03\u53c2\u4e0e\u5bb9\u91cf\u63a7\u5236"
+          ],
+          [
+            "SSL \u00d7 Decoder",
+            "\u8868\u5f81\u4e0e\u89e3\u7801\u65b9\u5f0f\u662f\u5426\u5b58\u5728\u5339\u914d\uff1f",
+            "\u5f62\u6210\u53d7\u63a7 benchmark",
+            "\u7ec4\u5408\u8fc7\u591a\u6613\u53d8\u6210\u6a21\u578b\u679a\u4e3e"
+          ],
+          [
+            "PASTIS-R \u591a\u6a21\u6001",
+            "S1 \u96f7\u8fbe\u80fd\u5426\u8865\u5145 S2 \u5149\u5b66\uff1f",
+            "\u63d0\u5347\u6297\u4e91\u4e0e\u591a\u6a21\u6001\u6df1\u5ea6",
+            "\u7ea6 54GB\uff1b\u878d\u5408\u94fe\u8def\u66f4\u590d\u6742"
+          ]
+        ],
+        "column_weights": [
+          1.4,
+          2.1,
+          1.7,
+          1.9
+        ],
+        "caption": "\u5efa\u8bae\u5148\u5b8c\u6210\u516c\u5e73 decoder \u5bf9\u6bd4\uff0c\u518d\u7531\u8001\u5e08\u786e\u5b9a\u65b9\u6cd5\u6df1\u5316\u6216\u591a\u6a21\u6001\u6269\u5c55\u3002"
+      },
+      "sources": [
+        "[PASTISR22] [ProjectPlan]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-table-ledger",
+          "content_recipe_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "content_recipe_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s13",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "decision",
+      "visual_intent": "timeline",
+      "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+      "milestones": [
+        {
+          "label": "\u8fd1\u671f",
+          "title": "\u5b9e\u9a8c\u89c4\u8303",
+          "body": "best mIoU\uff1bearly stop\uff1b\u22653 seeds\uff1bUPerNet"
+        },
+        {
+          "label": "\u4e2d\u671f",
+          "title": "\u53d7\u63a7\u77e9\u9635",
+          "body": "\u4ee3\u8868\u6027 SSL \u00d7 DPT / UPerNet\uff1b\u53c2\u6570\u5339\u914d"
+        },
+        {
+          "label": "\u8fdb\u9636",
+          "title": "\u7814\u7a76\u6df1\u5316",
+          "body": "\u5b66\u4e60\u5f0f DPT \u6216 PASTIS-R \u7684 S1+S2 \u878d\u5408"
+        }
+      ],
+      "message": "\u9636\u6bb5\u7ed3\u8bba\uff1a\u7a7a\u95f4 decoder \u6709\u521d\u6b65\u6536\u76ca\uff0c\u591a\u5c42\u7279\u5f81\u5448\u5fae\u5f31\u6b63\u5411\u4fe1\u53f7\uff1b\u5c1a\u4e0d\u80fd\u8bc1\u660e\u5df2\u5145\u5206\u91ca\u653e Galileo \u8868\u5f81\u3002",
+      "sources": [
+        "[ProjectPlan]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "decision",
+          "source_variant": "timeline",
+          "resolved_variant": "standard",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "decision::clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::standard|table::decision/action|evidence trigger|owner|caveat/date::Call|Rule|Action::['Pass', 'Signal >=50', 'Report']|['Review', '20-49', 'Repeat']",
+          "content_recipe_primary_variants": [
+            "standard",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-decision-record",
+          "content_recipe_archetype_signature": "clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard|table::Bottom decision strip: repeat, accept, reject, or escalate.",
+          "content_recipe_archetype_semantic_signature": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0",
+          "treatment_archetype_id": "clean-assay-report-decision-record",
+          "treatment_archetype_signature": "clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard|table::Bottom decision strip: repeat, accept, reject, or escalate.",
+          "treatment_archetype_semantic_signature": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    },
+    {
+      "slide_id": "s14",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+      "table": {
+        "headers": [
+          "ID",
+          "\u6765\u6e90"
+        ],
+        "rows": [
+          [
+            "PASTIS21",
+            "Garnot & Landrieu, PASTIS / U-TAE, ICCV 2021"
+          ],
+          [
+            "SeCo21",
+            "Ma\u00f1as et al., Seasonal Contrast, ICCV 2021"
+          ],
+          [
+            "DPT21",
+            "Ranftl et al., DPT, ICCV 2021"
+          ],
+          [
+            "Galileo25",
+            "Tseng et al., Galileo, ICML 2025"
+          ],
+          [
+            "PASTISR22",
+            "Garnot et al., multimodal crop mapping, ISPRS JPRS 2022"
+          ],
+          [
+            "Run2026",
+            "\u9636\u6bb5\u6210\u679c\u62a5\u544a\u4e0e TensorBoard \u65e5\u5fd7\uff0c2026-07-11"
+          ],
+          [
+            "ProjectProtocol",
+            "README \u4e0e Decoder Experiments \u6587\u6863"
+          ]
+        ],
+        "column_weights": [
+          1.1,
+          6.2
+        ],
+        "caption": "\u6240\u6709\u7ed3\u679c\u6570\u5b57\u5747\u6765\u81ea\u8bba\u6587\u516c\u5f00\u8868\u683c\u6216\u9879\u76ee\u5df2\u4fdd\u5b58\u65e5\u5fd7\u3002"
+      },
+      "sources": [
+        "[PASTIS21] [SeCo21] [DPT21] [Galileo25] [PASTISR22] [Run2026]"
+      ],
+      "resolved_treatments": {
+        "style_reference_layout": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "reference_id": "ref-clean-assay-report",
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+          "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+          "layout_motifs": [
+            "top-bottom lab rules",
+            "plain no-rule evidence page",
+            "run metadata plate",
+            "semantic result table",
+            "refs footer"
+          ],
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "variant_source": "author-explicit",
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "content_recipe_primary_variants": [
+            "lab-run-results",
+            "table"
+          ],
+          "content_recipe_required_slot_count": 4,
+          "content_recipe_archetype_id": "clean-assay-report-table-ledger",
+          "content_recipe_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "content_recipe_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto",
+        "header_variant_pool": [
+          "left-accent",
+          "split-rule",
+          "side-rail",
+          "plain"
+        ]
+      }
+    }
+  ],
+  "resolved_treatment_summary": {
+    "header_variant_by_slide": [
+      {
+        "slide_id": "s2",
+        "slide_index": 2,
+        "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s3",
+        "slide_index": 3,
+        "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s4",
+        "slide_index": 4,
+        "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s5",
+        "slide_index": 5,
+        "title": "\u603b\u4f53\u6280\u672f\u8def\u7ebf\uff1a\u56fa\u5b9a encoder\uff0c\u53ea\u6bd4\u8f83 decoder",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s6",
+        "slide_index": 6,
+        "title": "\u8f93\u5165\u534f\u8bae\u4e0e\u5173\u952e\u5de5\u7a0b\u4fee\u6b63",
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s7",
+        "slide_index": 7,
+        "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s8",
+        "slide_index": 8,
+        "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+        "header_mode": "lab-clean",
+        "header_variant": "side-rail",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s9",
+        "slide_index": 9,
+        "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+        "header_mode": "lab-clean",
+        "header_variant": "split-rule",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s10",
+        "slide_index": 10,
+        "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s11",
+        "slide_index": 11,
+        "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s12",
+        "slide_index": 12,
+        "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s13",
+        "slide_index": 13,
+        "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      },
+      {
+        "slide_id": "s14",
+        "slide_index": 14,
+        "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+        "header_mode": "lab-clean",
+        "header_variant": "plain",
+        "header_variant_source": "auto"
+      }
+    ],
+    "header_variant_counts": {
+      "plain": 8,
+      "side-rail": 1,
+      "split-rule": 4
+    },
+    "unique_header_variant_count": 3,
+    "style_reference_layout": {
+      "playbook_version": "style_reference_layout_playbook_v1",
+      "style_preset": "lab-report",
+      "reference_id": "ref-clean-assay-report",
+      "reference_name": "Clean Assay Report",
+      "motif_library_version": "style_reference_structural_motif_library_v1",
+      "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+      "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+      "layout_motifs": [
+        "top-bottom lab rules",
+        "plain no-rule evidence page",
+        "run metadata plate",
+        "semantic result table",
+        "refs footer"
+      ],
+      "preferred_variants": [
+        "title",
+        "lab-run-results",
+        "scientific-figure",
+        "comparison-2col",
+        "chart",
+        "table",
+        "image-sidebar",
+        "standard"
+      ],
+      "treatment_archetype_semantic_signatures": {
+        "comparison": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d",
+        "dashboard": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd",
+        "table": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+        "chart": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee",
+        "decision": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0"
+      },
+      "applied_count": 0,
+      "annotated_count": 11,
+      "skipped_count": 0,
+      "variant_by_slide": [
+        {
+          "slide_id": "s2",
+          "slide_index": 2,
+          "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+          "treatment_key": "comparison",
+          "source_variant": "comparison-2col",
+          "resolved_variant": "comparison-2col",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+          "treatment_archetype_id": "clean-assay-report-comparison-frame",
+          "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+        },
+        {
+          "slide_id": "s3",
+          "slide_index": 3,
+          "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+          "treatment_key": "dashboard",
+          "source_variant": "stats",
+          "resolved_variant": "stats",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "dashboard::clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::lab-run-results|stats::primary metric|supporting metric|state/threshold|owner or implication::{'value': '24', 'label': 'Samples', 'detail': 'synthetic run'}|{'value': '2', 'label': 'Review calls', 'detail': 'borderline'}::{'value': '24', 'label': 'samples', 'context': 'Use run metadata, not decorative lab icons.'}",
+          "treatment_archetype_id": "clean-assay-report-dashboard-state-board",
+          "treatment_archetype_signature": "clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::lab-run-results|stats::Run dashboard: samples, controls, failures, borderline calls.",
+          "treatment_archetype_semantic_signature": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd"
+        },
+        {
+          "slide_id": "s4",
+          "slide_index": 4,
+          "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        {
+          "slide_id": "s7",
+          "slide_index": 7,
+          "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        {
+          "slide_id": "s8",
+          "slide_index": 8,
+          "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+          "treatment_key": "table",
+          "source_variant": "lab-run-results",
+          "resolved_variant": "lab-run-results",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        {
+          "slide_id": "s9",
+          "slide_index": 9,
+          "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+          "treatment_key": "chart",
+          "source_variant": "chart",
+          "resolved_variant": "chart",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+          "treatment_archetype_id": "clean-assay-report-chart-readout",
+          "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+        },
+        {
+          "slide_id": "s10",
+          "slide_index": 10,
+          "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+          "treatment_key": "chart",
+          "source_variant": "chart",
+          "resolved_variant": "chart",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+          "treatment_archetype_id": "clean-assay-report-chart-readout",
+          "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+          "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+        },
+        {
+          "slide_id": "s11",
+          "slide_index": 11,
+          "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+          "treatment_key": "comparison",
+          "source_variant": "comparison-2col",
+          "resolved_variant": "comparison-2col",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+          "treatment_archetype_id": "clean-assay-report-comparison-frame",
+          "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+          "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+        },
+        {
+          "slide_id": "s12",
+          "slide_index": 12,
+          "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        },
+        {
+          "slide_id": "s13",
+          "slide_index": 13,
+          "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+          "treatment_key": "decision",
+          "source_variant": "timeline",
+          "resolved_variant": "standard",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "decision::clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::standard|table::decision/action|evidence trigger|owner|caveat/date::Call|Rule|Action::['Pass', 'Signal >=50', 'Report']|['Review', '20-49', 'Repeat']",
+          "treatment_archetype_id": "clean-assay-report-decision-record",
+          "treatment_archetype_signature": "clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard|table::Bottom decision strip: repeat, accept, reject, or escalate.",
+          "treatment_archetype_semantic_signature": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0"
+        },
+        {
+          "slide_id": "s14",
+          "slide_index": 14,
+          "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+          "treatment_key": "table",
+          "source_variant": "table",
+          "resolved_variant": "lab-run-results",
+          "applied": false,
+          "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+          "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+          "treatment_archetype_id": "clean-assay-report-table-ledger",
+          "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+          "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+        }
+      ],
+      "skipped_slides": []
+    }
+  }
+}

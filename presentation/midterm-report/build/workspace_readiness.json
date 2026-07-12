@@ -1,0 +1,1860 @@
+{
+  "schema_version": 1,
+  "workspace": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+  "status": "needs_attention",
+  "status_reasons": [
+    "validator_warnings",
+    "open_recommendations"
+  ],
+  "source_files": {
+    "workspace": {
+      "path": "workspace.json",
+      "exists": true
+    },
+    "style_contract": {
+      "path": "style_contract.json",
+      "exists": true
+    },
+    "deck_start_packet": {
+      "path": "deck_start_packet.json",
+      "exists": false
+    },
+    "intake_answers": {
+      "path": "intake_answers.json",
+      "exists": false
+    },
+    "intake_apply_report": {
+      "path": "intake_apply_report.json",
+      "exists": false
+    },
+    "design_contract": {
+      "path": "design_contract.json",
+      "exists": false
+    },
+    "design_contract_apply_report": {
+      "path": "design_contract_apply_report.json",
+      "exists": false
+    },
+    "style_extract_report": {
+      "path": "style_extract_report.json",
+      "exists": false
+    },
+    "style_extract_design_brief": {
+      "path": "style_extract_design_brief.json",
+      "exists": false
+    },
+    "style_fragment_apply_report": {
+      "path": "style_fragment_apply_report.json",
+      "exists": false
+    },
+    "data_analysis_handoff": {
+      "path": "data_analysis_handoff.json",
+      "exists": false
+    },
+    "data_analysis_handoff_apply_report": {
+      "path": "data_analysis_handoff_apply_report.json",
+      "exists": false
+    },
+    "data_analysis_handoff_selection": {
+      "path": "artifact_selections.scout.json",
+      "exists": false
+    },
+    "outline_authoring_handoff": {
+      "path": "outline_authoring_handoff.json",
+      "exists": false
+    },
+    "outline_authoring_handoff_apply_report": {
+      "path": "outline_authoring_handoff_apply_report.json",
+      "exists": false
+    },
+    "artifact_selection": {
+      "path": "artifact_selections.auto.json",
+      "exists": false
+    },
+    "artifact_manifest_apply_report": {
+      "path": "build\\artifact_manifest_apply.json",
+      "exists": false
+    },
+    "design_brief": {
+      "path": "design_brief.json",
+      "exists": true
+    },
+    "content_plan": {
+      "path": "content_plan.json",
+      "exists": true
+    },
+    "evidence_plan": {
+      "path": "evidence_plan.json",
+      "exists": true
+    },
+    "asset_plan": {
+      "path": "asset_plan.json",
+      "exists": true
+    },
+    "outline": {
+      "path": "outline.json",
+      "exists": true
+    }
+  },
+  "style": {
+    "style_contract": "style_contract.json",
+    "design_brief": "design_brief.json",
+    "outline": "outline.json",
+    "fallback_style_preset": "lab-report",
+    "design_brief_style_preset": "lab-report",
+    "resolved_style_preset": "lab-report",
+    "style_seed": "galileo-pastis-midterm",
+    "design_deck_style": {
+      "style_seed": "galileo-pastis-midterm",
+      "header_variants": [
+        "left-accent",
+        "split-rule",
+        "side-rail",
+        "plain"
+      ],
+      "header_variant": "auto",
+      "title_layout": "light-atlas",
+      "timeline_mode": "bands",
+      "chart_treatment": "facts-right",
+      "table_treatment": "compact-ledger",
+      "summary_callout_mode": "lab-box",
+      "footer_mode": "source-line"
+    },
+    "outline_deck_style_overrides": {
+      "font_pair": "system_clean_v1",
+      "visual_density": "medium",
+      "emoji_mode": "none",
+      "research_visual_mode": false,
+      "header_mode": "lab-clean",
+      "header_variant": "auto",
+      "footer_mode": "source-line",
+      "footer_page_numbers": true,
+      "title_layout": "light-atlas",
+      "title_motif": "network",
+      "chart_treatment": "facts-right",
+      "table_treatment": "compact-ledger",
+      "summary_callout_mode": "lab-box",
+      "style_seed": "galileo-pastis-midterm"
+    },
+    "resolved_deck_style": {
+      "style_seed": "galileo-pastis-midterm",
+      "header_variants": [
+        "left-accent",
+        "split-rule",
+        "side-rail",
+        "plain"
+      ],
+      "header_variant": "auto",
+      "title_layout": "light-atlas",
+      "timeline_mode": "bands",
+      "chart_treatment": "facts-right",
+      "table_treatment": "compact-ledger",
+      "summary_callout_mode": "lab-box",
+      "footer_mode": "source-line",
+      "font_pair": "system_clean_v1",
+      "visual_density": "medium",
+      "emoji_mode": "none",
+      "research_visual_mode": false,
+      "header_mode": "lab-clean",
+      "footer_page_numbers": true,
+      "title_motif": "network"
+    },
+    "style_mix_matrix": {
+      "pool_count": 7,
+      "multi_entry_pool_count": 5,
+      "pools": {
+        "chart_treatment_pool": {
+          "count": 2,
+          "unique_count": 2,
+          "values": [
+            "facts-right",
+            "minimal"
+          ]
+        },
+        "footer_pool": {
+          "count": 1,
+          "unique_count": 1,
+          "values": [
+            "source-line"
+          ]
+        },
+        "header_variant_pool": {
+          "count": 4,
+          "unique_count": 4,
+          "values": [
+            "left-accent",
+            "split-rule",
+            "side-rail",
+            "plain"
+          ]
+        },
+        "summary_callout_mode_pool": {
+          "count": 1,
+          "unique_count": 1,
+          "values": [
+            "lab-box"
+          ]
+        },
+        "table_treatment_pool": {
+          "count": 2,
+          "unique_count": 2,
+          "values": [
+            "compact-ledger",
+            "journal-grid"
+          ]
+        },
+        "timeline_mode_pool": {
+          "count": 2,
+          "unique_count": 2,
+          "values": [
+            "bands",
+            "chapter-spread"
+          ]
+        },
+        "title_layout_pool": {
+          "count": 2,
+          "unique_count": 2,
+          "values": [
+            "light-atlas",
+            "lab-plate"
+          ]
+        }
+      }
+    },
+    "resolved_treatment_summary": {
+      "header_variant_by_slide": [
+        {
+          "slide_id": "s2",
+          "slide_index": 2,
+          "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+          "header_mode": "lab-clean",
+          "header_variant": "split-rule",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s3",
+          "slide_index": 3,
+          "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+          "header_mode": "lab-clean",
+          "header_variant": "split-rule",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s4",
+          "slide_index": 4,
+          "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s5",
+          "slide_index": 5,
+          "title": "\u603b\u4f53\u6280\u672f\u8def\u7ebf\uff1a\u56fa\u5b9a encoder\uff0c\u53ea\u6bd4\u8f83 decoder",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s6",
+          "slide_index": 6,
+          "title": "\u8f93\u5165\u534f\u8bae\u4e0e\u5173\u952e\u5de5\u7a0b\u4fee\u6b63",
+          "header_mode": "lab-clean",
+          "header_variant": "split-rule",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s7",
+          "slide_index": 7,
+          "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s8",
+          "slide_index": 8,
+          "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+          "header_mode": "lab-clean",
+          "header_variant": "side-rail",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s9",
+          "slide_index": 9,
+          "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+          "header_mode": "lab-clean",
+          "header_variant": "split-rule",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s10",
+          "slide_index": 10,
+          "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s11",
+          "slide_index": 11,
+          "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s12",
+          "slide_index": 12,
+          "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s13",
+          "slide_index": 13,
+          "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        },
+        {
+          "slide_id": "s14",
+          "slide_index": 14,
+          "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+          "header_mode": "lab-clean",
+          "header_variant": "plain",
+          "header_variant_source": "auto"
+        }
+      ],
+      "header_variant_counts": {
+        "plain": 8,
+        "side-rail": 1,
+        "split-rule": 4
+      },
+      "unique_header_variant_count": 3,
+      "style_reference_layout": {
+        "playbook_version": "style_reference_layout_playbook_v1",
+        "style_preset": "lab-report",
+        "reference_id": "ref-clean-assay-report",
+        "reference_name": "Clean Assay Report",
+        "motif_library_version": "style_reference_structural_motif_library_v1",
+        "motif_signature": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs::top-bottom lab rules|plain no-rule evidence page|run metadata plate|semantic result table|refs footer::bind sample/run/method metadata to structured title, caption, or table fields|prefer lab-run-results and scientific-figure variants before generic prose|use compact footer source IDs plus editable references tables for dense source material",
+        "background_structure": "source-first lab report with run metadata plate, table/figure evidence, and traceable refs",
+        "layout_motifs": [
+          "top-bottom lab rules",
+          "plain no-rule evidence page",
+          "run metadata plate",
+          "semantic result table",
+          "refs footer"
+        ],
+        "preferred_variants": [
+          "title",
+          "lab-run-results",
+          "scientific-figure",
+          "comparison-2col",
+          "chart",
+          "table",
+          "image-sidebar",
+          "standard"
+        ],
+        "treatment_archetype_semantic_signatures": {
+          "comparison": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d",
+          "dashboard": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd",
+          "table": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b",
+          "chart": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee",
+          "decision": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0"
+        },
+        "applied_count": 0,
+        "annotated_count": 11,
+        "skipped_count": 0,
+        "variant_by_slide": [
+          {
+            "slide_id": "s2",
+            "slide_index": 2,
+            "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+            "treatment_key": "comparison",
+            "source_variant": "comparison-2col",
+            "resolved_variant": "comparison-2col",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+            "treatment_archetype_id": "clean-assay-report-comparison-frame",
+            "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+            "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+          },
+          {
+            "slide_id": "s3",
+            "slide_index": 3,
+            "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+            "treatment_key": "dashboard",
+            "source_variant": "stats",
+            "resolved_variant": "stats",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "dashboard::clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::lab-run-results|stats::primary metric|supporting metric|state/threshold|owner or implication::{'value': '24', 'label': 'Samples', 'detail': 'synthetic run'}|{'value': '2', 'label': 'Review calls', 'detail': 'borderline'}::{'value': '24', 'label': 'samples', 'context': 'Use run metadata, not decorative lab icons.'}",
+            "treatment_archetype_id": "clean-assay-report-dashboard-state-board",
+            "treatment_archetype_signature": "clean-assay-report-dashboard-state-board::Run dashboard: samples, controls, failures, borderline calls.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::lab-run-results|stats::Run dashboard: samples, controls, failures, borderline calls.",
+            "treatment_archetype_semantic_signature": "ef1e16afea228e4848398f3b393b491ef120ca66b2428a9a581d291e42c7e3bd"
+          },
+          {
+            "slide_id": "s4",
+            "slide_index": 4,
+            "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+            "treatment_key": "table",
+            "source_variant": "table",
+            "resolved_variant": "lab-run-results",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+            "treatment_archetype_id": "clean-assay-report-table-ledger",
+            "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+            "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+          },
+          {
+            "slide_id": "s7",
+            "slide_index": 7,
+            "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+            "treatment_key": "table",
+            "source_variant": "table",
+            "resolved_variant": "lab-run-results",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+            "treatment_archetype_id": "clean-assay-report-table-ledger",
+            "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+            "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+          },
+          {
+            "slide_id": "s8",
+            "slide_index": 8,
+            "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+            "treatment_key": "table",
+            "source_variant": "lab-run-results",
+            "resolved_variant": "lab-run-results",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+            "treatment_archetype_id": "clean-assay-report-table-ledger",
+            "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+            "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+          },
+          {
+            "slide_id": "s9",
+            "slide_index": 9,
+            "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+            "treatment_key": "chart",
+            "source_variant": "chart",
+            "resolved_variant": "chart",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+            "treatment_archetype_id": "clean-assay-report-chart-readout",
+            "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+            "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+          },
+          {
+            "slide_id": "s10",
+            "slide_index": 10,
+            "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+            "treatment_key": "chart",
+            "source_variant": "chart",
+            "resolved_variant": "chart",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "chart::clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart::chart question|category/time labels|value series|readout/caveat|source id::Signal threshold by sample group::Control|Low|Mid::Lab chart keeps axis labels readable and source IDs compact.",
+            "treatment_archetype_id": "clean-assay-report-chart-readout",
+            "treatment_archetype_signature": "clean-assay-report-chart-readout::Minimal scientific chart with axis labels sized for slide and source IDs.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal scientific chart with axis labels sized for slide and source IDs.",
+            "treatment_archetype_semantic_signature": "6219dec72b4e6e9047978cdfb68df13ac16b0454ab78411bd359d07994ca81ee"
+          },
+          {
+            "slide_id": "s11",
+            "slide_index": 11,
+            "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+            "treatment_key": "comparison",
+            "source_variant": "comparison-2col",
+            "resolved_variant": "comparison-2col",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "comparison::clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Raw readout::Report-ready::Lab slides should make the call rule inspectable.",
+            "treatment_archetype_id": "clean-assay-report-comparison-frame",
+            "treatment_archetype_signature": "clean-assay-report-comparison-frame::Raw screen vs report-ready readout or method A vs method B.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Raw screen vs report-ready readout or method A vs method B.",
+            "treatment_archetype_semantic_signature": "a04e33750701c53154fe827a3b3fcdb1553374c0d69179b84b97c4c05f05c88d"
+          },
+          {
+            "slide_id": "s12",
+            "slide_index": 12,
+            "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+            "treatment_key": "table",
+            "source_variant": "table",
+            "resolved_variant": "lab-run-results",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+            "treatment_archetype_id": "clean-assay-report-table-ledger",
+            "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+            "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+          },
+          {
+            "slide_id": "s13",
+            "slide_index": 13,
+            "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+            "treatment_key": "decision",
+            "source_variant": "timeline",
+            "resolved_variant": "standard",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "decision::clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::standard|table::decision/action|evidence trigger|owner|caveat/date::Call|Rule|Action::['Pass', 'Signal >=50', 'Report']|['Review', '20-49', 'Repeat']",
+            "treatment_archetype_id": "clean-assay-report-decision-record",
+            "treatment_archetype_signature": "clean-assay-report-decision-record::Bottom decision strip: repeat, accept, reject, or escalate.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard|table::Bottom decision strip: repeat, accept, reject, or escalate.",
+            "treatment_archetype_semantic_signature": "3d8940404a76b92bfc47f805411111168fa42aa3931c843c96d6df3cbcba25e0"
+          },
+          {
+            "slide_id": "s14",
+            "slide_index": 14,
+            "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+            "treatment_key": "table",
+            "source_variant": "table",
+            "resolved_variant": "lab-run-results",
+            "applied": false,
+            "content_recipe_library_version": "style_reference_content_recipe_library_v1",
+            "content_recipe_signature": "table::clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::lab-run-results|table::row entity|status/signal field|action/owner field|short source/provenance::Sample|Signal|Call::['CTRL-01', '12', 'Pass']|['LOW-04', '28', 'Review']",
+            "treatment_archetype_id": "clean-assay-report-table-ledger",
+            "treatment_archetype_signature": "clean-assay-report-table-ledger::Lab-run-results table with pass/review/fail semantic cells.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::lab-run-results|table::Lab-run-results table with pass/review/fail semantic cells.",
+            "treatment_archetype_semantic_signature": "96baf5f2a35202105cc99194df91597e577bd35bb3d9808e51791db5cf07267b"
+          }
+        ],
+        "skipped_slides": []
+      }
+    }
+  },
+  "outline_composition": {
+    "path": "outline.json",
+    "exists": true,
+    "valid": true,
+    "slide_count": 14,
+    "content_slide_count": 13,
+    "variant_counts": {
+      "chart": 2,
+      "comparison-2col": 2,
+      "lab-run-results": 1,
+      "standard": 1,
+      "stats": 1,
+      "table": 4,
+      "timeline": 3
+    },
+    "content_variant_counts": {
+      "chart": 2,
+      "comparison-2col": 2,
+      "lab-run-results": 1,
+      "stats": 1,
+      "table": 4,
+      "timeline": 3
+    },
+    "visual_anchor_counts": {
+      "chart": 2,
+      "table": 5
+    },
+    "structure_anchor_counts": {
+      "comparison": 2,
+      "comparison-2col": 2,
+      "stats": 3,
+      "timeline": 3
+    },
+    "visual_anchor_slide_ids": [
+      "s4",
+      "s7",
+      "s8",
+      "s9",
+      "s10",
+      "s12",
+      "s14"
+    ],
+    "structure_anchor_slide_ids": [
+      "s2",
+      "s3",
+      "s5",
+      "s6",
+      "s9",
+      "s10",
+      "s11",
+      "s13"
+    ],
+    "unanchored_content_slide_ids": [],
+    "missing_source_content_slide_ids": [
+      "s2"
+    ],
+    "dominant_content_variant": "table",
+    "dominant_content_variant_count": 4,
+    "dominant_content_variant_ratio": 0.308,
+    "warning_signals": [],
+    "slides": [
+      {
+        "index": 0,
+        "slide_id": "s1",
+        "type": "title",
+        "variant": "standard",
+        "title": "\u51bb\u7ed3 Galileo \u8868\u5f81\u4e0a\u7684\n\u4f5c\u7269\u8bed\u4e49\u5206\u5272\u89e3\u7801\u5668\u7814\u7a76",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [],
+        "has_sources": false
+      },
+      {
+        "index": 1,
+        "slide_id": "s2",
+        "type": "content",
+        "variant": "comparison-2col",
+        "title": "\u7814\u7a76\u95ee\u9898\uff1a\u8868\u5f81\u5df2\u6709\uff0c\u5982\u4f55\u6709\u6548\u8bfb\u51fa\uff1f",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "comparison-2col",
+          "comparison"
+        ],
+        "has_sources": false
+      },
+      {
+        "index": 2,
+        "slide_id": "s3",
+        "type": "content",
+        "variant": "stats",
+        "title": "\u4efb\u52a1\u57fa\u7840\uff1aPASTIS \u591a\u65f6\u76f8\u4f5c\u7269\u8bed\u4e49\u5206\u5272",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "stats"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 3,
+        "slide_id": "s4",
+        "type": "content",
+        "variant": "table",
+        "title": "\u7406\u8bba\u4f9d\u636e\uff1a\u56db\u7bc7\u8bba\u6587\u6784\u6210\u7814\u7a76\u94fe\u6761",
+        "visual_anchor_kinds": [
+          "table"
+        ],
+        "structure_anchor_kinds": [],
+        "has_sources": true
+      },
+      {
+        "index": 4,
+        "slide_id": "s5",
+        "type": "content",
+        "variant": "timeline",
+        "title": "\u603b\u4f53\u6280\u672f\u8def\u7ebf\uff1a\u56fa\u5b9a encoder\uff0c\u53ea\u6bd4\u8f83 decoder",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "timeline"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 5,
+        "slide_id": "s6",
+        "type": "content",
+        "variant": "timeline",
+        "title": "\u8f93\u5165\u534f\u8bae\u4e0e\u5173\u952e\u5de5\u7a0b\u4fee\u6b63",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "timeline"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 6,
+        "slide_id": "s7",
+        "type": "content",
+        "variant": "table",
+        "title": "\u4e09\u6761 decoder \u8def\u7ebf",
+        "visual_anchor_kinds": [
+          "table"
+        ],
+        "structure_anchor_kinds": [],
+        "has_sources": true
+      },
+      {
+        "index": 7,
+        "slide_id": "s8",
+        "type": "content",
+        "variant": "lab-run-results",
+        "title": "\u5b9e\u9a8c\u8bbe\u7f6e\uff1a\u516c\u5e73\u6bd4\u8f83\u4e0e\u672c\u5730\u53ef\u590d\u73b0",
+        "visual_anchor_kinds": [
+          "table"
+        ],
+        "structure_anchor_kinds": [],
+        "has_sources": true
+      },
+      {
+        "index": 8,
+        "slide_id": "s9",
+        "type": "content",
+        "variant": "chart",
+        "title": "\u9636\u6bb5\u7ed3\u679c\uff1a\u65b9\u6848\u6709\u6548\uff0c\u4f46\u7edd\u5bf9\u6027\u80fd\u4ecd\u4e0d\u9ad8",
+        "visual_anchor_kinds": [
+          "chart"
+        ],
+        "structure_anchor_kinds": [
+          "stats"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 9,
+        "slide_id": "s10",
+        "type": "content",
+        "variant": "chart",
+        "title": "\u8bad\u7ec3\u8bca\u65ad\uff1a\u8fc7\u62df\u5408\u4e0e checkpoint \u89c4\u5219\u9519\u4f4d",
+        "visual_anchor_kinds": [
+          "chart"
+        ],
+        "structure_anchor_kinds": [
+          "stats"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 10,
+        "slide_id": "s11",
+        "type": "content",
+        "variant": "comparison-2col",
+        "title": "\u9636\u6bb5\u6210\u679c\u4e0e\u5f53\u524d\u8bc1\u636e\u8fb9\u754c",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "comparison-2col",
+          "comparison"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 11,
+        "slide_id": "s12",
+        "type": "content",
+        "variant": "table",
+        "title": "\u5e0c\u671b\u4e0e\u8001\u5e08\u8ba8\u8bba\uff1a\u8bfe\u9898\u4e0b\u4e00\u6b65\u8d70\u591a\u6df1\uff1f",
+        "visual_anchor_kinds": [
+          "table"
+        ],
+        "structure_anchor_kinds": [],
+        "has_sources": true
+      },
+      {
+        "index": 12,
+        "slide_id": "s13",
+        "type": "content",
+        "variant": "timeline",
+        "title": "\u4e0b\u4e00\u9636\u6bb5\uff1a\u5148\u505a\u5f3a\u8bc1\u636e\uff0c\u518d\u6269\u5c55\u7814\u7a76\u8fb9\u754c",
+        "visual_anchor_kinds": [],
+        "structure_anchor_kinds": [
+          "timeline"
+        ],
+        "has_sources": true
+      },
+      {
+        "index": 13,
+        "slide_id": "s14",
+        "type": "content",
+        "variant": "table",
+        "title": "\u53c2\u8003\u6587\u732e\u4e0e\u9879\u76ee\u8bc1\u636e",
+        "visual_anchor_kinds": [
+          "table"
+        ],
+        "structure_anchor_kinds": [],
+        "has_sources": true
+      }
+    ]
+  },
+  "checks": {
+    "planning": {
+      "returncode": 1,
+      "error_count": 0,
+      "warning_count": 2,
+      "info_count": 0,
+      "issue_keys": [
+        "design_brief.readability_contract.min_body_pt",
+        "design_brief.readability_contract.min_caption_pt"
+      ],
+      "issues": [
+        {
+          "path": "design_brief.readability_contract.min_body_pt",
+          "severity": "warning",
+          "message": "value 8.8 is below recommended minimum 12"
+        },
+        {
+          "path": "design_brief.readability_contract.min_caption_pt",
+          "severity": "warning",
+          "message": "value 7.2 is below recommended minimum 7.5"
+        }
+      ],
+      "stderr_tail": ""
+    },
+    "preflight": {
+      "returncode": 0,
+      "error_count": 0,
+      "warning_count": 0,
+      "info_count": 0,
+      "issue_keys": [],
+      "issues": [],
+      "stderr_tail": "[preflight] OK - no issues.\n"
+    }
+  },
+  "artifacts": {
+    "artifact_manifest": {
+      "path": "assets\\artifacts_manifest.json",
+      "exists": false,
+      "valid": false,
+      "output_count": 0,
+      "output_ids": [],
+      "aliases": []
+    },
+    "artifact_selection": {
+      "path": "artifact_selections.auto.json",
+      "exists": false,
+      "binding_count": 0,
+      "bound_output_ids": [],
+      "unbound_output_ids": [],
+      "slide_ids": [],
+      "variants": [],
+      "treatment_keys": [],
+      "variant_sources": []
+    },
+    "tabular_data": []
+  },
+  "artifact_context": {
+    "artifact_manifest": {
+      "path": "assets\\artifacts_manifest.json",
+      "exists": false,
+      "valid": false,
+      "manifest_version": "",
+      "output_count": 0,
+      "output_ids": [],
+      "analysis_summary": "",
+      "analysis_summary_markdown": "",
+      "figure_quality_counts": {},
+      "selection_template_count": 0,
+      "aliases": [],
+      "commands": {}
+    },
+    "artifact_selection": {
+      "path": "artifact_selections.auto.json",
+      "exists": false,
+      "binding_count": 0,
+      "bound_output_ids": [],
+      "unbound_output_ids": [],
+      "slide_ids": [],
+      "variants": [],
+      "treatment_keys": [],
+      "variant_sources": [],
+      "error": ""
+    }
+  },
+  "deck_intake": {
+    "status": "applied_without_local_answers",
+    "packet": {
+      "path": "deck_start_packet.json",
+      "exists": false
+    },
+    "answers": {
+      "path": "intake_answers.json",
+      "exists": false
+    },
+    "apply_report": {
+      "path": "intake_apply_report.json",
+      "exists": false
+    },
+    "valid_packet": false,
+    "applied": false,
+    "stale_apply": false,
+    "error": "",
+    "apply_error": "",
+    "answer_count": 0,
+    "answer_template": {},
+    "questions": [],
+    "design_contract_prompt_command": "",
+    "execution_plan": {
+      "valid": false,
+      "plan_version": "",
+      "phase_count": 0,
+      "phase_ids": []
+    },
+    "phase_proof_ledger": {
+      "exists": false,
+      "valid": false,
+      "ledger_version": "",
+      "plan_version": "",
+      "phase_count": 0,
+      "phase_ids": [],
+      "route_required_phase_ids": [],
+      "status_sources": [],
+      "acceptance_gate_ids": [],
+      "acceptance_gate_count": 0,
+      "phase_acceptance_gate_ids": {},
+      "phase_proof_counts": {},
+      "phase_proof_files": {},
+      "proof_paths": [],
+      "proof_path_count": 0,
+      "proof_files": [],
+      "proof_file_count": 0,
+      "existing_file_count": 0,
+      "missing_file_count": 0,
+      "missing_files": [],
+      "phase_count_matches_execution_plan": false
+    },
+    "route_decision_ledger": {},
+    "route_ledger_version": "",
+    "route_ledger_status": {},
+    "route_ledger_active_routes": [],
+    "workspace_source_inventory": {
+      "packet": {
+        "exists": false,
+        "data_file_count": 0,
+        "data_file_shown_count": 0,
+        "reference_pptx_count": 0,
+        "reference_pptx_shown_count": 0,
+        "artifact_ledger_count": 0,
+        "data_paths": [],
+        "reference_pptx_paths": [],
+        "artifact_ledger_paths": []
+      },
+      "choice_resolution_seed": {
+        "exists": false,
+        "data_file_count": 0,
+        "data_file_shown_count": 0,
+        "reference_pptx_count": 0,
+        "reference_pptx_shown_count": 0,
+        "artifact_ledger_count": 0,
+        "data_paths": [],
+        "reference_pptx_paths": [],
+        "artifact_ledger_paths": []
+      }
+    },
+    "choice_resolution_seed": {
+      "exists": false,
+      "contract_version": "",
+      "stable_prompt_id": "",
+      "choice_ids": [],
+      "choice_count": 0,
+      "route_status": {},
+      "active_routes": [],
+      "route_ledger_version": "",
+      "route_ledger_status": {},
+      "route_ledger_active_routes": [],
+      "source_inventory": {
+        "exists": false,
+        "data_file_count": 0,
+        "data_file_shown_count": 0,
+        "reference_pptx_count": 0,
+        "reference_pptx_shown_count": 0,
+        "artifact_ledger_count": 0,
+        "data_paths": [],
+        "reference_pptx_paths": [],
+        "artifact_ledger_paths": []
+      }
+    },
+    "answered_by": "",
+    "stable_prompt_id": "",
+    "unanswered": [],
+    "user_intake_exists": true,
+    "applied_metadata": {
+      "workflow": "",
+      "answers_sha256": "",
+      "packet_sha256": "",
+      "dry_run": false
+    }
+  },
+  "design_contract": {
+    "status": "none",
+    "contract": {
+      "path": "design_contract.json",
+      "exists": false
+    },
+    "apply_report": {
+      "path": "design_contract_apply_report.json",
+      "exists": false
+    },
+    "valid": false,
+    "applied": false,
+    "stale_apply": false,
+    "error": "",
+    "contract_version": "",
+    "stable_prompt_id": "",
+    "qa_contract": {
+      "exists": true,
+      "required_checks": [
+        "validate_planning.py",
+        "build_workspace.py",
+        "qa_gate.py",
+        "report_delivery_readiness.py",
+        "rendered visual review"
+      ],
+      "required_check_count": 5,
+      "fail_on": [
+        "planning errors",
+        "overflow",
+        "overlap",
+        "awkward whitespace",
+        "placeholder",
+        "unreadable chart labels"
+      ],
+      "fail_on_count": 6,
+      "visual_risks_to_check": [],
+      "placeholder_checks": true
+    },
+    "slide_quality_contract": {
+      "exists": false,
+      "contract_version": "",
+      "min_title_pt": null,
+      "min_body_pt": null,
+      "min_caption_pt": null,
+      "chart_label_min_pt": null,
+      "footer_reserved_inches": null,
+      "max_title_lines": null,
+      "max_slide_text_lines": null,
+      "max_slide_words": null,
+      "max_slide_chars": null,
+      "evidence_anchor_required": false,
+      "fail_on_awkward_whitespace": false,
+      "sparse_slide_allowed_only_when_intentional": false,
+      "source_footer_rule": "",
+      "artifact_quality_required_when_data_active": false,
+      "artifact_must_record": [],
+      "artifact_must_record_count": 0,
+      "fail_on": [],
+      "fail_on_count": 0,
+      "required_commands": [],
+      "required_command_count": 0
+    },
+    "subagent_handoff": {
+      "exists": false,
+      "ask_user_first": false,
+      "keys": []
+    },
+    "agent_execution_plan": {
+      "exists": true,
+      "phase_count": 5,
+      "phase_ids": [
+        "author",
+        "validate",
+        "build",
+        "review",
+        "deliver"
+      ],
+      "command_count": 0,
+      "commands": []
+    },
+    "choice_resolution": {
+      "exists": false,
+      "contract_version": "",
+      "stable_prompt_id": "",
+      "choice_ids": [],
+      "choice_count": 0,
+      "route_status": {},
+      "active_routes": [],
+      "route_ledger_version": "",
+      "route_ledger_status": {},
+      "route_ledger_active_routes": []
+    },
+    "reproducibility_contract": {
+      "exists": false,
+      "contract_version": "",
+      "stable_prompt_id": "",
+      "style_seed": "",
+      "renderer": "",
+      "locked_design_fields": [],
+      "locked_design_field_count": 0,
+      "replay_commands": [],
+      "replay_command_count": 0,
+      "acceptance_evidence": [],
+      "style_replay": {
+        "style_preset": "",
+        "background_system": "",
+        "header_variant_pool": [],
+        "footer_pool": [],
+        "chart_treatment_pool": [],
+        "table_treatment_pool": [],
+        "figure_table_treatment_pool": [],
+        "mix_rule": ""
+      },
+      "structure_replay": {
+        "target_slide_count": null,
+        "slide_variant_mix": []
+      },
+      "artifact_replay": {
+        "local_data_needed": null,
+        "artifact_manifest": "",
+        "analysis_summary": "",
+        "figure_script": "",
+        "rebuild_commands": []
+      }
+    },
+    "acceptance_evidence": {
+      "items": [
+        "qa report",
+        "contact sheet",
+        "content extraction",
+        "one fix-and-verify cycle"
+      ],
+      "item_count": 4,
+      "files": [],
+      "file_count": 0,
+      "existing_file_count": 0,
+      "missing_files": []
+    },
+    "applied_metadata": {
+      "exists": false,
+      "applied_by": "",
+      "stable_prompt_id": "",
+      "contract_sha256": "",
+      "contract_path": ""
+    }
+  },
+  "quality_context": {
+    "slide_quality_contract": {
+      "exists": false,
+      "contract_version": "",
+      "min_title_pt": null,
+      "min_body_pt": null,
+      "min_caption_pt": null,
+      "chart_label_min_pt": null,
+      "footer_reserved_inches": null,
+      "max_title_lines": null,
+      "max_slide_text_lines": null,
+      "max_slide_words": null,
+      "max_slide_chars": null,
+      "evidence_anchor_required": false,
+      "fail_on_awkward_whitespace": false,
+      "artifact_quality_required_when_data_active": false,
+      "artifact_must_record_count": 0,
+      "fail_on_count": 0,
+      "required_command_count": 0
+    },
+    "outline_quality_alignment": {
+      "present": false,
+      "persisted": false,
+      "contract_version": "",
+      "readability_target_count": 0,
+      "readability_targets_used": [],
+      "layout_target_count": 0,
+      "layout_targets_used": [],
+      "artifact_quality_target_count": 0,
+      "qa_gate_count": 0,
+      "qa_gates_used": [],
+      "required_command_count": 0,
+      "outline_choices": ""
+    }
+  },
+  "data_analysis_handoff": {
+    "status": "none",
+    "handoff": {
+      "path": "data_analysis_handoff.json",
+      "exists": false
+    },
+    "apply_report": {
+      "path": "data_analysis_handoff_apply_report.json",
+      "exists": false
+    },
+    "selection_file": {
+      "path": "artifact_selections.scout.json",
+      "exists": false
+    },
+    "valid": false,
+    "error": "",
+    "apply_error": "",
+    "applied": false,
+    "stale_apply": false,
+    "selection_count": 0,
+    "binding_count": 0,
+    "selection_binding_count": 0,
+    "bound_output_ids": [],
+    "slide_ids": [],
+    "variants": [],
+    "applied_bindings": false,
+    "script_edit_count": 0,
+    "artifact_rebuild_context": {
+      "present": false,
+      "persisted": false,
+      "applied": false,
+      "context_version": "",
+      "source": "",
+      "producer_path": "",
+      "artifact_manifest": "",
+      "analysis_summary": "",
+      "source_count": 0,
+      "output_count": 0,
+      "command_count": 0,
+      "commands": []
+    },
+    "artifact_contracts": {
+      "figure_export_contract_applied": false,
+      "figure_export_output_count": 0,
+      "artifact_registry_update_count": 0,
+      "asset_plan_update_counts": {}
+    },
+    "scout_analysis": {
+      "present": false,
+      "persisted": false,
+      "applied": false,
+      "schema": "",
+      "analysis_task_count": 0,
+      "computed_finding_count": 0,
+      "visual_recommendation_count": 0,
+      "outline_binding_count": 0,
+      "quality_flag_count": 0,
+      "open_question_count": 0,
+      "analysis_task_ids": [],
+      "computed_finding_ids": [],
+      "visual_recommendation_ids": [],
+      "target_slide_ids": [],
+      "variants": [],
+      "quality_flags": [],
+      "open_questions": [],
+      "recommended_workflow_mode": ""
+    },
+    "artifact_storyboard": {
+      "present": false,
+      "persisted": false,
+      "applied": false,
+      "schema": "",
+      "item_count": 0,
+      "slide_ids": [],
+      "variants": [],
+      "output_ids": [],
+      "artifact_roles": [],
+      "data_source_paths": [],
+      "script_edit_paths": []
+    },
+    "recommended_workflow": {},
+    "applied_metadata": {
+      "handoff_sha256": "",
+      "dry_run": false,
+      "changed_file_count": null,
+      "artifact_rebuild_context_applied": false
+    },
+    "applied_ledger": {}
+  },
+  "outline_authoring_handoff": {
+    "status": "none",
+    "handoff": {
+      "path": "outline_authoring_handoff.json",
+      "exists": false
+    },
+    "apply_report": {
+      "path": "outline_authoring_handoff_apply_report.json",
+      "exists": false
+    },
+    "valid": false,
+    "error": "",
+    "apply_error": "",
+    "applied": false,
+    "stale_apply": false,
+    "handoff_version": "",
+    "patch_fields": [],
+    "artifact_rebuild_plan": {
+      "present": false,
+      "persisted": false,
+      "context_version": "",
+      "producer_path": "",
+      "source_count": 0,
+      "output_count": 0,
+      "command_count": 0,
+      "commands": []
+    },
+    "quality_alignment": {
+      "present": false,
+      "persisted": false,
+      "contract_version": "",
+      "readability_target_count": 0,
+      "readability_targets_used": [],
+      "layout_target_count": 0,
+      "layout_targets_used": [],
+      "artifact_quality_target_count": 0,
+      "artifact_quality_targets_used": [],
+      "qa_gate_count": 0,
+      "qa_gates_used": [],
+      "required_command_count": 0,
+      "required_commands": [],
+      "outline_choices": ""
+    },
+    "applied_metadata": {
+      "workflow": "",
+      "handoff_sha256": "",
+      "dry_run": false,
+      "changed_file_count": null,
+      "artifact_rebuild_plan_applied": false,
+      "quality_alignment_applied": false
+    }
+  },
+  "pptx_style": {
+    "status": "none",
+    "reference_pptx_candidates": [],
+    "report": {
+      "path": "style_extract_report.json",
+      "exists": false
+    },
+    "fragment": {
+      "path": "style_extract_design_brief.json",
+      "exists": false
+    },
+    "apply_report": {
+      "path": "style_fragment_apply_report.json",
+      "exists": false
+    },
+    "report_current": {
+      "checked": false,
+      "current": false,
+      "matched_inputs": [],
+      "stale_inputs": [],
+      "missing_inputs": []
+    },
+    "applied": false,
+    "stale_apply": false,
+    "style_import": {
+      "exists": false,
+      "applied_by": "",
+      "mode": null,
+      "style_seed": null,
+      "style_preset": null,
+      "fragment_sha256": ""
+    },
+    "report_deck_count": 0,
+    "report_slide_count": 0
+  },
+  "execution_plan": {
+    "status": "none",
+    "valid": false,
+    "plan_version": "",
+    "phase_count": 0,
+    "phase_ids": [],
+    "current_phase_id": "",
+    "phases": [],
+    "phase_proof_ledger": {
+      "exists": false,
+      "valid": false,
+      "ledger_version": "",
+      "plan_version": "",
+      "phase_count": 0,
+      "phase_ids": [],
+      "route_required_phase_ids": [],
+      "status_sources": [],
+      "acceptance_gate_ids": [],
+      "acceptance_gate_count": 0,
+      "phase_acceptance_gate_ids": {},
+      "phase_proof_counts": {},
+      "phase_proof_files": {},
+      "proof_paths": [],
+      "proof_path_count": 0,
+      "proof_files": [],
+      "proof_file_count": 0,
+      "existing_file_count": 0,
+      "missing_file_count": 0,
+      "missing_files": [],
+      "phase_count_matches_execution_plan": false
+    },
+    "required_by_route_ledger": [],
+    "current_phase_command_key": "",
+    "current_phase_command": [],
+    "current_phase_command_text": ""
+  },
+  "last_build": {
+    "path": "build\\build_workspace_report.json",
+    "exists": true,
+    "run": {
+      "status": "succeeded",
+      "returncode": 0,
+      "failed_step": "",
+      "step_returncodes": {
+        "qa": 0
+      }
+    },
+    "run_status": "succeeded",
+    "returncode": 0,
+    "failed_step": "",
+    "style_preset": "lab-report",
+    "renderer": {
+      "requested": "auto",
+      "used": "pptxgenjs"
+    },
+    "source_freshness": {
+      "checked": true,
+      "count": 24,
+      "stale_count": 0,
+      "stale_files": [],
+      "files": [
+        {
+          "name": "artifact_manifest",
+          "path": "assets\\artifacts_manifest.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "artifact_manifest_apply_report",
+          "path": "build\\artifact_manifest_apply.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "artifact_selection",
+          "path": "artifact_selections.auto.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "asset_plan",
+          "path": "asset_plan.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "026a967f9976e6f9d674765764585ddfb2cedded8bf948f0d73aea7a8c06de04",
+          "current_sha256": "026a967f9976e6f9d674765764585ddfb2cedded8bf948f0d73aea7a8c06de04",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "content_plan",
+          "path": "content_plan.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "6e2e764eccab9b6db124a68c3fe29793c529205b63e6f16db84b834af31894ee",
+          "current_sha256": "6e2e764eccab9b6db124a68c3fe29793c529205b63e6f16db84b834af31894ee",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "data_analysis_handoff",
+          "path": "data_analysis_handoff.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "data_analysis_handoff_apply_report",
+          "path": "data_analysis_handoff_apply_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "data_analysis_handoff_selection",
+          "path": "artifact_selections.scout.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "deck_start_packet",
+          "path": "deck_start_packet.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "design_brief",
+          "path": "design_brief.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "256edd7417b9feef499c676e962480c2fc6ab84105a1ef99abb1deb4107c3c88",
+          "current_sha256": "256edd7417b9feef499c676e962480c2fc6ab84105a1ef99abb1deb4107c3c88",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "design_contract",
+          "path": "design_contract.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "design_contract_apply_report",
+          "path": "design_contract_apply_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "evidence_plan",
+          "path": "evidence_plan.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "33bc71f138b4760d20f3dab83e0d346507cd4f898cd604b8daea7fee65dbff09",
+          "current_sha256": "33bc71f138b4760d20f3dab83e0d346507cd4f898cd604b8daea7fee65dbff09",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "intake_answers",
+          "path": "intake_answers.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "intake_apply_report",
+          "path": "intake_apply_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "outline_authoring_handoff",
+          "path": "outline_authoring_handoff.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "outline_authoring_handoff_apply_report",
+          "path": "outline_authoring_handoff_apply_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "outline_source",
+          "path": "outline.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "c7c5212c4e23f4b29ff59c11870cc83d66f86317fe606c670aafae1afb967f8e",
+          "current_sha256": "c7c5212c4e23f4b29ff59c11870cc83d66f86317fe606c670aafae1afb967f8e",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "outline_used",
+          "path": "build\\outline_resolved.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "050e988f16f9073b30a7a45b3813c88bfe1822a56e74c6e7baa331a3b307e894",
+          "current_sha256": "050e988f16f9073b30a7a45b3813c88bfe1822a56e74c6e7baa331a3b307e894",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "style_contract",
+          "path": "style_contract.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "47b8ea8fdbf4f01f940d4b21c8e895bc64d00b99114aa0c4f3a786478f9f07e0",
+          "current_sha256": "47b8ea8fdbf4f01f940d4b21c8e895bc64d00b99114aa0c4f3a786478f9f07e0",
+          "status": "fresh",
+          "stale": false
+        },
+        {
+          "name": "style_extract_design_brief",
+          "path": "style_extract_design_brief.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "style_extract_report",
+          "path": "style_extract_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "style_fragment_apply_report",
+          "path": "style_fragment_apply_report.json",
+          "build_exists": false,
+          "current_exists": false,
+          "build_sha256": "",
+          "current_sha256": "",
+          "status": "absent_at_build",
+          "stale": false
+        },
+        {
+          "name": "workspace_manifest",
+          "path": "workspace.json",
+          "build_exists": true,
+          "current_exists": true,
+          "build_sha256": "168922a490960c5e4eb9354c002fdd43aae36d0fad84ffdd781208dbd2526239",
+          "current_sha256": "168922a490960c5e4eb9354c002fdd43aae36d0fad84ffdd781208dbd2526239",
+          "status": "fresh",
+          "stale": false
+        }
+      ]
+    },
+    "pptx_exists": true,
+    "planning_counts": {
+      "error_count": 0,
+      "warning_count": 2
+    },
+    "qa_counts": {
+      "overflow_count": 0,
+      "overlap_count": 0,
+      "geometry_error_count": 0,
+      "geometry_warning_count": 0,
+      "whitespace_warning_count": 0,
+      "design_error_count": 0,
+      "design_warning_count": 0,
+      "visual_warning_count": 0,
+      "visual_review_warning_count": 0
+    },
+    "qa": {
+      "path": "build\\qa\\report.json",
+      "exists": true,
+      "counts": {
+        "overflow_count": 0,
+        "overlap_count": 0,
+        "geometry_error_count": 0,
+        "geometry_warning_count": 0,
+        "whitespace_warning_count": 0,
+        "design_error_count": 0,
+        "design_warning_count": 0,
+        "visual_warning_count": 0,
+        "visual_review_warning_count": 0
+      },
+      "whitespace_warning_count": 0,
+      "design_warning_count": 0,
+      "visual_warning_count": 0,
+      "visual_review_warning_count": 0,
+      "whitespace_warnings": [],
+      "design_report": {
+        "path": "build\\qa\\design_rules.json",
+        "exists": true
+      },
+      "design_warnings": [],
+      "visual_report": {
+        "path": "build\\qa\\visual_qa.json",
+        "exists": true
+      },
+      "visual_review_report": {
+        "path": "",
+        "exists": false
+      },
+      "visual_warnings": []
+    },
+    "data_analysis_handoff": {
+      "status": "none",
+      "applied": false,
+      "selection_count": 0,
+      "selection_binding_count": 0,
+      "binding_count": 0,
+      "bound_output_ids": [],
+      "slide_ids": [],
+      "variants": [],
+      "script_edit_count": 0,
+      "artifact_rebuild_context": {
+        "present": false,
+        "applied": false,
+        "context_version": "",
+        "source": "",
+        "producer_path": "",
+        "artifact_manifest": "",
+        "analysis_summary": "",
+        "source_count": 0,
+        "output_count": 0,
+        "command_count": 0,
+        "commands": []
+      },
+      "artifact_contracts": {
+        "figure_export_contract_applied": false,
+        "figure_export_output_count": 0,
+        "artifact_registry_update_count": 0,
+        "asset_plan_update_counts": {}
+      },
+      "scout_analysis": {
+        "present": false,
+        "applied": false,
+        "persisted": false,
+        "schema": "",
+        "analysis_task_ids": [],
+        "computed_finding_ids": [],
+        "visual_recommendation_ids": [],
+        "target_slide_ids": [],
+        "variants": [],
+        "quality_flags": [],
+        "open_questions": [],
+        "recommended_workflow_mode": "",
+        "analysis_task_count": 0,
+        "computed_finding_count": 0,
+        "visual_recommendation_count": 0,
+        "outline_binding_count": 0,
+        "quality_flag_count": 0,
+        "open_question_count": 0
+      },
+      "artifact_storyboard": {}
+    },
+    "speed": {
+      "schema": "build_workspace_speed_v1",
+      "total_duration_ms": 3838,
+      "step_count": 6,
+      "renderer_used": "pptxgenjs",
+      "fast_first_pass": false,
+      "skip_render": true,
+      "visual_review": false,
+      "longest_step": {
+        "step": "qa",
+        "duration_ms": 2738
+      },
+      "step_durations_ms": {
+        "planning_validation": 167,
+        "preflight": 227,
+        "asset_staging": 199,
+        "render_deck": 287,
+        "qa": 2738,
+        "verify_narration": 101
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "kind": "resolve_planning_warnings",
+      "reason": "Reusable/report decks should clear source-planning warnings before render.",
+      "command": [
+        "python3",
+        "scripts/validate_planning.py",
+        "--workspace",
+        "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+        "--report",
+        "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\planning_validation.json"
+      ],
+      "planning_paths": [
+        "design_brief.readability_contract.min_body_pt",
+        "design_brief.readability_contract.min_caption_pt"
+      ],
+      "warning_types": [
+        "readability_contract"
+      ],
+      "suggested_fields": [
+        "readability_contract",
+        "readability_contract.min_title_pt",
+        "readability_contract.min_body_pt",
+        "readability_contract.footer_reserved_inches"
+      ]
+    }
+  ],
+  "next_action": {
+    "kind": "resolve_planning_warnings",
+    "reason": "Reusable/report decks should clear source-planning warnings before render.",
+    "command": [
+      "python3",
+      "scripts/validate_planning.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--report",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\planning_validation.json"
+    ],
+    "planning_paths": [
+      "design_brief.readability_contract.min_body_pt",
+      "design_brief.readability_contract.min_caption_pt"
+    ],
+    "warning_types": [
+      "readability_contract"
+    ],
+    "suggested_fields": [
+      "readability_contract",
+      "readability_contract.min_title_pt",
+      "readability_contract.min_body_pt",
+      "readability_contract.footer_reserved_inches"
+    ],
+    "priority": 30,
+    "action_type": "edit_sources"
+  },
+  "next_commands": {
+    "readiness": [
+      "python3",
+      "scripts/report_workspace_readiness.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report"
+    ],
+    "strict_build": [
+      "python3",
+      "scripts/build_workspace.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--qa",
+      "--fail-on-planning-warnings",
+      "--fail-on-whitespace-warnings",
+      "--overwrite"
+    ],
+    "fast_first_pass_build": [
+      "python3",
+      "scripts/build_workspace.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--qa",
+      "--skip-render",
+      "--fail-on-planning-warnings",
+      "--fail-on-whitespace-warnings",
+      "--overwrite"
+    ],
+    "data_artifact_build": [
+      "python3",
+      "scripts/build_workspace.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--scaffold-data-artifacts",
+      "--auto-bind-artifacts",
+      "--artifact-bind-mode",
+      "lead",
+      "--qa",
+      "--skip-render",
+      "--fail-on-planning-warnings",
+      "--fail-on-whitespace-warnings",
+      "--overwrite"
+    ],
+    "delivery_audit": [
+      "python3",
+      "scripts/report_delivery_readiness.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report"
+    ],
+    "outline_authoring_prompt": [
+      "python3",
+      "scripts/emit_outline_authoring_prompt.py",
+      "--workspace",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report",
+      "--output",
+      "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\outline_authoring_prompt.md"
+    ]
+  }
+}

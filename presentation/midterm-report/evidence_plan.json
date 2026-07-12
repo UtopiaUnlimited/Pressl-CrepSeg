@@ -1,0 +1,22 @@
+{
+  "topic": "冻结 Galileo 表征上的 PASTIS 作物语义分割解码器研究",
+  "source_policy": "论文数字使用原始论文；项目结果使用阶段报告和保存日志；不同协议只作背景，不作直接排名。",
+  "items": [
+    {"id": "PASTIS21", "claim": "PASTIS 包含 2433 个 patch、18 种作物和背景类；多时相对作物分割重要", "source": "论文/PASTIS原始论文.pdf", "used_on_slides": ["s3", "s4", "s9", "s14"]},
+    {"id": "SeCo21", "claim": "遥感域内自监督预训练具有迁移优势", "source": "论文/（预训练优势）Seasonal Contrast_Unsupervised Pre-Training.pdf", "used_on_slides": ["s4", "s14"]},
+    {"id": "DPT21", "claim": "DPT 从多层 Transformer 取 token 并重组融合", "source": "论文/（DPT相关）Vision Transformers for Dense Prediction.pdf", "used_on_slides": ["s4", "s7", "s14"]},
+    {"id": "Galileo25", "claim": "Galileo 学习全局与局部遥感表征；PASTIS linear probe 参考为 39.2%", "source": "论文/（自监督部分）Galileo_Learning_Global_L.pdf", "used_on_slides": ["s4", "s6", "s9", "s14"]},
+    {"id": "PASTISR22", "claim": "PASTIS-R 在 PASTIS 上增加 Sentinel-1 雷达时序", "source": "https://arxiv.org/abs/2112.07558", "used_on_slides": ["s12", "s14"]},
+    {"id": "Run2026", "claim": "Single 45.78%，Multi 46.32%；训练曲线、容量与资源数据", "source": "docs/PROGRESS_REPORT_2026-07-11.md", "used_on_slides": ["s8", "s9", "s10", "s11", "s14"]},
+    {"id": "ProjectProtocol", "claim": "月度 12 时相、64×64、patch4、19 类、共享缓存", "source": "README.md; docs/DECODER_EXPERIMENTS.md", "used_on_slides": ["s5", "s6", "s7", "s14"]}
+  ],
+  "chart_candidates": [
+    {"slide_id": "s9", "metric": "test mIoU", "values": [39.2, 45.78, 46.32], "status": "real"},
+    {"slide_id": "s10", "metric": "validation mIoU", "values": [47.15, 49.34, 44.16, 42.54], "status": "real"}
+  ],
+  "open_questions": [
+    "多层增益是否在多个 seed 下稳定？",
+    "收益是否来自参数量而非跨层融合？",
+    "进一步工作应优先完善 DPT、构建 SSL×decoder benchmark，还是扩展 PASTIS-R？"
+  ]
+}

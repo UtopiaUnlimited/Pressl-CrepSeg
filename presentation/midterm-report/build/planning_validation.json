@@ -1,0 +1,16 @@
+{
+  "issues": [
+    {
+      "path": "design_brief.readability_contract.min_body_pt",
+      "severity": "warning",
+      "message": "value 8.8 is below recommended minimum 12"
+    },
+    {
+      "path": "design_brief.readability_contract.min_caption_pt",
+      "severity": "warning",
+      "message": "value 7.2 is below recommended minimum 7.5"
+    }
+  ],
+  "error_count": 0,
+  "warning_count": 2
+}

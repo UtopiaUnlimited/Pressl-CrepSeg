@@ -1,0 +1,123 @@
+{
+  "topic": "冻结 Galileo 表征上的 PASTIS 作物语义分割解码器研究",
+  "content_maturity": "research_midterm",
+  "audience_posture": "导师、课题组教师与同学",
+  "emotional_register": "严谨、克制、可讨论",
+  "format_promise": "一套完全可编辑、证据优先、适合 10-12 分钟现场汇报的 PowerPoint",
+  "user_intake": {
+    "assumptions": [
+      "用户需要后续自行编辑所有文字、表格、图表与形状",
+      "没有指定学校模板或个人信息，因此封面保留简洁通用结构",
+      "汇报重点是科研逻辑与阶段证据，而不是包装为 SOTA"
+    ]
+  },
+  "anti_format": [
+    "整页栅格图片导致不可编辑",
+    "连续重复的三卡片布局",
+    "将 46.32% 包装成高性能或 SOTA",
+    "用装饰图标替代实验数据",
+    "将不同协议结果进行排行榜式直接比较"
+  ],
+  "canvas_and_grid": {
+    "aspect": "16:9",
+    "margin_x_in": 0.55,
+    "footer_reserve_in": 0.34,
+    "header_policy": "标题最多两行，正文从动态 contentTop 开始",
+    "column_policy": "统一边距与 gutter；证据对象优先占据主要面积"
+  },
+  "visual_system": {
+    "style_preset": "lab-report",
+    "dominant_color": "#173F3A",
+    "accent_primary": "#1D6F64",
+    "accent_secondary": "#D08A24",
+    "background": "白色科研报告页",
+    "semantic_colors": {
+      "positive": "#2F7D5A",
+      "caution": "#D08A24",
+      "limitation": "#B54B4B",
+      "reference": "#477D95"
+    }
+  },
+  "style_system": {
+    "style_preset": "lab-report",
+    "style_seed": "galileo-pastis-midterm",
+    "background_system": "white report",
+    "header_mode": "lab-clean",
+    "header_variant_pool": ["left-accent", "split-rule", "side-rail", "plain"],
+    "footer_mode": "source-line",
+    "chart_treatment_pool": ["facts-right", "minimal"],
+    "table_treatment_pool": ["compact-ledger", "journal-grid"],
+    "figure_table_treatment_pool": ["table-first", "stats-strip"]
+  },
+  "style_mix_matrix": {
+    "header_variant_pool": ["left-accent", "split-rule", "side-rail", "plain"],
+    "title_layout_pool": ["light-atlas", "lab-plate"],
+    "timeline_mode_pool": ["bands", "chapter-spread"],
+    "chart_treatment_pool": ["facts-right", "minimal"],
+    "table_treatment_pool": ["compact-ledger", "journal-grid"],
+    "summary_callout_mode_pool": ["lab-box"],
+    "footer_pool": ["source-line"],
+    "mix_rule": "使用稳定 style_seed 选择克制的科研版式变化；证据对象决定页面结构。",
+    "do_not_mix": ["不混用营销式 hero", "不在证据页使用装饰卡片墙"]
+  },
+  "design_modulation": {
+    "change_intensity": "subtle",
+    "base_preset_fit": "lab-report preset plus topic-specific green/teal evidence accents",
+    "accent_strategy": "深绿用于研究主线，橙色仅用于警示与开放问题",
+    "density_strategy": "现场汇报中等密度；细节放入讲稿和参考页",
+    "whitespace_strategy": "保留呼吸空间，但结果图表和表格必须成为主视觉",
+    "motif_strategy": "空间网格、时间序列和跨层连接；只用可编辑几何元素",
+    "container_strategy": "表格、原生图表、对照列和时间带优先",
+    "figure_table_treatment": "表格保持 12pt 以上，结果图显示数据标签与来源",
+    "avoid": ["营销页", "渐变球体", "不可编辑整页图", "夸大结果"]
+  },
+  "title_page_concept": {
+    "chosen_archetype": "light-atlas",
+    "dominant_element": "两行研究题目",
+    "supporting_element": "PASTIS / Galileo / Decoder 三个证据标签与抽象网络网格",
+    "why_this_could_only_be_this_deck": "封面直接呈现遥感基础模型、数据集和 decoder 三个研究对象"
+  },
+  "structure_strategy": {
+    "primary_scaffold": "问题—依据—方法—结果—诊断—决策—计划",
+    "repeated_elements": ["统一页边距", "短来源 ID", "页码", "结论条"],
+    "allowed_variations": ["title", "comparison-2col", "stats", "timeline", "table", "lab-run-results", "chart"],
+    "container_policy": "概念才用对照列；数据使用图表和表格；不把普通段落塞进卡片墙",
+    "rhythm_break_plan": "第 9 页结果图和第 12 页研究决策作为节奏转折"
+  },
+  "readability_contract": {
+    "min_title_pt": 24,
+    "min_body_pt": 8.8,
+    "min_caption_pt": 7.2,
+    "max_title_lines": 2,
+    "max_slide_text_lines": 10,
+    "max_slide_words": 95,
+    "max_slide_chars": 520,
+    "footer_reserved_inches": 0.34,
+    "chart_label_min_pt": 8,
+    "table_density_rule": "超过 7 行或 4 列时拆分或缩短文本",
+    "whitespace_rule": "避免证据对象过小或正文挤在窄带",
+    "figure_crop_rule": "不使用带大面积外部留白的栅格图"
+  },
+  "speed_contract": {
+    "renderer": "pptxgenjs",
+    "first_pass": "planning validation + preflight + render-free QA",
+    "render_policy": "源文本稳定后进行 LibreOffice 渲染和视觉复核",
+    "asset_policy": "仅使用本地原生图表、表格与形状，不请求网络图片",
+    "conversion_hint": "最终 PPTX 渲染为 PDF/JPG 后检查"
+  },
+  "qa_contract": {
+    "required_checks": ["validate_planning.py", "build_workspace.py", "qa_gate.py", "report_delivery_readiness.py", "rendered visual review"],
+    "fail_on": ["planning errors", "overflow", "overlap", "awkward whitespace", "placeholder", "unreadable chart labels"],
+    "placeholder_checks": true,
+    "acceptance_evidence": ["qa report", "contact sheet", "content extraction", "one fix-and-verify cycle"]
+  },
+  "agent_execution_plan": {
+    "phases": [
+      {"phase": "author", "owner": "main agent", "files": ["outline.json", "design_brief.json", "content_plan.json", "evidence_plan.json"]},
+      {"phase": "validate", "owner": "scripts", "command": "validate_planning.py"},
+      {"phase": "build", "owner": "scripts", "command": "build_workspace.py --qa"},
+      {"phase": "review", "owner": "main agent", "command": "render_slides.py + visual_review.py"},
+      {"phase": "deliver", "owner": "main agent", "command": "report_delivery_readiness.py"}
+    ]
+  }
+}

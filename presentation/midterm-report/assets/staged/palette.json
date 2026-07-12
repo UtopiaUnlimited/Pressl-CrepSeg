@@ -1,0 +1,12 @@
+{
+  "topic": "\u51bb\u7ed3 Galileo \u8868\u5f81\u4e0a\u7684 PASTIS \u4f5c\u7269\u8bed\u4e49\u5206\u5272\u89e3\u7801\u5668\u7814\u7a76",
+  "palette_id": "clinical_labs_v1",
+  "palette_key": "enterprise_graphite_v1",
+  "palette": {
+    "dominant": "0F172A",
+    "support": "1E3A5F",
+    "accent": "14B8A6",
+    "neutral": "F8FAFC"
+  },
+  "matched_keywords": []
+}

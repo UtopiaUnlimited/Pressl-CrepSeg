@@ -1,0 +1,169 @@
+{
+  "input": "D:\\ycy\\GISproject\\PreSSL-CropSeg\\presentation\\midterm-report\\build\\galileo.pptx",
+  "style_preset": "lab-report",
+  "renderer_detected": "pptxgenjs",
+  "summary": {
+    "slide_count": 14,
+    "violation_count": 0,
+    "error_count": 0,
+    "warning_count": 0,
+    "density_score_by_slide": [
+      {
+        "slide_index": 0,
+        "density_score": 0.4958
+      },
+      {
+        "slide_index": 1,
+        "density_score": 0.6878
+      },
+      {
+        "slide_index": 2,
+        "density_score": 0.9023
+      },
+      {
+        "slide_index": 3,
+        "density_score": 0.5402
+      },
+      {
+        "slide_index": 4,
+        "density_score": 0.8614
+      },
+      {
+        "slide_index": 5,
+        "density_score": 0.8614
+      },
+      {
+        "slide_index": 6,
+        "density_score": 0.4858
+      },
+      {
+        "slide_index": 7,
+        "density_score": 0.7602
+      },
+      {
+        "slide_index": 8,
+        "density_score": 1.0
+      },
+      {
+        "slide_index": 9,
+        "density_score": 1.0
+      },
+      {
+        "slide_index": 10,
+        "density_score": 0.7361
+      },
+      {
+        "slide_index": 11,
+        "density_score": 0.4858
+      },
+      {
+        "slide_index": 12,
+        "density_score": 0.6424
+      },
+      {
+        "slide_index": 13,
+        "density_score": 0.7034
+      }
+    ]
+  },
+  "slides": [
+    {
+      "slide_index": 0,
+      "slide_type": "title",
+      "violations": [],
+      "density_score": 0.4958,
+      "empty_ratio": 0.5042
+    },
+    {
+      "slide_index": 1,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.6878,
+      "empty_ratio": 0.3122
+    },
+    {
+      "slide_index": 2,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.9023,
+      "empty_ratio": 0.0977
+    },
+    {
+      "slide_index": 3,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.5402,
+      "empty_ratio": 0.4598
+    },
+    {
+      "slide_index": 4,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.8614,
+      "empty_ratio": 0.1386
+    },
+    {
+      "slide_index": 5,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.8614,
+      "empty_ratio": 0.1386
+    },
+    {
+      "slide_index": 6,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.4858,
+      "empty_ratio": 0.5142
+    },
+    {
+      "slide_index": 7,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.7602,
+      "empty_ratio": 0.2398
+    },
+    {
+      "slide_index": 8,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 1.0,
+      "empty_ratio": 0.0
+    },
+    {
+      "slide_index": 9,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 1.0,
+      "empty_ratio": 0.0
+    },
+    {
+      "slide_index": 10,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.7361,
+      "empty_ratio": 0.2639
+    },
+    {
+      "slide_index": 11,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.4858,
+      "empty_ratio": 0.5142
+    },
+    {
+      "slide_index": 12,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.6424,
+      "empty_ratio": 0.3576
+    },
+    {
+      "slide_index": 13,
+      "slide_type": "content",
+      "violations": [],
+      "density_score": 0.7034,
+      "empty_ratio": 0.2966
+    }
+  ]
+}

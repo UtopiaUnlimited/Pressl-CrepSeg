@@ -1,0 +1,324 @@
+{
+  "title": "冻结 Galileo 表征上的作物语义分割解码器研究",
+  "subtitle": "PASTIS 中期汇报",
+  "deck_style": {
+    "font_pair": "system_clean_v1",
+    "visual_density": "medium",
+    "emoji_mode": "none",
+    "research_visual_mode": false,
+    "header_mode": "lab-clean",
+    "header_variant": "auto",
+    "footer_mode": "source-line",
+    "footer_page_numbers": true,
+    "title_layout": "light-atlas",
+    "title_motif": "network",
+    "chart_treatment": "facts-right",
+    "table_treatment": "compact-ledger",
+    "summary_callout_mode": "lab-box",
+    "style_seed": "galileo-pastis-midterm"
+  },
+  "compliance": {
+    "require_attribution": false,
+    "auto_image_sources": false
+  },
+  "slides": [
+    {
+      "slide_id": "s1",
+      "type": "title",
+      "kicker": "RESEARCH MIDTERM",
+      "title": "冻结 Galileo 表征上的\n作物语义分割解码器研究",
+      "subtitle": "PASTIS 中期汇报｜固定遥感预训练编码器，比较像素级解码方式",
+      "chips": ["PASTIS", "Galileo", "Decoder Study"]
+    },
+    {
+      "slide_id": "s2",
+      "type": "content",
+      "variant": "comparison-2col",
+      "slide_intent": "message",
+      "visual_intent": "comparison",
+      "title": "研究问题：表征已有，如何有效读出？",
+      "subtitle": "从“跑通模型”转向可检验的 decoder 假设",
+      "left": {
+        "title": "现实瓶颈",
+        "body": [
+          "像素级标注昂贵，遥感预训练具有现实价值",
+          "Transformer token 不能直接等同于分割图",
+          "最终层语义强，但局部边界可能不足"
+        ]
+      },
+      "right": {
+        "title": "核心假设",
+        "body": [
+          "Galileo 冻结表征包含可迁移的作物信息",
+          "空间细化 decoder 可改善线性读取",
+          "跨层融合可能补充局部细节与深层语义"
+        ]
+      },
+      "verdict": "RQ1：空间 decoder 是否改善 linear probe？　RQ2：多层特征是否优于最终层？"
+    },
+    {
+      "slide_id": "s3",
+      "type": "content",
+      "variant": "stats",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "任务基础：PASTIS 多时相作物语义分割",
+      "subtitle": "18 种作物 + 背景；void 像素不参与训练与评价",
+      "facts": [
+        {"value": "2,433", "label": "原始空间 patch", "detail": "每个 128×128，10 m/px", "accent": "accent_secondary"},
+        {"value": "10", "label": "Sentinel-2 波段", "detail": "多光谱时间序列"},
+        {"value": "19", "label": "有效语义类别", "detail": "背景 + 18 种作物", "accent": "accent_secondary"},
+        {"value": "5", "label": "官方 folds", "detail": "当前使用 1/2/3 → 4 → 5"}
+      ],
+      "bullets": [
+        "主要指标：mIoU 与 per-class IoU",
+        "原始 label 19 为 void，映射为 -1 并忽略"
+      ],
+      "sources": ["[PASTIS21]"]
+    },
+    {
+      "slide_id": "s4",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "理论依据：四篇论文构成研究链条",
+      "table": {
+        "headers": ["文献", "关键结论", "对本项目的作用"],
+        "rows": [
+          ["PASTIS / U-TAE", "多时相显著优于单时相", "定义任务与时间建模需求"],
+          ["Seasonal Contrast", "遥感域内 SSL 更适合迁移", "支持预训练表征路线"],
+          ["Galileo", "全局 + 局部目标学习遥感表征", "提供冻结多层 token 特征"],
+          ["DPT", "多层 token 重组并渐进融合", "指导 decoder 与跨层实验"]
+        ],
+        "column_weights": [1.2, 2.0, 2.2],
+        "caption": "文献给出研究动机；本项目仍需通过受控实验检验具体假设。"
+      },
+      "sources": ["[PASTIS21] [SeCo21] [Galileo25] [DPT21]"]
+    },
+    {
+      "slide_id": "s5",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "process",
+      "visual_intent": "timeline",
+      "title": "总体技术路线：固定 encoder，只比较 decoder",
+      "subtitle": "共享输入与缓存，避免把协议变化误认为结构收益",
+      "milestones": [
+        {"label": "01", "title": "PASTIS 输入", "body": "12 月 × 10 波段 × 64×64"},
+        {"label": "02", "title": "冻结 Galileo", "body": "ViT-Base；patch size 4"},
+        {"label": "03", "title": "共享缓存", "body": "final + layers 3/6/9/12"},
+        {"label": "04", "title": "Decoder 对比", "body": "DPT / UPerNet → 19 类"}
+      ],
+      "message": "实验原则：输入、encoder、loss 与评测口径固定；变量集中在 decoder。",
+      "sources": ["[ProjectProtocol]"]
+    },
+    {
+      "slide_id": "s6",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "process",
+      "visual_intent": "timeline",
+      "title": "输入协议与关键工程修正",
+      "subtitle": "从原始不规则时序到 Galileo 可复现空间特征",
+      "milestones": [
+        {"label": "T×10×128²", "title": "原始 PASTIS", "body": "保留原生 10 波段"},
+        {"label": "12×10×128²", "title": "月度聚合", "body": "2018-10 至 2019-09"},
+        {"label": "12×10×64²", "title": "空间切块", "body": "每个 patch 生成 4 个 tile"},
+        {"label": "768×16²", "title": "结构化 token 聚合", "body": "按 H/W/T/group 恢复空间网格"}
+      ],
+      "message": "不能把完整 Galileo token 序列按 256 个位置直接分块平均；当前实现先恢复空间语义，再聚合时间与通道组。",
+      "sources": ["[Galileo25] [ProjectProtocol]"]
+    },
+    {
+      "slide_id": "s7",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "三条 decoder 路线",
+      "table": {
+        "headers": ["路线", "Galileo 特征", "核心问题", "状态"],
+        "rows": [
+          ["Single-layer DPT-style", "最终层", "最终语义特征能否被有效读出？", "已完成"],
+          ["Multi-layer DPT", "3 / 6 / 9 / 12", "跨层信息是否互补？", "首轮完成"],
+          ["UPerNet-style", "3 / 6 / 9 / 12", "PPM + FPN 是否更适合融合？", "已实现，待训练"]
+        ],
+        "column_weights": [1.5, 1.2, 2.4, 1.1],
+        "cell_styles": {
+          "0,3": {"fill": "#D9EAD3", "bold": true},
+          "1,3": {"fill": "#FFF2CC", "bold": true},
+          "2,3": {"fill": "#D9EAF7", "bold": true}
+        },
+        "caption": "所有路线读取同一批 Galileo 共享缓存。"
+      },
+      "sources": ["[DPT21] [ProjectProtocol]"]
+    },
+    {
+      "slide_id": "s8",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "实验设置：公平比较与本地可复现",
+      "tables": [
+        {
+          "title": "共同训练设置",
+          "headers": ["项目", "设置"],
+          "rows": [
+            ["Encoder", "Galileo ViT-Base，完全冻结"],
+            ["Loss", "CE + 0.5 × Dice"],
+            ["Optimizer", "Prodigy，lr=1，wd=0.1"],
+            ["Batch / Seed", "16 / 42"],
+            ["Checkpoint", "最低 val loss"]
+          ]
+        },
+        {
+          "title": "资源与模型规模",
+          "headers": ["项目", "Single", "Multi"],
+          "rows": [
+            ["可训练参数", "4.92M", "9.06M"],
+            ["训练耗时", "3.24 h", "3.94 h"],
+            ["峰值显存", "698 MiB", "880 MiB"]
+          ]
+        }
+      ],
+      "interpretation": "多层模型参数量约为单层的 1.84 倍；当前结构比较仍混入容量差异。",
+      "sources": ["[Run2026]"]
+    },
+    {
+      "slide_id": "s9",
+      "type": "content",
+      "variant": "chart",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "阶段结果：方案有效，但绝对性能仍不高",
+      "subtitle": "Fold5 test mIoU；论文 39.2% 为 linear probe 参考，不是同容量比较",
+      "chart_treatment": "facts-right",
+      "chart": {
+        "type": "bar",
+        "series": [
+          {"name": "Test mIoU (%)", "labels": ["论文 linear probe", "Single-layer", "Multi-layer"], "values": [39.20, 45.78, 46.32]}
+        ],
+        "options": {"catAxisTitle": "下游方案", "valAxisTitle": "mIoU (%)", "showValue": true}
+      },
+      "facts": [
+        {"value": "6.58", "label": "pp · Single vs 论文参考", "detail": "完整下游方案差异"},
+        {"value": "0.54", "label": "pp · Multi vs Single", "detail": "单 seed 的微弱正向信号"},
+        {"value": "46.32%", "label": "当前最高 test mIoU", "detail": "仍有明显提升空间"}
+      ],
+      "caption": "PASTIS/U-TAE 的 63.1% 使用不同输入、端到端训练和五折协议，仅作为任务性能背景。",
+      "sources": ["[Galileo25] [PASTIS21] [Run2026]"]
+    },
+    {
+      "slide_id": "s10",
+      "type": "content",
+      "variant": "chart",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "训练诊断：过拟合与 checkpoint 规则错位",
+      "subtitle": "最高 validation mIoU 与 epoch 100 对比",
+      "chart": {
+        "type": "bar",
+        "categories": ["Single-layer", "Multi-layer"],
+        "series": [
+          {"name": "最高 val mIoU", "values": [47.15, 49.34]},
+          {"name": "epoch 100", "values": [44.16, 42.54]}
+        ],
+        "options": {"catAxisTitle": "模型", "valAxisTitle": "mIoU (%)", "showValue": true}
+      },
+      "facts": [
+        {"value": "25 / 11", "label": "最低 val loss epoch", "detail": "Single / Multi"},
+        {"value": "47 / 22", "label": "最高 val mIoU epoch", "detail": "与保存规则不一致"},
+        {"value": "−6.80 pp", "label": "Multi 后期回落", "detail": "100 epochs 明显过长"}
+      ],
+      "message": "下一轮：同时保存 best_val_loss 与 best_val_mIoU，并预先固定 early stopping。",
+      "sources": ["[Run2026]"]
+    },
+    {
+      "slide_id": "s11",
+      "type": "content",
+      "variant": "comparison-2col",
+      "slide_intent": "decision",
+      "visual_intent": "comparison",
+      "title": "阶段成果与当前证据边界",
+      "left": {
+        "title": "已经建立",
+        "body": [
+          "Galileo 官方 PASTIS 输入协议",
+          "正确 token 空间聚合与共享缓存",
+          "两种 DPT 的完整 train / val / test 链路",
+          "UPerNet、TensorBoard 与定性可视化工具"
+        ]
+      },
+      "right": {
+        "title": "尚不能下结论",
+        "body": [
+          "46.32% 不是高性能结果",
+          "仅一个 seed，缺少均值与方差",
+          "Multi 参数更多，未做容量控制",
+          "当前仅同分辨率投影后等权相加"
+        ]
+      },
+      "verdict": "当前结果不能代表完善 DPT 的上限；中期价值在于建立可信链路与可检验问题。",
+      "sources": ["[Run2026]"]
+    },
+    {
+      "slide_id": "s12",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "decision",
+      "visual_intent": "data",
+      "title": "希望与老师讨论：课题下一步走多深？",
+      "table": {
+        "headers": ["候选方向", "研究问题", "价值", "风险 / 代价"],
+        "rows": [
+          ["DPT 机制深化", "简单相加是否限制多层收益？", "形成明确方法消融", "需要系统调参与容量控制"],
+          ["SSL × Decoder", "表征与解码方式是否存在匹配？", "形成受控 benchmark", "组合过多易变成模型枚举"],
+          ["PASTIS-R 多模态", "S1 雷达能否补充 S2 光学？", "提升抗云与多模态深度", "约 54GB；融合链路更复杂"]
+        ],
+        "column_weights": [1.4, 2.1, 1.7, 1.9],
+        "caption": "建议先完成公平 decoder 对比，再由老师确定方法深化或多模态扩展。"
+      },
+      "sources": ["[PASTISR22] [ProjectPlan]"]
+    },
+    {
+      "slide_id": "s13",
+      "type": "content",
+      "variant": "timeline",
+      "slide_intent": "decision",
+      "visual_intent": "timeline",
+      "title": "下一阶段：先做强证据，再扩展研究边界",
+      "milestones": [
+        {"label": "近期", "title": "实验规范", "body": "best mIoU；early stop；≥3 seeds；UPerNet"},
+        {"label": "中期", "title": "受控矩阵", "body": "代表性 SSL × DPT / UPerNet；参数匹配"},
+        {"label": "进阶", "title": "研究深化", "body": "学习式 DPT 或 PASTIS-R 的 S1+S2 融合"}
+      ],
+      "message": "阶段结论：空间 decoder 有初步收益，多层特征呈微弱正向信号；尚不能证明已充分释放 Galileo 表征。",
+      "sources": ["[ProjectPlan]"]
+    },
+    {
+      "slide_id": "s14",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "参考文献与项目证据",
+      "table": {
+        "headers": ["ID", "来源"],
+        "rows": [
+          ["PASTIS21", "Garnot & Landrieu, PASTIS / U-TAE, ICCV 2021"],
+          ["SeCo21", "Mañas et al., Seasonal Contrast, ICCV 2021"],
+          ["DPT21", "Ranftl et al., DPT, ICCV 2021"],
+          ["Galileo25", "Tseng et al., Galileo, ICML 2025"],
+          ["PASTISR22", "Garnot et al., multimodal crop mapping, ISPRS JPRS 2022"],
+          ["Run2026", "阶段成果报告与 TensorBoard 日志，2026-07-11"],
+          ["ProjectProtocol", "README 与 Decoder Experiments 文档"]
+        ],
+        "column_weights": [1.1, 6.2],
+        "caption": "所有结果数字均来自论文公开表格或项目已保存日志。"
+      },
+      "sources": ["[PASTIS21] [SeCo21] [DPT21] [Galileo25] [PASTISR22] [Run2026]"]
+    }
+  ]
+}
