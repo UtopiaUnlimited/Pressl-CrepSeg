@@ -17,8 +17,8 @@ data:
   ignore_index: -1
   normalization: galileo_norm_no_clip
   normalization_std_multiplier: 2.0
-  batch_size: 16
-  num_workers: 2
+  batch_size: 32
+  num_workers: 4
 
 encoder:
   name: galileo-base-patch8
