@@ -21,6 +21,7 @@ class Trainer:
         device: torch.device,
         num_classes: int,
         amp: bool = False,
+        amp_dtype: str = "float16",
         log_dir: str | Path = "logs",
         checkpoint_dir: str | Path = "checkpoints",
         ignore_index: int | None = None,
@@ -28,6 +29,8 @@ class Trainer:
         gradient_accumulation_steps: int = 1,
         max_grad_norm: float | None = None,
         save_trainable_only: bool = False,
+        save_last: bool = False,
+        early_stopping: dict | None = None,
     ) -> None:
         self.model = model.to(device)
         self.criterion = criterion
@@ -38,6 +41,10 @@ class Trainer:
         self.device = device
         self.num_classes = int(num_classes)
         self.amp = bool(amp and device.type == "cuda")
+        amp_dtype = str(amp_dtype).lower()
+        if amp_dtype not in {"float16", "bfloat16"}:
+            raise ValueError("amp_dtype must be 'float16' or 'bfloat16'.")
+        self.amp_dtype = torch.bfloat16 if amp_dtype == "bfloat16" else torch.float16
         self.ignore_index = ignore_index
         self.save_best = save_best
         self.gradient_accumulation_steps = int(gradient_accumulation_steps)
@@ -45,7 +52,34 @@ class Trainer:
             raise ValueError("gradient_accumulation_steps must be at least 1.")
         self.max_grad_norm = None if max_grad_norm is None else float(max_grad_norm)
         self.save_trainable_only = bool(save_trainable_only)
-        self.scaler = torch.amp.GradScaler("cuda", enabled=self.amp)
+        self.save_last = bool(save_last)
+        early_stopping = early_stopping or {}
+        self.early_stopping_enabled = bool(early_stopping.get("enabled", False))
+        self.early_stopping_monitor = str(early_stopping.get("monitor", "val_miou"))
+        self.early_stopping_mode = str(
+            early_stopping.get(
+                "mode",
+                "min" if self.early_stopping_monitor == "val_loss" else "max",
+            )
+        ).lower()
+        self.early_stopping_patience = int(early_stopping.get("patience", 12))
+        self.early_stopping_min_delta = float(early_stopping.get("min_delta", 0.0))
+        self.early_stopping_start_epoch = int(early_stopping.get("start_epoch", 1))
+        if self.early_stopping_monitor not in {"val_loss", "val_miou"}:
+            raise ValueError("early_stopping.monitor must be 'val_loss' or 'val_miou'.")
+        if self.early_stopping_mode not in {"min", "max"}:
+            raise ValueError("early_stopping.mode must be 'min' or 'max'.")
+        if self.early_stopping_patience < 1:
+            raise ValueError("early_stopping.patience must be at least 1.")
+        self.early_stopping_best = (
+            float("inf") if self.early_stopping_mode == "min" else float("-inf")
+        )
+        self.early_stopping_bad_epochs = 0
+        self.stopped_epoch: int | None = None
+        self.scaler = torch.amp.GradScaler(
+            "cuda",
+            enabled=self.amp and self.amp_dtype == torch.float16,
+        )
         self.best_val_loss = float("inf")
         self.best_val_miou = float("-inf")
         self.checkpoint_dir = Path(checkpoint_dir)
@@ -62,8 +96,11 @@ class Trainer:
         epochs: int,
         max_train_batches: int | None = None,
         max_val_batches: int | None = None,
-    ) -> None:
+    ) -> dict[str, float | int | bool | None]:
         global_step = 0
+        last_epoch = 0
+        last_val_loss = float("nan")
+        last_val_miou = float("nan")
         for epoch in range(1, epochs + 1):
             train_loss, global_step = self.train_epoch(epoch, global_step, max_train_batches)
             val_loss, val_miou = self.validate(epoch, max_val_batches)
@@ -91,8 +128,51 @@ class Trainer:
                 self.best_val_miou = val_miou
                 self.save_checkpoint("best_val_miou.pt", epoch, val_loss, val_miou)
 
+            last_epoch = epoch
+            last_val_loss = val_loss
+            last_val_miou = val_miou
+            if self.early_stopping_enabled:
+                metric = val_loss if self.early_stopping_monitor == "val_loss" else val_miou
+                if self._is_early_stopping_improvement(metric):
+                    self.early_stopping_best = metric
+                    self.early_stopping_bad_epochs = 0
+                elif epoch >= self.early_stopping_start_epoch:
+                    self.early_stopping_bad_epochs += 1
+
+                if self.writer is not None:
+                    self.writer.add_scalar(
+                        "early_stopping/bad_epochs",
+                        self.early_stopping_bad_epochs,
+                        epoch,
+                    )
+                if self.early_stopping_bad_epochs >= self.early_stopping_patience:
+                    self.stopped_epoch = epoch
+                    print(
+                        f"early_stopping epoch={epoch} monitor={self.early_stopping_monitor} "
+                        f"best={self.early_stopping_best:.5f} "
+                        f"patience={self.early_stopping_patience}"
+                    )
+                    break
+
+        if self.save_last and last_epoch > 0:
+            self.save_checkpoint("last.pt", last_epoch, last_val_loss, last_val_miou)
+
         if self.writer is not None:
             self.writer.close()
+        return {
+            "epochs_trained": last_epoch,
+            "last_val_loss": last_val_loss,
+            "last_val_miou": last_val_miou,
+            "best_val_loss": self.best_val_loss,
+            "best_val_miou": self.best_val_miou,
+            "stopped_early": self.stopped_epoch is not None,
+            "stopped_epoch": self.stopped_epoch,
+        }
+
+    def _is_early_stopping_improvement(self, metric: float) -> bool:
+        if self.early_stopping_mode == "min":
+            return metric < self.early_stopping_best - self.early_stopping_min_delta
+        return metric > self.early_stopping_best + self.early_stopping_min_delta
 
     def train_epoch(
         self,
@@ -115,7 +195,11 @@ class Trainer:
             target = batch["target"].to(self.device, non_blocking=True)
             batch["target"] = target
 
-            with torch.autocast(device_type=self.device.type, enabled=self.amp):
+            with torch.autocast(
+                device_type=self.device.type,
+                dtype=self.amp_dtype,
+                enabled=self.amp,
+            ):
                 logits = self.model(batch)
                 loss = self.criterion(logits, target)
 

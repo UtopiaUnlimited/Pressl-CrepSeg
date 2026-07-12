@@ -222,7 +222,7 @@
   <rect x="45" y="540" width="390" height="560" rx="8" class="outer"/>
 
   <text x="240" y="580" text-anchor="middle" class="panel-title">
-    方案一：单层 DPT 式解码
+    方案一：最终卷积层 Decoder
   </text>
 
   <text x="240" y="604" text-anchor="middle" class="small">
@@ -280,14 +280,14 @@
   <rect x="65" y="1015" width="350" height="60" rx="8" class="green"/>
 
   <text x="240" y="1053" text-anchor="middle" class="result">
-    已完成：Test mIoU 45.78%
+    已完成：Test mIoU 46.07%
   </text>
 
   <!-- Branch 2 -->
   <rect x="485" y="540" width="390" height="560" rx="8" class="outer"/>
 
   <text x="680" y="580" text-anchor="middle" class="panel-title">
-    方案二：多层 DPT 式解码
+    方案二：多层同尺度融合 Decoder
   </text>
 
   <text x="680" y="604" text-anchor="middle" class="small">
@@ -347,11 +347,11 @@
   <rect x="505" y="1015" width="350" height="60" rx="8" class="green"/>
 
   <text x="680" y="1053" text-anchor="middle" class="result">
-    已完成：Test mIoU 46.32%
+    已完成：Test mIoU 48.00%
   </text>
 
   <text x="680" y="1072" text-anchor="middle" class="small">
-    较方案一 +0.54 pp
+    较方案一 +1.93 pp
   </text>
 
   <!-- Branch 3 -->

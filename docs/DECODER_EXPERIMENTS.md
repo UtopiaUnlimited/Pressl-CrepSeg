@@ -30,6 +30,8 @@ PASTIS paper-aligned input
 - 相同 loss、optimizer 和模型选择规则。
 - test 只在模型与超参数固定后运行。
 
+Galileo 原论文的线性探测另列为“论文复现基线”。它保持相同 encoder、输入和 fold，但使用论文指定的线性 head、交叉熵、固定 50 epoch 与学习率搜索，不与方案一至五共用 decoder 容量、loss 或早停设置。
+
 配置中的固定字段：
 
 ```yaml
@@ -176,6 +178,12 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_mu
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_shared.yaml
 ```
 
+运行论文式线性探测的完整 16 学习率 × 5 seed 搜索：
+
+```bash
+conda run -n presl python -B scripts/sweep_linear_probe.py --config configs/galileo_linear_probe.yaml
+```
+
 模型和超参数固定后才生成 test：
 
 ```bash
@@ -204,7 +212,7 @@ test_loss / test_mIoU / per-class IoU
 checkpoint 与 TensorBoard 路径
 ```
 
-训练同时保存最低 `val_loss` 的 `best_val_loss.pt` 与最高 `val_mIoU` 的 `best_val_miou.pt`；`best.pt` 保留为最低 loss checkpoint 的兼容名称。正式结果使用一致的模型选择规则并运行多个 seed。
+方案一至五默认以 fold4 `val_mIoU` 早停：第 10 个 epoch 后，连续 12 个 epoch 没有至少 `0.001` 的提升便结束训练。训练同时保存最低 `val_loss` 的 `best_val_loss.pt` 与最高 `val_mIoU` 的 `best_val_miou.pt`；`best.pt` 保留为最低 loss checkpoint 的兼容名称。正式结果统一评估 `best_val_miou.pt` 并运行多个 seed。线性探测为复现论文固定训练 50 epoch，不启用早停，模型选择使用最后一轮。
 
 ## 对比矩阵
 
@@ -215,6 +223,31 @@ checkpoint 与 TensorBoard 路径
 | 多尺度 Galileo-DPT | 相同 | layers 3/6/9/12，重组为多尺度 | reassemble + progressive fusion | 正在实现，结果待补 |
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
 | 3D-Aware DPT | 相同，在线冻结 | layers 3/6/9/12 × T12 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
+| Galileo 论文线性探测 | 相同 | final `features` | 单个 Linear，逐 patch 输出 4×4 像素 logits | 复现论文 Table 17 probing 基线 |
+
+## Galileo 论文线性探测
+
+该实验使用 `configs/galileo_linear_probe.yaml`，结构与官方 `src/eval/linear_probe.py` 的 segmentation probe 对齐：
+
+```text
+Galileo final features [B, 768, 16, 16]
+  -> reshape to 256 patch embeddings
+  -> Linear(768, 19 * 4 * 4)
+  -> rearrange patch pixels
+  -> logits [B, 19, 64, 64]
+```
+
+训练设置为 AdamW、`weight_decay=0.01`、50 epoch、前 5 epoch 线性 warmup、随后 cosine 衰减至 `1e-5`，损失仅为 `CrossEntropy(ignore_index=-1)`。缓存读取时只加载最终层 `features`，因此已有共享 train/val/test 缓存可以直接复用。
+
+论文附录 C.1 给出的学习率集合是：
+
+```text
+{1, 3, 4, 5} x 10^{-4,-3,-2,-1}
+```
+
+`scripts/sweep_linear_probe.py` 对每个 seed 训练全部 16 个候选，用该 seed 的 fold4 最终 `val_mIoU` 选择学习率，然后仅在 fold5 测试一次；默认运行 5 个连续 seed 并报告均值和总体标准差。测试集不参与学习率选择，也不参与早停。
+
+参考：[Galileo 官方 linear_probe.py](https://github.com/nasaharvest/galileo/blob/main/src/eval/linear_probe.py)。
 
 推荐结果名：
 

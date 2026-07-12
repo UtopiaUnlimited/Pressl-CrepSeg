@@ -30,7 +30,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLoader:
-    dataset = CachedFeatureDataset(cache_dir)
+    decoder_name = str(config.get("model", {}).get("decoder", "")).lower()
+    dataset = CachedFeatureDataset(
+        cache_dir,
+        load_features_by_layer=decoder_name not in {"linear_probe", "linear", "lp"},
+    )
     return DataLoader(
         dataset,
         batch_size=int(batch_size or config["data"].get("batch_size", 1)),

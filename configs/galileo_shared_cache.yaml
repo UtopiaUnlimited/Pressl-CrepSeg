@@ -60,3 +60,10 @@ train:
   log_dir: logs/galileo_decoder_compare_paper_input
   checkpoint_dir: checkpoints/galileo_decoder_compare_paper_input
   save_best: true
+  early_stopping:
+    enabled: true
+    monitor: val_miou
+    mode: max
+    patience: 12
+    min_delta: 0.001
+    start_epoch: 10

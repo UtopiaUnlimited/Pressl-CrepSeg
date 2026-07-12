@@ -5,7 +5,7 @@ import unittest
 import torch
 
 from models import build_cached_feature_model
-from models.decoders import UPerNetDecoder
+from models.decoders import GalileoLinearProbeDecoder, UPerNetDecoder
 
 
 class UPerNetDecoderTest(unittest.TestCase):
@@ -43,6 +43,31 @@ class UPerNetDecoderTest(unittest.TestCase):
                 decoder_channels=16,
                 ppm_channels=4,
             )
+
+
+class GalileoLinearProbeTest(unittest.TestCase):
+    def test_patch_tokens_map_directly_to_pixel_logits(self) -> None:
+        config = {
+            "data": {"num_classes": 5},
+            "encoder": {"hidden_layers": [3, 6, 9, 12]},
+            "model": {"decoder": "linear_probe", "output_patch_size": 4},
+        }
+        model = build_cached_feature_model(config, in_channels=8)
+        batch = {
+            "features": torch.randn(2, 8, 8, 8),
+            "target": torch.zeros(2, 32, 32, dtype=torch.long),
+        }
+
+        logits = model(batch)
+
+        self.assertEqual(tuple(logits.shape), (2, 5, 32, 32))
+        self.assertIsInstance(model.decoder, GalileoLinearProbeDecoder)
+        self.assertEqual(
+            sum(parameter.numel() for parameter in model.parameters()),
+            8 * (5 * 4 * 4) + (5 * 4 * 4),
+        )
+        logits.mean().backward()
+        self.assertTrue(all(parameter.grad is not None for parameter in model.parameters()))
 
 
 if __name__ == "__main__":

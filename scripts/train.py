@@ -76,6 +76,7 @@ def main() -> None:
         device=device,
         num_classes=int(config["data"]["num_classes"]),
         amp=bool(config["train"].get("amp", False)),
+        amp_dtype=str(config["train"].get("amp_dtype", "float16")),
         log_dir=config["train"].get("log_dir", "logs"),
         checkpoint_dir=config["train"].get("checkpoint_dir", "checkpoints"),
         ignore_index=config.get("loss", {}).get("ignore_index"),
@@ -83,6 +84,8 @@ def main() -> None:
         gradient_accumulation_steps=accumulation_steps,
         max_grad_norm=config["train"].get("max_grad_norm"),
         save_trainable_only=bool(config["train"].get("save_trainable_only", False)),
+        save_last=bool(config["train"].get("save_last", False)),
+        early_stopping=config["train"].get("early_stopping"),
     )
     trainer.fit(
         epochs=int(config["train"]["epochs"]),

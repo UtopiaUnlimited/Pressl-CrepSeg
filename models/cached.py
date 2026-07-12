@@ -3,7 +3,12 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from models.decoders import DPTMultiLayerDecoder, DPTSingleLayerDecoder, UPerNetDecoder
+from models.decoders import (
+    DPTMultiLayerDecoder,
+    DPTSingleLayerDecoder,
+    GalileoLinearProbeDecoder,
+    UPerNetDecoder,
+)
 
 
 class CachedFeatureSegmentation(nn.Module):
@@ -44,7 +49,13 @@ def build_cached_feature_model(
     encoder_cfg = config.get("encoder", {})
     model_cfg = config["model"]
     decoder_name = str(model_cfg.get("decoder", "single_layer_dpt")).lower()
-    if decoder_name in {"single_layer_dpt", "single", "dpt"}:
+    if decoder_name in {"linear_probe", "linear", "lp"}:
+        decoder = GalileoLinearProbeDecoder(
+            in_channels=int(in_channels),
+            num_classes=int(data_cfg["num_classes"]),
+            output_patch_size=int(model_cfg.get("output_patch_size", 4)),
+        )
+    elif decoder_name in {"single_layer_dpt", "single", "dpt"}:
         decoder = DPTSingleLayerDecoder(
             in_channels=int(in_channels),
             num_classes=int(data_cfg["num_classes"]),

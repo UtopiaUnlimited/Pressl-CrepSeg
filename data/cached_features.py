@@ -10,8 +10,9 @@ from torch.utils.data import Dataset
 class CachedFeatureDataset(Dataset):
     """Dataset backed by Galileo feature cache .npz files."""
 
-    def __init__(self, root: str | Path) -> None:
+    def __init__(self, root: str | Path, load_features_by_layer: bool = True) -> None:
         self.root = Path(root)
+        self.load_features_by_layer = bool(load_features_by_layer)
         if not self.root.exists():
             raise FileNotFoundError(f"Missing feature cache directory: {self.root}")
         self.files = sorted(self.root.glob("*.npz"))
@@ -31,7 +32,7 @@ class CachedFeatureDataset(Dataset):
                 raise ValueError(f"Expected cached features [D, H, W], got {features.shape} in {path}")
 
             features_by_layer = None
-            if "features_by_layer" in data:
+            if self.load_features_by_layer and "features_by_layer" in data:
                 features_by_layer = data["features_by_layer"].astype(np.float32, copy=False)
                 if features_by_layer.ndim == 5 and features_by_layer.shape[1] == 1:
                     features_by_layer = features_by_layer[:, 0]

@@ -34,6 +34,8 @@ PASTIS Sentinel-2 time series
 - 多层 Galileo 特征共享缓存
 - 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
+- Galileo 论文式线性探测与学习率搜索
+- 基于 fold4 `val_mIoU` 的可配置早停
 - TensorBoard loss / val mIoU 日志
 
 正在推进：
@@ -124,6 +126,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
 | `configs/galileo_3d_aware_dpt.yaml` | 在线冻结 Galileo，训练保留 T=12 的 3D-Aware DPT |
+| `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 
 所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 
@@ -233,6 +236,50 @@ conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_
 
 该配置默认 physical batch 为 2、梯度累积 8 次，有效 batch 为 16。Galileo 始终保持 `eval()` 和无梯度状态，只有 3D-Aware DPT decoder 更新参数；checkpoint 也只保存可训练 decoder，评估时从本地 pretrained 目录重新加载冻结 Galileo。
 
+## 线性探测复现
+
+线性探测是对 Galileo 原论文 probing protocol 的独立复现基线，不属于方案一至五的 decoder 设计对比。它读取共享缓存中的最终层 `features`，不加载无用的 `features_by_layer`：
+
+```text
+[B, 768, 16, 16]
+  -> 每个 patch 一个 Linear(768, 19 * 4 * 4)
+  -> 每个 patch 还原为 4x4 像素 logits
+  -> [B, 19, 64, 64]
+```
+
+先跑固定学习率的单次实验：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_linear_probe.yaml
+```
+
+严格按论文附录 C.1 搜索 `{1, 3, 4, 5} x 10^{-4,-3,-2,-1}` 共 16 个学习率，并运行 5 个 seed：
+
+```bash
+conda run -n presl python -B scripts/sweep_linear_probe.py --config configs/galileo_linear_probe.yaml
+```
+
+每个候选固定训练 50 epoch；每个 seed 只用 fold4 最终 `val_mIoU` 选择学习率，随后在 fold5 测试一次。完整运行共训练 80 个候选模型，汇总写入 `outputs/linear_probe_sweep/results.json`。为保持与官方固定轮数协议一致，线性探测关闭早停，并保存 `last.pt`。
+
+参考实现：[Galileo 官方 linear_probe.py](https://github.com/nasaharvest/galileo/blob/main/src/eval/linear_probe.py)。
+
+## 早停与模型保存
+
+方案一至五默认监控 fold4 `val_mIoU`：从第 10 个 epoch 起，连续 12 个 epoch 没有至少 `0.001` 的提升时停止。可在配置中修改：
+
+```yaml
+train:
+  early_stopping:
+    enabled: true
+    monitor: val_miou
+    mode: max
+    patience: 12
+    min_delta: 0.001
+    start_epoch: 10
+```
+
+早停只减少无有效提升的后期训练，不改变最佳 checkpoint 的保存逻辑；它绝不能监控 fold5 test。已经启动的 Python 进程不会读取后来修改的配置，需要重启训练才会启用。
+
 TensorBoard：
 
 ```powershell
@@ -241,7 +288,7 @@ conda run -n presl tensorboard --logdir logs
 
 浏览器访问 `http://localhost:6006`。如果已经激活 `presl` 环境，也可以直接运行 `tensorboard --logdir logs`。
 
-训练会同时保存最低 `val_loss` 的 `best_val_loss.pt` 和最高 `val_mIoU` 的 `best_val_miou.pt`。为兼容已有命令，`best.pt` 与 `best_val_loss.pt` 含义相同。最终报告 mIoU 时建议评估 `best_val_miou.pt`，并运行多个 seed。
+训练会同时保存最低 `val_loss` 的 `best_val_loss.pt` 和最高 `val_mIoU` 的 `best_val_miou.pt`。为兼容已有命令，`best.pt` 与 `best_val_loss.pt` 含义相同。最终报告 mIoU 时建议评估 `best_val_miou.pt`，并运行多个 seed；论文式线性探测固定使用最后一轮 `last.pt`。
 
 ## 最终评估
 
