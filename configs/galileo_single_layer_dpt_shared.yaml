@@ -57,6 +57,6 @@ scheduler:
 train:
   epochs: 100
   amp: false
-  log_dir: logs/galileo_single_layer_dpt_shared_paper_input_bs16
-  checkpoint_dir: checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16
+  log_dir: logs/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42
+  checkpoint_dir: checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42
   save_best: true
