@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1300" viewBox="0 0 1800 1300" role="img" aria-labelledby="title desc">
+  <title id="title">PreSSL-CropSeg 项目技术路线图</title>
+  <desc id="desc">PASTIS 多时相输入经过论文协议预处理、冻结 Galileo 编码和共享多层特征缓存后，分别进入单层 DPT 式解码、多层 DPT 式解码、UPerNet-style 层级融合与多尺度 Galileo-DPT 四条 decoder 路线，最终统一评估十九类作物语义分割结果。</desc>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+
+    <style>
+      .title {
+        font: 700 30px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #172033;
+      }
+
+      .stage {
+        font: 700 25px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #172033;
+      }
+
+      .panel-title {
+        font: 700 24px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #1E3A8A;
+      }
+
+      .box-title {
+        font: 700 22px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #172033;
+      }
+
+      .body {
+        font: 500 18px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #475569;
+      }
+
+      .body-strong {
+        font: 700 18px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #334155;
+      }
+
+      .small {
+        font: 500 15px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #64748B;
+      }
+
+      .shape {
+        font: 700 18px Consolas, "Courier New", monospace;
+        fill: #2563EB;
+      }
+
+      .accent {
+        font: 700 18px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #EA580C;
+      }
+
+      .result {
+        font: 700 20px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #047857;
+      }
+
+      .tag {
+        font: 700 16px "Noto Sans CJK SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+        fill: #475569;
+      }
+
+      .outer {
+        fill: #F8FAFC;
+        stroke: #94A3B8;
+        stroke-width: 2.5;
+      }
+
+      .input {
+        fill: #F1F5F9;
+        stroke: #64748B;
+        stroke-width: 2.5;
+      }
+
+      .encoder {
+        fill: #EFF6FF;
+        stroke: #3B82F6;
+        stroke-width: 2.5;
+      }
+
+      .orange {
+        fill: #FFF7ED;
+        stroke: #F97316;
+        stroke-width: 2.5;
+      }
+
+      .purple {
+        fill: #F5F3FF;
+        stroke: #7C3AED;
+        stroke-width: 2.5;
+      }
+
+      .green {
+        fill: #ECFDF5;
+        stroke: #10B981;
+        stroke-width: 2.5;
+      }
+
+      .ongoing {
+        fill: #FFFBEB;
+        stroke: #D97706;
+        stroke-width: 2.5;
+        stroke-dasharray: 9 7;
+      }
+
+      .connector {
+        fill: none;
+        stroke: #475569;
+        stroke-width: 3;
+        marker-end: url(#arrow);
+      }
+
+      .line {
+        fill: none;
+        stroke: #475569;
+        stroke-width: 3;
+      }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1800" height="1300" fill="#FFFFFF"/>
+
+  <text x="900" y="43" text-anchor="middle" class="title">
+    Frozen Galileo 表征驱动的 PASTIS Decoder 对比技术路线
+  </text>
+
+  <!-- Stage 1: input protocol -->
+  <text x="48" y="105" class="stage">阶段一：统一输入协议</text>
+
+  <rect x="360" y="70" width="1080" height="155" rx="8" class="input"/>
+
+  <text x="900" y="108" text-anchor="middle" class="box-title">
+    PASTIS 多时相 Sentinel-2 数据流
+  </text>
+
+  <text x="900" y="143" text-anchor="middle" class="body">
+    原始 128×128 时序数据 → 月度聚合 T=12 → 四个 64×64 tile → Galileo 官方 probing 缩放
+  </text>
+
+  <text x="900" y="177" text-anchor="middle" class="shape">
+    [B, 12, 10, 64, 64]
+  </text>
+
+  <text x="900" y="207" text-anchor="middle" class="small">
+    Train: fold 1/2/3　 Val: fold 4　 Test: fold 5　 19 classes（void 19 → -1）
+  </text>
+
+  <rect x="1470" y="95" width="280" height="102" rx="8" class="orange"/>
+
+  <text x="1610" y="125" text-anchor="middle" class="body-strong">
+    外部参考基线
+  </text>
+
+  <text x="1610" y="155" text-anchor="middle" class="body">
+    Galileo linear probe
+  </text>
+
+  <text x="1610" y="184" text-anchor="middle" class="accent">
+    Test mIoU 39.20%
+  </text>
+
+  <path d="M 900 225 L 900 260" class="connector"/>
+
+  <!-- Stage 2: encoder and cache -->
+  <text x="48" y="285" class="stage">阶段二：冻结 SSL 编码</text>
+
+  <rect x="360" y="260" width="1080" height="190" rx="8" class="encoder"/>
+
+  <rect x="405" y="315" width="445" height="108" rx="8"
+        fill="#FFFFFF" stroke="#60A5FA" stroke-width="2"/>
+
+  <text x="627" y="345" text-anchor="middle" class="box-title">
+    Frozen Galileo ViT-Base
+  </text>
+
+  <text x="627" y="375" text-anchor="middle" class="body">
+    patch4 · encoder 全冻结 · spacetime_mean
+  </text>
+
+  <text x="627" y="405" text-anchor="middle" class="shape">
+    [B, 768, 16, 16]
+  </text>
+
+  <path d="M 850 369 L 940 369" class="connector"/>
+
+  <rect x="950" y="315" width="445" height="108" rx="8"
+        fill="#FFFFFF" stroke="#60A5FA" stroke-width="2"/>
+
+  <text x="1172" y="345" text-anchor="middle" class="box-title">
+    共享多层特征缓存 (.npz)
+  </text>
+
+  <text x="1172" y="374" text-anchor="middle" class="body">
+    layers 3 / 6 / 9 / 12（layer 12 即 final）
+  </text>
+
+  <text x="1172" y="405" text-anchor="middle" class="shape">
+    [B, 4, 768, 16, 16]
+  </text>
+
+  <!-- Branching -->
+  <path d="M 900 450 L 900 492" class="line"/>
+  <path d="M 240 492 L 1560 492" class="line"/>
+
+  <path d="M 240 492 L 240 540" class="connector"/>
+  <path d="M 680 492 L 680 540" class="connector"/>
+  <path d="M 1120 492 L 1120 540" class="connector"/>
+  <path d="M 1560 492 L 1560 540" class="connector"/>
+
+  <text x="48" y="475" class="stage">阶段三：Decoder 受控对比</text>
+
+  <!-- Branch 1 -->
+  <rect x="45" y="540" width="390" height="560" rx="8" class="outer"/>
+
+  <text x="240" y="580" text-anchor="middle" class="panel-title">
+    方案一：单层 DPT 式解码
+  </text>
+
+  <text x="240" y="604" text-anchor="middle" class="small">
+    历史配置名：single_layer_dpt
+  </text>
+
+  <rect x="65" y="625" width="350" height="88" rx="8" class="encoder"/>
+
+  <rect x="80" y="634" width="78" height="28" rx="6" fill="#DBEAFE"/>
+
+  <text x="119" y="654" text-anchor="middle" class="tag">Input</text>
+
+  <text x="240" y="681" text-anchor="middle" class="body-strong">
+    Galileo final features
+  </text>
+
+  <text x="240" y="705" text-anchor="middle" class="shape">
+    [B, 768, 16, 16]
+  </text>
+
+  <path d="M 240 713 L 240 740" class="connector"/>
+
+  <rect x="65" y="740" width="350" height="255" rx="8" class="purple"/>
+
+  <rect x="80" y="754" width="92" height="28" rx="6" fill="#EDE9FE"/>
+
+  <text x="126" y="774" text-anchor="middle" class="tag">
+    Decoder
+  </text>
+
+  <text x="240" y="805" text-anchor="middle" class="box-title">
+    单层投影、细化与上采样
+  </text>
+
+  <text x="90" y="842" class="body">
+    • final 层 1×1 投影：768 → 256
+  </text>
+
+  <text x="90" y="878" class="body">
+    • 单分支 Residual Conv Block ×3
+  </text>
+
+  <text x="90" y="914" class="body">
+    • Bilinear：16×16 → 64×64
+  </text>
+
+  <text x="90" y="950" class="body">
+    • Smooth + 19-class Head
+  </text>
+
+  <text x="240" y="978" text-anchor="middle" class="shape">
+    → [B, 19, 64, 64]
+  </text>
+
+  <rect x="65" y="1015" width="350" height="60" rx="8" class="green"/>
+
+  <text x="240" y="1053" text-anchor="middle" class="result">
+    已完成：Test mIoU 45.78%
+  </text>
+
+  <!-- Branch 2 -->
+  <rect x="485" y="540" width="390" height="560" rx="8" class="outer"/>
+
+  <text x="680" y="580" text-anchor="middle" class="panel-title">
+    方案二：多层 DPT 式解码
+  </text>
+
+  <text x="680" y="604" text-anchor="middle" class="small">
+    历史配置名：multi_layer_dpt
+  </text>
+
+  <rect x="505" y="625" width="350" height="88" rx="8" class="encoder"/>
+
+  <rect x="520" y="634" width="78" height="28" rx="6" fill="#DBEAFE"/>
+
+  <text x="559" y="654" text-anchor="middle" class="tag">
+    Input
+  </text>
+
+  <text x="680" y="681" text-anchor="middle" class="body-strong">
+    Galileo layers 3 / 6 / 9 / 12
+  </text>
+
+  <text x="680" y="705" text-anchor="middle" class="shape">
+    4 × [B, 768, 16, 16]
+  </text>
+
+  <path d="M 680 713 L 680 740" class="connector"/>
+
+  <rect x="505" y="740" width="350" height="255" rx="8" class="orange"/>
+
+  <rect x="520" y="754" width="92" height="28" rx="6" fill="#FFEDD5"/>
+
+  <text x="566" y="774" text-anchor="middle" class="tag">
+    Decoder
+  </text>
+
+  <text x="680" y="805" text-anchor="middle" class="box-title">
+    多层投影、融合与上采样
+  </text>
+
+  <text x="530" y="842" class="body">
+    • 3/6/9/12 层分别 1×1 投影到 256
+  </text>
+
+  <text x="530" y="878" class="body">
+    • 深到浅 12 → 9 → 6 → 3 加法融合
+  </text>
+
+  <text x="530" y="914" class="body">
+    • Bilinear：16×16 → 64×64
+  </text>
+
+  <text x="530" y="950" class="body">
+    • Smooth + 19-class Head
+  </text>
+
+  <text x="680" y="978" text-anchor="middle" class="shape">
+    → [B, 19, 64, 64]
+  </text>
+
+  <rect x="505" y="1015" width="350" height="60" rx="8" class="green"/>
+
+  <text x="680" y="1053" text-anchor="middle" class="result">
+    已完成：Test mIoU 46.32%
+  </text>
+
+  <text x="680" y="1072" text-anchor="middle" class="small">
+    较方案一 +0.54 pp
+  </text>
+
+  <!-- Branch 3 -->
+  <rect x="925" y="540" width="390" height="560" rx="8" class="outer"/>
+
+  <text x="1120" y="580" text-anchor="middle" class="panel-title">
+    方案三：UPerNet-style
+  </text>
+
+  <text x="1120" y="604" text-anchor="middle" class="small">
+    PPM + FPN 式层级融合
+  </text>
+
+  <rect x="945" y="625" width="350" height="88" rx="8" class="encoder"/>
+
+  <rect x="960" y="634" width="78" height="28" rx="6" fill="#DBEAFE"/>
+
+  <text x="999" y="654" text-anchor="middle" class="tag">
+    Input
+  </text>
+
+  <text x="1120" y="681" text-anchor="middle" class="body-strong">
+    Galileo layers 3 / 6 / 9 / 12
+  </text>
+
+  <text x="1120" y="705" text-anchor="middle" class="shape">
+    4 × [B, 768, 16, 16]
+  </text>
+
+  <path d="M 1120 713 L 1120 740" class="connector"/>
+
+  <rect x="945" y="740" width="350" height="255" rx="8" class="ongoing"/>
+
+  <rect x="960" y="754" width="92" height="28" rx="6" fill="#FEF3C7"/>
+
+  <text x="1006" y="774" text-anchor="middle" class="tag">
+    Decoder
+  </text>
+
+  <text x="1120" y="805" text-anchor="middle" class="box-title">
+    PPM + FPN 层级融合
+  </text>
+
+  <text x="970" y="842" class="body">
+    • layer 12：PPM 1 / 2 / 3 / 6
+  </text>
+
+  <text x="970" y="878" class="body">
+    • layer 3/6/9：Lateral Projection
+  </text>
+
+  <text x="970" y="914" class="body">
+    • FPN Top-down 融合
+  </text>
+
+  <text x="970" y="950" class="body">
+    • Concatenate + 19-class Head
+  </text>
+
+  <text x="1120" y="978" text-anchor="middle" class="shape">
+    → [B, 19, 64, 64]
+  </text>
+
+  <rect x="945" y="1015" width="350" height="60" rx="8" class="ongoing"/>
+
+  <text x="1120" y="1053" text-anchor="middle" class="accent">
+    设计中
+  </text>
+
+  <!-- Branch 4 -->
+  <rect x="1365" y="540" width="390" height="560" rx="8" class="outer"/>
+
+  <text x="1560" y="580" text-anchor="middle" class="panel-title">
+    方案四：多尺度 Galileo-DPT
+  </text>
+
+  <text x="1560" y="604" text-anchor="middle" class="small">
+    Galileo 适配方案
+  </text>
+
+  <rect x="1385" y="625" width="350" height="88" rx="8" class="encoder"/>
+
+  <rect x="1400" y="634" width="78" height="28" rx="6" fill="#DBEAFE"/>
+
+  <text x="1439" y="654" text-anchor="middle" class="tag">
+    Input
+  </text>
+
+  <text x="1560" y="681" text-anchor="middle" class="body-strong">
+    Galileo layers 3 / 6 / 9 / 12
+  </text>
+
+  <text x="1560" y="705" text-anchor="middle" class="shape">
+    4 × [B, 768, 16, 16]
+  </text>
+
+  <path d="M 1560 713 L 1560 740" class="connector"/>
+
+  <rect x="1385" y="740" width="350" height="255" rx="8" class="ongoing"/>
+
+  <rect x="1400" y="754" width="92" height="28" rx="6" fill="#FEF3C7"/>
+
+  <text x="1446" y="774" text-anchor="middle" class="tag">
+    Decoder
+  </text>
+
+  <text x="1560" y="805" text-anchor="middle" class="box-title">
+    多尺度特征重组与恢复
+  </text>
+
+  <text x="1410" y="842" class="body">
+    • layers 3/6/9/12 多尺度重组
+  </text>
+
+  <text x="1410" y="878" class="body">
+    • 深到浅渐进融合
+  </text>
+
+  <text x="1410" y="914" class="body">
+    • 逐级空间分辨率恢复
+  </text>
+
+  <text x="1410" y="950" class="body">
+    • 需要适配 ssl，不照搬原本结构的 DPT
+  </text>
+
+  <text x="1560" y="978" text-anchor="middle" class="shape">
+    → [B, 19, 64, 64]
+  </text>
+
+  <rect x="1385" y="1015" width="350" height="60" rx="8" class="ongoing"/>
+
+  <text x="1560" y="1053" text-anchor="middle" class="accent">
+    设计中
+  </text>
+
+  <!-- Merge and output -->
+  <path d="M 240 1100 L 240 1138" class="line"/>
+  <path d="M 680 1100 L 680 1138" class="line"/>
+  <path d="M 1120 1100 L 1120 1138" class="line"/>
+  <path d="M 1560 1100 L 1560 1138" class="line"/>
+
+  <path d="M 240 1138 L 1560 1138" class="line"/>
+  <path d="M 900 1138 L 900 1172" class="connector"/>
+
+  <text x="48" y="1202" class="stage">
+    阶段四：统一训练与评估
+  </text>
+
+  <rect x="360" y="1172" width="1080" height="94" rx="8" class="green"/>
+
+  <text x="900" y="1208" text-anchor="middle" class="box-title">
+    19 类耕地语义分割 Logits / Mask
+  </text>
+
+  <text x="900" y="1239" text-anchor="middle" class="body">
+    CE + Dice 作为loss / Prodigy 优化器 / val_loss 最低选模型 / fold5 去做 Test mIoU 与 per-class IoU
+  </text>
+
+  <text x="900" y="1288" text-anchor="middle" class="small">
+    核心控制变量：输入协议、Galileo SSL 权重、encoder 输出和共享缓存保持一致，仅比较 decoder 设计
+  </text>
+</svg>

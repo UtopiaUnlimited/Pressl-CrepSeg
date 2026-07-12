@@ -38,6 +38,7 @@ class Trainer:
         self.ignore_index = ignore_index
         self.save_best = save_best
         self.best_val_loss = float("inf")
+        self.best_val_miou = float("-inf")
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -73,7 +74,13 @@ class Trainer:
 
             if self.save_best and val_loss < self.best_val_loss:
                 self.best_val_loss = val_loss
-                self.save_checkpoint("best.pt", epoch, val_loss)
+                self.save_checkpoint("best_val_loss.pt", epoch, val_loss, val_miou)
+                # Keep the historical filename compatible with existing commands.
+                self.save_checkpoint("best.pt", epoch, val_loss, val_miou)
+
+            if self.save_best and val_miou > self.best_val_miou:
+                self.best_val_miou = val_miou
+                self.save_checkpoint("best_val_miou.pt", epoch, val_loss, val_miou)
 
         if self.writer is not None:
             self.writer.close()
@@ -138,12 +145,19 @@ class Trainer:
         miou, _ = mean_iou(confusion.matrix)
         return total_loss / max(1, batch_count), miou
 
-    def save_checkpoint(self, name: str, epoch: int, val_loss: float) -> None:
+    def save_checkpoint(
+        self,
+        name: str,
+        epoch: int,
+        val_loss: float,
+        val_miou: float,
+    ) -> None:
         path = self.checkpoint_dir / name
         torch.save(
             {
                 "epoch": epoch,
                 "val_loss": val_loss,
+                "val_miou": val_miou,
                 "model": self.model.state_dict(),
                 "optimizer": self.optimizer.state_dict(),
             },

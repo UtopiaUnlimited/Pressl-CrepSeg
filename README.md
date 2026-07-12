@@ -16,6 +16,12 @@ PASTIS Sentinel-2 time series
 
 现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。组员正在实现的多尺度 Galileo-DPT 才包含多尺度 reassemble 与渐进融合。所有 decoder 必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
 
+## 技术路线图
+
+![PreSSL-CropSeg 技术路线图](pictures/project_technical_route.svg)
+
+可编辑 SVG 源码：[pictures/project_technical_route.svg](pictures/project_technical_route.svg)。图中没有已经撤销的 paper-faithful DPT；虚线框表示仍在推进的多尺度 Galileo-DPT。
+
 ## 当前实现
 
 已经支持：
@@ -224,7 +230,7 @@ conda run -n presl tensorboard --logdir logs
 
 浏览器访问 `http://localhost:6006`。如果已经激活 `presl` 环境，也可以直接运行 `tensorboard --logdir logs`。
 
-当前 checkpoint 仍按最低 `val_loss` 保存为 `best.pt`。正式论文结果还应同时保存最高 `val_mIoU` checkpoint 并运行多个 seed。
+训练会同时保存最低 `val_loss` 的 `best_val_loss.pt` 和最高 `val_mIoU` 的 `best_val_miou.pt`。为兼容已有命令，`best.pt` 与 `best_val_loss.pt` 含义相同。最终报告 mIoU 时建议评估 `best_val_miou.pt`，并运行多个 seed。
 
 ## 最终评估
 
@@ -237,13 +243,13 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 评估 single-layer DPT：
 
 ```bash
-conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_cached/best.pt --split test
+conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_cached/best_val_miou.pt --split test
 ```
 
 定性查看 3 个 test tile（不需要先生成完整 test 缓存）：
 
 ```powershell
-conda run -n presl python -B scripts/visualize_predictions.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_cached/best.pt --split test --num-samples 3
+conda run -n presl python -B scripts/visualize_predictions.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_cached/best_val_miou.pt --split test --num-samples 3
 ```
 
 脚本只在线编码自动选出的 3 个样本，输出到 `outputs/test_predictions/`。每行从左到右依次为 12 个月 Sentinel-2 B4/B3/B2 中位数合成、真实标签和网络预测；真实标签与预测使用同一套类别颜色，void 区域显示为灰色。自动选图只依据真实标签的有效比例和类别丰富度，不查看模型预测；需要固定样本时可传入 `--sample-ids 10002_y0_x0 10002_y0_x64`。
