@@ -60,4 +60,3 @@ train:
   log_dir: logs/galileo_single_layer_dpt_shared_paper_input_bs16
   checkpoint_dir: checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16
   save_best: true
-  monitor: val_loss

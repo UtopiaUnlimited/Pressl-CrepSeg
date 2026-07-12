@@ -60,4 +60,3 @@ train:
   log_dir: logs/galileo_dpt_paper_input
   checkpoint_dir: checkpoints/galileo_dpt_paper_input
   save_best: true
-  monitor: val_loss
