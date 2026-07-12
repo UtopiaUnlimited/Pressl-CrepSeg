@@ -45,7 +45,10 @@ def main() -> None:
 
     model = build_model(config).to(device)
     checkpoint = torch.load(args.checkpoint, map_location=device)
-    model.load_state_dict(checkpoint["model"])
+    model.load_state_dict(
+        checkpoint["model"],
+        strict=not bool(checkpoint.get("trainable_only", False)),
+    )
     model.eval()
 
     criterion = build_loss(config).to(device)

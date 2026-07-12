@@ -15,6 +15,7 @@ class GalileoFeatureGrid(NamedTuple):
     grid_size: tuple[int, int]
     hidden_state: torch.Tensor
     features_by_layer: tuple[torch.Tensor, ...]
+    temporal_features_by_layer: tuple[torch.Tensor, ...]
 
 
 class GalileoHFEncoder(nn.Module):
@@ -31,6 +32,7 @@ class GalileoHFEncoder(nn.Module):
         spatial_token_strategy: str = "auto",
         hidden_layers: list[int] | tuple[int, ...] | None = None,
         hidden_size: int | None = None,
+        preserve_temporal_features: bool = False,
     ) -> None:
         super().__init__()
         self.checkpoint = Path(checkpoint)
@@ -41,6 +43,7 @@ class GalileoHFEncoder(nn.Module):
         self.output_hidden_states = bool(output_hidden_states)
         self.spatial_token_strategy = spatial_token_strategy
         self.hidden_layers = tuple(int(layer) for layer in (hidden_layers or ()))
+        self.preserve_temporal_features = bool(preserve_temporal_features)
 
         if not self.checkpoint.exists():
             raise FileNotFoundError(
@@ -186,6 +189,9 @@ class GalileoHFEncoder(nn.Module):
         feature_grids = []
         hidden_states = []
         layer_feature_grids: list[list[torch.Tensor]] = [[] for _ in self.hidden_layers]
+        temporal_layer_feature_grids: list[list[torch.Tensor]] = [
+            [] for _ in self.hidden_layers
+        ]
         grid_size: tuple[int, int] | None = None
 
         for sample in samples:
@@ -194,6 +200,8 @@ class GalileoHFEncoder(nn.Module):
             hidden_states.append(result.hidden_state)
             for layer_index, layer_features in enumerate(result.features_by_layer):
                 layer_feature_grids[layer_index].append(layer_features)
+            for layer_index, layer_features in enumerate(result.temporal_features_by_layer):
+                temporal_layer_feature_grids[layer_index].append(layer_features)
             if grid_size is None:
                 grid_size = result.grid_size
             elif grid_size != result.grid_size:
@@ -205,12 +213,17 @@ class GalileoHFEncoder(nn.Module):
         else:
             hidden_state = features.new_empty(0)
         features_by_layer = tuple(torch.cat(layer_features, dim=0) for layer_features in layer_feature_grids)
+        temporal_features_by_layer = tuple(
+            torch.cat(layer_features, dim=0)
+            for layer_features in temporal_layer_feature_grids
+        )
 
         return GalileoFeatureGrid(
             features=features,
             grid_size=grid_size or (0, 0),
             hidden_state=hidden_state,
             features_by_layer=features_by_layer,
+            temporal_features_by_layer=temporal_features_by_layer,
         )
 
     @staticmethod
@@ -280,11 +293,21 @@ class GalileoHFEncoder(nn.Module):
             )
             for layer in self.hidden_layers
         )
+        temporal_features_by_layer = tuple(
+            self._hidden_to_temporal_feature_grid(
+                captured_hidden_layers[layer],
+                grid_h=grid_h,
+                grid_w=grid_w,
+                timesteps=int(timesteps),
+            )
+            for layer in self.hidden_layers
+        ) if self.preserve_temporal_features else ()
         return GalileoFeatureGrid(
             features=features,
             grid_size=(grid_h, grid_w),
             hidden_state=hidden,
             features_by_layer=features_by_layer,
+            temporal_features_by_layer=temporal_features_by_layer,
         )
 
     def _forward_one(self, sample: dict) -> GalileoFeatureGrid:
@@ -338,11 +361,21 @@ class GalileoHFEncoder(nn.Module):
             )
             for layer in self.hidden_layers
         )
+        temporal_features_by_layer = tuple(
+            self._hidden_to_temporal_feature_grid(
+                captured_hidden_layers[layer],
+                grid_h=grid_h,
+                grid_w=grid_w,
+                timesteps=int(s2.shape[0]),
+            )
+            for layer in self.hidden_layers
+        ) if self.preserve_temporal_features else ()
         return GalileoFeatureGrid(
             features=features,
             grid_size=(grid_h, grid_w),
             hidden_state=hidden,
             features_by_layer=features_by_layer,
+            temporal_features_by_layer=temporal_features_by_layer,
         )
 
     def _register_hidden_layer_hooks(self, captured: dict[int, torch.Tensor]):
@@ -385,6 +418,23 @@ class GalileoHFEncoder(nn.Module):
             grid_h,
             grid_w,
         )
+
+    @staticmethod
+    def _hidden_to_temporal_feature_grid(
+        hidden: torch.Tensor,
+        grid_h: int,
+        grid_w: int,
+        timesteps: int,
+    ) -> torch.Tensor:
+        grouped = GalileoHFEncoder._reshape_spacetime_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=timesteps,
+        )
+        # Galileo may emit several S2 band-group tokens per patch and month.
+        # Merge only that group axis; the late-fusion decoder needs T intact.
+        return grouped.mean(dim=4).permute(0, 3, 4, 1, 2).contiguous()
 
     def _build_processor_inputs(self, s2: torch.Tensor, months: torch.Tensor):
         s2_hw_t_c = s2.permute(2, 3, 0, 1).contiguous().cpu().numpy()
@@ -515,6 +565,24 @@ class GalileoHFEncoder(nn.Module):
         If the returned sequence does not match this structure, fail loudly
         instead of silently reshaping mixed token types into a wrong feature map.
         """
+        grouped = GalileoHFEncoder._reshape_spacetime_tokens(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=timesteps,
+        )
+        spatial = grouped.mean(dim=(3, 4))
+        return spatial.reshape(hidden.shape[0], grid_h * grid_w, hidden.shape[-1])
+
+    @staticmethod
+    def _reshape_spacetime_tokens(
+        hidden: torch.Tensor,
+        grid_h: int,
+        grid_w: int,
+        timesteps: int,
+    ) -> torch.Tensor:
+        if hidden.ndim != 3:
+            raise ValueError(f"Expected hidden state [B, N, D], got {tuple(hidden.shape)}")
         if timesteps <= 0:
             raise ValueError(f"timesteps must be positive, got {timesteps}")
 
@@ -523,14 +591,12 @@ class GalileoHFEncoder(nn.Module):
         tokens_per_group = grid_tokens * timesteps
         if token_count % tokens_per_group != 0:
             raise ValueError(
-                "Cannot safely recover a spatial feature grid from Galileo tokens: "
-                f"token_count={token_count}, grid_tokens={grid_tokens}, timesteps={timesteps}. "
-                "Set encoder.spatial_token_strategy to an explicit strategy only after "
-                "verifying the Galileo token layout."
+                "Cannot safely recover Galileo space-time tokens: "
+                f"token_count={token_count}, grid_tokens={grid_tokens}, timesteps={timesteps}."
             )
 
         group_count = token_count // tokens_per_group
-        grouped = hidden.reshape(
+        return hidden.reshape(
             hidden.shape[0],
             grid_h,
             grid_w,
@@ -538,5 +604,3 @@ class GalileoHFEncoder(nn.Module):
             group_count,
             hidden.shape[-1],
         )
-        spatial = grouped.mean(dim=(3, 4))
-        return spatial.reshape(hidden.shape[0], grid_tokens, hidden.shape[-1])

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1300" viewBox="0 0 1800 1300" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="2240" height="1300" viewBox="0 0 2240 1300" role="img" aria-labelledby="title desc">
   <title id="title">PreSSL-CropSeg 项目技术路线图</title>
-  <desc id="desc">PASTIS 多时相输入经过论文协议预处理、冻结 Galileo 编码和共享多层特征缓存后，分别进入单层 DPT 式解码、多层 DPT 式解码、UPerNet-style 层级融合与多尺度 Galileo-DPT 四条 decoder 路线，最终统一评估十九类作物语义分割结果。</desc>
+  <desc id="desc">PASTIS 多时相输入经过论文协议预处理和冻结 Galileo 编码后，分别进入四条早期融合 decoder 路线，以及保留时间维并在线训练的 3D-Aware DPT 晚期融合路线，最终统一评估十九类作物语义分割结果。</desc>
 
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
@@ -122,94 +122,99 @@
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1800" height="1300" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="2240" height="1300" fill="#FFFFFF"/>
 
-  <text x="900" y="43" text-anchor="middle" class="title">
+  <text x="1120" y="43" text-anchor="middle" class="title">
     Frozen Galileo 表征驱动的 PASTIS Decoder 对比技术路线
   </text>
 
   <!-- Stage 1: input protocol -->
   <text x="48" y="105" class="stage">阶段一：统一输入协议</text>
 
-  <rect x="360" y="70" width="1080" height="155" rx="8" class="input"/>
+  <rect x="440" y="70" width="1360" height="155" rx="8" class="input"/>
 
-  <text x="900" y="108" text-anchor="middle" class="box-title">
+  <text x="1120" y="108" text-anchor="middle" class="box-title">
     PASTIS 多时相 Sentinel-2 数据流
   </text>
 
-  <text x="900" y="143" text-anchor="middle" class="body">
+  <text x="1120" y="143" text-anchor="middle" class="body">
     原始 128×128 时序数据 → 月度聚合 T=12 → 四个 64×64 tile → Galileo 官方 probing 缩放
   </text>
 
-  <text x="900" y="177" text-anchor="middle" class="shape">
+  <text x="1120" y="177" text-anchor="middle" class="shape">
     [B, 12, 10, 64, 64]
   </text>
 
-  <text x="900" y="207" text-anchor="middle" class="small">
+  <text x="1120" y="207" text-anchor="middle" class="small">
     Train: fold 1/2/3　 Val: fold 4　 Test: fold 5　 19 classes（void 19 → -1）
   </text>
 
-  <rect x="1470" y="95" width="280" height="102" rx="8" class="orange"/>
+  <rect x="1840" y="95" width="350" height="102" rx="8" class="orange"/>
 
-  <text x="1610" y="125" text-anchor="middle" class="body-strong">
+  <text x="2015" y="125" text-anchor="middle" class="body-strong">
     外部参考基线
   </text>
 
-  <text x="1610" y="155" text-anchor="middle" class="body">
+  <text x="2015" y="155" text-anchor="middle" class="body">
     Galileo linear probe
   </text>
 
-  <text x="1610" y="184" text-anchor="middle" class="accent">
+  <text x="2015" y="184" text-anchor="middle" class="accent">
     Test mIoU 39.20%
   </text>
 
-  <path d="M 900 225 L 900 260" class="connector"/>
+  <path d="M 1120 225 L 1120 260" class="connector"/>
 
   <!-- Stage 2: encoder and cache -->
   <text x="48" y="285" class="stage">阶段二：冻结 SSL 编码</text>
 
-  <rect x="360" y="260" width="1080" height="190" rx="8" class="encoder"/>
+  <rect x="440" y="260" width="1360" height="190" rx="8" class="encoder"/>
 
-  <rect x="405" y="315" width="445" height="108" rx="8"
+  <rect x="485" y="315" width="540" height="108" rx="8"
         fill="#FFFFFF" stroke="#60A5FA" stroke-width="2"/>
 
-  <text x="627" y="345" text-anchor="middle" class="box-title">
+  <text x="755" y="345" text-anchor="middle" class="box-title">
     Frozen Galileo ViT-Base
   </text>
 
-  <text x="627" y="375" text-anchor="middle" class="body">
-    patch4 · encoder 全冻结 · spacetime_mean
+  <text x="755" y="375" text-anchor="middle" class="body">
+    patch4 · encoder 全冻结 · 联合编码 T=12
   </text>
 
-  <text x="627" y="405" text-anchor="middle" class="shape">
-    [B, 768, 16, 16]
+  <text x="755" y="405" text-anchor="middle" class="shape">
+    Galileo layers 3 / 6 / 9 / 12
   </text>
 
-  <path d="M 850 369 L 940 369" class="connector"/>
+  <path d="M 1025 369 L 1080 369" class="connector"/>
 
-  <rect x="950" y="315" width="445" height="108" rx="8"
+  <rect x="1090" y="305" width="665" height="128" rx="8"
         fill="#FFFFFF" stroke="#60A5FA" stroke-width="2"/>
 
-  <text x="1172" y="345" text-anchor="middle" class="box-title">
-    共享多层特征缓存 (.npz)
+  <text x="1422" y="334" text-anchor="middle" class="box-title">
+    Decoder 双输出路径
   </text>
 
-  <text x="1172" y="374" text-anchor="middle" class="body">
-    layers 3 / 6 / 9 / 12（layer 12 即 final）
+  <text x="1422" y="366" text-anchor="middle" class="body">
+    早期方案一至四：spacetime_mean → 共享缓存
   </text>
 
-  <text x="1172" y="405" text-anchor="middle" class="shape">
+  <text x="1422" y="394" text-anchor="middle" class="shape">
     [B, 4, 768, 16, 16]
   </text>
 
+  <text x="1422" y="422" text-anchor="middle" class="body">
+    晚期方案五：只合并 band group，在线保留 T=12
+  </text>
+
   <!-- Branching -->
-  <path d="M 900 450 L 900 492" class="line"/>
-  <path d="M 240 492 L 1560 492" class="line"/>
+  <path d="M 1120 450 L 1120 492" class="line"/>
+  <path d="M 240 492 L 2000 492" class="line"/>
 
   <path d="M 240 492 L 240 540" class="connector"/>
   <path d="M 680 492 L 680 540" class="connector"/>
   <path d="M 1120 492 L 1120 540" class="connector"/>
   <path d="M 1560 492 L 1560 540" class="connector"/>
+  <path d="M 2000 492 L 2000 540" class="connector"/>
 
   <text x="48" y="475" class="stage">阶段三：Decoder 受控对比</text>
 
@@ -483,30 +488,94 @@
     设计中
   </text>
 
+  <!-- Branch 5 -->
+  <rect x="1805" y="540" width="390" height="560" rx="8" class="outer"/>
+
+  <text x="2000" y="580" text-anchor="middle" class="panel-title">
+    方案五：3D-Aware DPT
+  </text>
+
+  <text x="2000" y="604" text-anchor="middle" class="small">
+    阶段二新增 · 晚期融合 · 在线冻结 Galileo
+  </text>
+
+  <rect x="1825" y="625" width="350" height="88" rx="8" class="encoder"/>
+
+  <rect x="1840" y="634" width="78" height="28" rx="6" fill="#DBEAFE"/>
+
+  <text x="1879" y="654" text-anchor="middle" class="tag">Input</text>
+
+  <text x="2000" y="681" text-anchor="middle" class="body-strong">
+    Galileo layers 3 / 6 / 9 / 12
+  </text>
+
+  <text x="2000" y="705" text-anchor="middle" class="shape">
+    [B, 4, 12, 768, 16, 16]
+  </text>
+
+  <path d="M 2000 713 L 2000 740" class="connector"/>
+
+  <rect x="1825" y="740" width="350" height="255" rx="8" class="purple"/>
+
+  <rect x="1840" y="754" width="92" height="28" rx="6" fill="#EDE9FE"/>
+
+  <text x="1886" y="774" text-anchor="middle" class="tag">Decoder</text>
+
+  <text x="2000" y="805" text-anchor="middle" class="box-title">
+    完整时空 DPT 晚期融合
+  </text>
+
+  <text x="1850" y="842" class="body">
+    • 3D Reassemble：64 / 32 / 16 / 8
+  </text>
+
+  <text x="1850" y="878" class="body">
+    • Global 3D + Divided ST Attention
+  </text>
+
+  <text x="1850" y="914" class="body">
+    • Gated coarse-to-fine Fusion
+  </text>
+
+  <text x="1850" y="950" class="body">
+    • Temporal Query Pooling 最后消除 T
+  </text>
+
+  <text x="2000" y="978" text-anchor="middle" class="shape">
+    → [B, 19, 64, 64]
+  </text>
+
+  <rect x="1825" y="1015" width="350" height="60" rx="8" class="ongoing"/>
+
+  <text x="2000" y="1053" text-anchor="middle" class="accent">
+    代码已实现 · 待训练
+  </text>
+
   <!-- Merge and output -->
   <path d="M 240 1100 L 240 1138" class="line"/>
   <path d="M 680 1100 L 680 1138" class="line"/>
   <path d="M 1120 1100 L 1120 1138" class="line"/>
   <path d="M 1560 1100 L 1560 1138" class="line"/>
+  <path d="M 2000 1100 L 2000 1138" class="line"/>
 
-  <path d="M 240 1138 L 1560 1138" class="line"/>
-  <path d="M 900 1138 L 900 1172" class="connector"/>
+  <path d="M 240 1138 L 2000 1138" class="line"/>
+  <path d="M 1120 1138 L 1120 1172" class="connector"/>
 
   <text x="48" y="1202" class="stage">
     阶段四：统一训练与评估
   </text>
 
-  <rect x="360" y="1172" width="1080" height="94" rx="8" class="green"/>
+  <rect x="440" y="1172" width="1360" height="94" rx="8" class="green"/>
 
-  <text x="900" y="1208" text-anchor="middle" class="box-title">
+  <text x="1120" y="1208" text-anchor="middle" class="box-title">
     19 类耕地语义分割 Logits / Mask
   </text>
 
-  <text x="900" y="1239" text-anchor="middle" class="body">
-    CE + Dice 作为loss / Prodigy 优化器 / val_loss 最低选模型 / fold5 去做 Test mIoU 与 per-class IoU
+  <text x="1120" y="1239" text-anchor="middle" class="body">
+    CE + Dice loss / Prodigy / 同存最低 val_loss 与最高 val_mIoU / fold5 Test mIoU 与 per-class IoU
   </text>
 
-  <text x="900" y="1288" text-anchor="middle" class="small">
-    核心控制变量：输入协议、Galileo SSL 权重、encoder 输出和共享缓存保持一致，仅比较 decoder 设计
+  <text x="1120" y="1288" text-anchor="middle" class="small">
+    核心控制变量：输入协议、Galileo SSL 权重与冻结状态一致；早期融合读取共享缓存，晚期融合在线保留时间 token
   </text>
 </svg>

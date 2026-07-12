@@ -5,8 +5,9 @@
 ```text
 PASTIS paper-aligned input
   -> frozen Galileo encoder
-  -> one shared feature cache
-  -> different decoder/head
+  -> early fusion: one shared spacetime-mean cache
+  -> late fusion: online per-month hidden grids
+  -> different decoder/head and temporal fusion position
   -> 19-class semantic segmentation
 ```
 
@@ -52,8 +53,10 @@ encoder:
   patch_size: 4
   freeze: true
   normalize: false
-  spatial_token_strategy: spacetime_mean
+  spatial_token_strategy: spacetime_mean  # 方案一至四
 ```
+
+方案五输入 Galileo 的数据完全相同，但设置 `preserve_temporal_features: true`，从同一组 token 中只平均 band-group 轴，不提前平均 T。
 
 月度 raw-data 重建细节和官方公开协议边界见项目 [README](../README.md)。
 
@@ -201,7 +204,7 @@ test_loss / test_mIoU / per-class IoU
 checkpoint 与 TensorBoard 路径
 ```
 
-当前 `best.pt` 按最低 `val_loss` 保存。由于论文主要指标是 mIoU，正式批量实验应增加最高 `val_mIoU` checkpoint，并采用一致的 early-stopping 规则和多个 seed。
+训练同时保存最低 `val_loss` 的 `best_val_loss.pt` 与最高 `val_mIoU` 的 `best_val_miou.pt`；`best.pt` 保留为最低 loss checkpoint 的兼容名称。正式结果使用一致的模型选择规则并运行多个 seed。
 
 ## 对比矩阵
 
@@ -211,6 +214,7 @@ checkpoint 与 TensorBoard 路径
 | 多层同尺度融合 baseline | 相同 | layers 3/6/9/12，均为16×16 | projection + additive residual fusion | 检查跨层信息收益 |
 | 多尺度 Galileo-DPT | 相同 | layers 3/6/9/12，重组为多尺度 | reassemble + progressive fusion | 正在实现，结果待补 |
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
+| 3D-Aware DPT | 相同，在线冻结 | layers 3/6/9/12 × T12 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
 
 推荐结果名：
 
@@ -270,6 +274,30 @@ Galileo layers 3/6/9/12，each [B, 768, 16, 16]
 | per-class IoU 与定性观察 | 待补 |
 
 在数据产生前，不预写“优于 baseline”或“多尺度融合有效”等结论。
+
+## 3D-Aware DPT 晚期融合（方案五）
+
+方案五保持 PASTIS monthly-12 输入、Galileo 权重、冻结策略、fold、loss 和评测口径不变，但不读取已经执行 `spacetime_mean` 的共享缓存。它在线提取 Galileo 第 3/6/9/12 层 token，只平均 band-group 轴，保留：
+
+```text
+[B, 4, T=12, D=768, 16, 16]
+```
+
+完整 decoder 包含：
+
+1. **3D Reassemble**：四个隐藏层投影到 256 通道，并重组为 `64/32/16/8` 四个空间尺度，时间长度保持 12。
+2. **Global 3D bottleneck**：在最深 `8x8` 特征上执行全局时空自注意力。
+3. **Divided space-time blocks**：高分辨率阶段交替执行逐像素全局时间注意力、偏移窗口空间注意力和分解式 3D depthwise convolution。
+4. **Gated DPT fusion**：从深到浅逐级空间上采样，以门控方式融合 lateral feature，全程保留 T。
+5. **Temporal query pooling**：在 `64x64` 特征上用多头查询注意力融合 12 个月，最后输出 `[B, 19, 64, 64]`。
+
+训练入口：
+
+```bash
+conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_dpt.yaml
+```
+
+该路线不生成额外 temporal cache。冻结 Galileo 每个 batch 在线前向，训练器通过梯度累积维持有效 batch；日志和 checkpoint 使用独立目录，不覆盖早期融合实验。
 
 ## UPerNet-Style Decoder
 

@@ -2,25 +2,25 @@
 
 本项目研究 **frozen Galileo 遥感自监督表征在 PASTIS 作物语义分割上的迁移能力**。
 
-当前实验固定同一个 Galileo encoder 和同一套缓存，只比较 decoder：
+当前实验固定同一个 Galileo encoder、输入协议和冻结策略，对比早期与晚期融合 decoder：
 
 ```text
 PASTIS Sentinel-2 time series
   -> Galileo 论文输入协议
   -> frozen Galileo encoder
-  -> shared cached features
-  -> final-layer conv baseline / same-resolution multi-layer baseline
-  -> multi-scale Galileo-DPT / UPerNet-style decoder
+  -> early fusion: spacetime_mean shared cache
+  -> late fusion: online per-month hidden grids
+  -> convolution / multi-layer / UPerNet / Galileo-DPT / 3D-Aware DPT
   -> 19-class semantic segmentation logits
 ```
 
-现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。组员正在实现的多尺度 Galileo-DPT 才包含多尺度 reassemble 与渐进融合。所有 decoder 必须读取同一版缓存，避免把输入变化误认为 decoder 收益。
+现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。方案一至四在 decoder 前对时间 token 求均值并读取同一版缓存；方案五 `3d_aware_dpt` 使用同一冻结 Galileo 在线提取四层逐月特征，在完整 3D DPT 多尺度融合后才消除时间维。
 
 ## 技术路线图
 
 ![PreSSL-CropSeg 技术路线图](pictures/project_technical_route.svg)
 
-可编辑 SVG 源码：[pictures/project_technical_route.svg](pictures/project_technical_route.svg)。图中没有已经撤销的 paper-faithful DPT；虚线框表示仍在推进的多尺度 Galileo-DPT。
+可编辑 SVG 源码：[pictures/project_technical_route.svg](pictures/project_technical_route.svg)。图中没有已经撤销的 paper-faithful DPT；第五列是阶段二新增的 3D-Aware DPT 晚期融合方案。
 
 ## 当前实现
 
@@ -30,7 +30,9 @@ PASTIS Sentinel-2 time series
 - 最终层卷积 decoder（历史配置名 `single_layer_dpt`）
 - 多层同尺度融合 decoder（历史配置名 `multi_layer_dpt`）
 - UPerNet-style decoder（PPM + FPN）
+- 3D-Aware DPT：3D Reassemble、全局/分解时空注意力、门控多尺度融合与时间查询池化
 - 多层 Galileo 特征共享缓存
+- 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
 - TensorBoard loss / val mIoU 日志
 
@@ -121,8 +123,9 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练最终层卷积 baseline |
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
+| `configs/galileo_3d_aware_dpt.yaml` | 在线冻结 Galileo，训练保留 T=12 的 3D-Aware DPT |
 
-五份配置都固定：
+所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 
 ```yaml
 data:
@@ -222,6 +225,14 @@ UPerNet-style decoder：
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_shared.yaml
 ```
 
+3D-Aware DPT 晚期融合不生成特征缓存，直接在线运行冻结 Galileo：
+
+```bash
+conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_dpt.yaml
+```
+
+该配置默认 physical batch 为 2、梯度累积 8 次，有效 batch 为 16。Galileo 始终保持 `eval()` 和无梯度状态，只有 3D-Aware DPT decoder 更新参数；checkpoint 也只保存可训练 decoder，评估时从本地 pretrained 目录重新加载冻结 Galileo。
+
 TensorBoard：
 
 ```powershell
@@ -246,6 +257,12 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42_cached/best_val_miou.pt --split test
 ```
 
+评估 3D-Aware DPT 时同样在线运行冻结 Galileo，不需要 test 特征缓存：
+
+```bash
+conda run -n presl python -B scripts/eval.py --config configs/galileo_3d_aware_dpt.yaml --checkpoint checkpoints/galileo_3d_aware_dpt_late_fusion_seed42/best_val_miou.pt --split test
+```
+
 定性查看 3 个 test tile（不需要先生成完整 test 缓存）：
 
 ```powershell
@@ -257,7 +274,7 @@ conda run -n presl python -B scripts/visualize_predictions.py --config configs/g
 ## 实验原则
 
 - decoder 对比只改变 `model.decoder` 及其专属结构参数。
-- 所有 decoder 共用同一批 `monthly12_tile64_patch4_hl3-6-9-12` 缓存。
+- 早期融合方案一至四共用 `monthly12_tile64_patch4_hl3-6-9-12` 缓存；晚期融合方案五不缓存，在线保留同一 Galileo 的逐月 token。
 - 不改变 fold、输入缩放、月份、patch size、loss 或评测口径。
 - test fold 只用于最终报告，不用于 early stopping 或选超参数。
 - `data/PASTIS`、缓存、权重、日志、checkpoint 和 Python cache 都不提交到 Git。

@@ -25,6 +25,9 @@ class Trainer:
         checkpoint_dir: str | Path = "checkpoints",
         ignore_index: int | None = None,
         save_best: bool = True,
+        gradient_accumulation_steps: int = 1,
+        max_grad_norm: float | None = None,
+        save_trainable_only: bool = False,
     ) -> None:
         self.model = model.to(device)
         self.criterion = criterion
@@ -37,6 +40,12 @@ class Trainer:
         self.amp = bool(amp and device.type == "cuda")
         self.ignore_index = ignore_index
         self.save_best = save_best
+        self.gradient_accumulation_steps = int(gradient_accumulation_steps)
+        if self.gradient_accumulation_steps < 1:
+            raise ValueError("gradient_accumulation_steps must be at least 1.")
+        self.max_grad_norm = None if max_grad_norm is None else float(max_grad_norm)
+        self.save_trainable_only = bool(save_trainable_only)
+        self.scaler = torch.amp.GradScaler("cuda", enabled=self.amp)
         self.best_val_loss = float("inf")
         self.best_val_miou = float("-inf")
         self.checkpoint_dir = Path(checkpoint_dir)
@@ -96,26 +105,44 @@ class Trainer:
         batch_count = 0
 
         iterator = tqdm(self.train_loader, desc=f"train {epoch}", leave=False)
+        effective_batches = len(self.train_loader)
+        if max_batches is not None:
+            effective_batches = min(effective_batches, max_batches)
+        self.optimizer.zero_grad(set_to_none=True)
         for batch_index, batch in enumerate(iterator, start=1):
             if max_batches is not None and batch_index > max_batches:
                 break
             target = batch["target"].to(self.device, non_blocking=True)
             batch["target"] = target
 
-            self.optimizer.zero_grad(set_to_none=True)
             with torch.autocast(device_type=self.device.type, enabled=self.amp):
                 logits = self.model(batch)
                 loss = self.criterion(logits, target)
 
-            loss.backward()
-            self.optimizer.step()
-            if self.scheduler is not None:
-                self.scheduler.step()
+            group_start = (batch_count // self.gradient_accumulation_steps) * self.gradient_accumulation_steps
+            group_size = min(
+                self.gradient_accumulation_steps,
+                effective_batches - group_start,
+            )
+            self.scaler.scale(loss / max(1, group_size)).backward()
 
             loss_value = float(loss.detach().item())
             total_loss += loss_value
             batch_count += 1
             global_step += 1
+            should_update = (
+                batch_count % self.gradient_accumulation_steps == 0
+                or batch_count == effective_batches
+            )
+            if should_update:
+                if self.max_grad_norm is not None:
+                    self.scaler.unscale_(self.optimizer)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+                self.optimizer.zero_grad(set_to_none=True)
+                if self.scheduler is not None:
+                    self.scheduler.step()
             iterator.set_postfix(loss=f"{loss_value:.4f}")
             if self.writer is not None:
                 self.writer.add_scalar("loss/train_step", loss_value, global_step)
@@ -153,13 +180,26 @@ class Trainer:
         val_miou: float,
     ) -> None:
         path = self.checkpoint_dir / name
+        state_dict = self.model.state_dict()
+        if self.save_trainable_only:
+            trainable_names = {
+                parameter_name
+                for parameter_name, parameter in self.model.named_parameters()
+                if parameter.requires_grad
+            }
+            state_dict = {
+                parameter_name: value
+                for parameter_name, value in state_dict.items()
+                if parameter_name in trainable_names
+            }
         torch.save(
             {
                 "epoch": epoch,
                 "val_loss": val_loss,
                 "val_miou": val_miou,
-                "model": self.model.state_dict(),
+                "model": state_dict,
                 "optimizer": self.optimizer.state_dict(),
+                "trainable_only": self.save_trainable_only,
             },
             path,
         )

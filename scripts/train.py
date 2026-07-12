@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -58,7 +59,12 @@ def main() -> None:
     model = build_model(config)
     criterion = build_loss(config).to(device)
     optimizer = build_optimizer(config, model)
-    scheduler = build_scheduler(config, optimizer, steps_per_epoch=len(train_loader))
+    accumulation_steps = int(config["train"].get("gradient_accumulation_steps", 1))
+    scheduler = build_scheduler(
+        config,
+        optimizer,
+        steps_per_epoch=math.ceil(len(train_loader) / accumulation_steps),
+    )
 
     trainer = Trainer(
         model=model,
@@ -74,6 +80,9 @@ def main() -> None:
         checkpoint_dir=config["train"].get("checkpoint_dir", "checkpoints"),
         ignore_index=config.get("loss", {}).get("ignore_index"),
         save_best=bool(config["train"].get("save_best", True)),
+        gradient_accumulation_steps=accumulation_steps,
+        max_grad_norm=config["train"].get("max_grad_norm"),
+        save_trainable_only=bool(config["train"].get("save_trainable_only", False)),
     )
     trainer.fit(
         epochs=int(config["train"]["epochs"]),
