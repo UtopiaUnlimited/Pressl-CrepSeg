@@ -35,6 +35,7 @@ PASTIS Sentinel-2 time series
 - 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
 - Galileo 论文式线性探测与学习率搜索
+- 与 decoder 实验同训练协议的线性 head 对照
 - 基于 fold4 `val_mIoU` 的可配置早停
 - TensorBoard loss / val mIoU 日志
 
@@ -43,7 +44,7 @@ PASTIS Sentinel-2 time series
 - 多尺度 Galileo-DPT：layer 3/6/9/12 多尺度重组与深到浅渐进融合
 - 其参数量、训练结果和研究结论待实现完成后补充
 
-详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。两个既有 baseline 的首轮完整结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)。
+详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。两个既有 baseline 的首轮结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)；加入线性 head 并统一按最高 val mIoU 重测后的报告见 [docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md](docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md)。
 
 ## 数据与权重
 
@@ -127,6 +128,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
 | `configs/galileo_3d_aware_dpt.yaml` | 在线冻结 Galileo，训练保留 T=12 的 3D-Aware DPT |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
+| `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
 所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 
@@ -262,6 +264,16 @@ conda run -n presl python -B scripts/sweep_linear_probe.py --config configs/gali
 每个候选固定训练 50 epoch；每个 seed 只用 fold4 最终 `val_mIoU` 选择学习率，随后在 fold5 测试一次。完整运行共训练 80 个候选模型，汇总写入 `outputs/linear_probe_sweep/results.json`。为保持与官方固定轮数协议一致，线性探测关闭早停，并保存 `last.pt`。
 
 参考实现：[Galileo 官方 linear_probe.py](https://github.com/nasaharvest/galileo/blob/main/src/eval/linear_probe.py)。
+
+### 同协议线性 head 对照
+
+为了单独比较 decoder 结构，另提供一组只保留上述线性 head、其余设置与最终层卷积 baseline 相同的实验：batch size 16、CE+Dice、Prodigy、100 epoch，以及相同的 fold4 `val_mIoU` 早停规则。
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_linear_decoder_shared.yaml
+```
+
+该实验应与方案一至四一起评估 `best_val_miou.pt`。它不是论文原始 linear probing 数值的复现；论文复现仍使用 `galileo_linear_probe.yaml` 和固定 50 epoch。
 
 ## 早停与模型保存
 

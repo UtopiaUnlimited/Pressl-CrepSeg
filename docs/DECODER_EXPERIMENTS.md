@@ -224,6 +224,7 @@ checkpoint 与 TensorBoard 路径
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
 | 3D-Aware DPT | 相同，在线冻结 | layers 3/6/9/12 × T12 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
 | Galileo 论文线性探测 | 相同 | final `features` | 单个 Linear，逐 patch 输出 4×4 像素 logits | 复现论文 Table 17 probing 基线 |
+| 同协议线性 head | 相同 | final `features` | 与论文探测相同的单个 Linear | 在统一训练协议下隔离 decoder 结构收益 |
 
 ## Galileo 论文线性探测
 
@@ -248,6 +249,26 @@ Galileo final features [B, 768, 16, 16]
 `scripts/sweep_linear_probe.py` 对每个 seed 训练全部 16 个候选，用该 seed 的 fold4 最终 `val_mIoU` 选择学习率，然后仅在 fold5 测试一次；默认运行 5 个连续 seed 并报告均值和总体标准差。测试集不参与学习率选择，也不参与早停。
 
 参考：[Galileo 官方 linear_probe.py](https://github.com/nasaharvest/galileo/blob/main/src/eval/linear_probe.py)。
+
+### 同协议线性 head
+
+`configs/galileo_linear_decoder_shared.yaml` 复用完全相同的线性结构与共享缓存，但将训练部分对齐到最终层卷积 baseline：
+
+```text
+batch_size=16
+loss=CE + 0.5 Dice
+optimizer=Prodigy
+epochs=100
+early stopping=fold4 val_mIoU, patience 12
+```
+
+运行命令：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_linear_decoder_shared.yaml
+```
+
+因此它与论文复现回答不同问题：`galileo_linear_probe.yaml` 衡量能否复现 Galileo 的 probing protocol；`galileo_linear_decoder_shared.yaml` 衡量在完全相同训练策略下，线性 head 与卷积、多层融合等 decoder 的结构差距。
 
 推荐结果名：
 
