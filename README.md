@@ -29,6 +29,7 @@ PASTIS Sentinel-2 time series
 - Galileo 论文 PASTIS split 与输入协议
 - 最终层卷积 decoder（历史配置名 `single_layer_dpt`）
 - 多层同尺度融合 decoder（历史配置名 `multi_layer_dpt`）
+- Galileo-Adapted 2D DPT（四级 learned reassemble + 渐进融合）
 - UPerNet-style decoder（PPM + FPN）
 - 3D-Aware DPT：3D Reassemble、全局/分解时空注意力、门控多尺度融合与时间查询池化
 - 多层 Galileo 特征共享缓存
@@ -39,10 +40,10 @@ PASTIS Sentinel-2 time series
 - 基于 fold4 `val_mIoU` 的可配置早停
 - TensorBoard loss / val mIoU 日志
 
-正在推进：
+待完成实验：
 
-- 多尺度 Galileo-DPT：layer 3/6/9/12 多尺度重组与深到浅渐进融合
-- 其参数量、训练结果和研究结论待实现完成后补充
+- Galileo-Adapted 2D DPT、UPerNet-style 与 3D-Aware DPT 的正式训练、测试和多 seed 复验
+- 结果和研究结论只在训练完成后补充
 
 详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。两个既有 baseline 的首轮结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)；加入线性 head 并统一按最高 val mIoU 重测后的报告见 [docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md](docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md)。
 
@@ -126,6 +127,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练最终层卷积 baseline |
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
+| `configs/galileo_adapted_dpt_shared.yaml` | 使用共享缓存训练方案四 Galileo-Adapted 2D DPT |
 | `configs/galileo_3d_aware_dpt.yaml` | 在线冻结 Galileo，训练保留 T=12 的 3D-Aware DPT |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
@@ -229,6 +231,14 @@ UPerNet-style decoder：
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_shared.yaml
 ```
+
+方案四 Galileo-Adapted 2D DPT：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_shared.yaml
+```
+
+该方案直接读取共享缓存的 layer 3/6/9/12，将四个 `[B,768,16,16]` 特征 learned reassemble 为 `64/32/16/8` 四级金字塔，再由深到浅逐级融合。它不重新运行 Galileo，也不覆盖方案一、二的日志和 checkpoint。
 
 3D-Aware DPT 晚期融合不生成特征缓存，直接在线运行冻结 Galileo：
 

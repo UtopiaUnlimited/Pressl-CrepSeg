@@ -13,7 +13,7 @@ PASTIS paper-aligned input
 
 当前已经完成的 `single_layer_dpt` 和 `multi_layer_dpt` 是历史配置名：前者实际为**最终层卷积 decoder**，后者实际为**多层同尺度融合 decoder**。二者用于建立受控 baseline，均不是 DPT 原论文的完整复现。
 
-组员正在实现的**多尺度 Galileo-DPT**才是当前 DPT 主方法：它需要将 layer 3/6/9/12 的同尺寸特征重组为多尺度金字塔，并进行深到浅渐进融合。其配置、参数量、结果和结论在实现与训练完成前保持待定。
+现已实现的 **Galileo-Adapted 2D DPT（方案四）**是当前 DPT 主方法：它将 layer 3/6/9/12 的同尺寸特征重组为多尺度金字塔，并进行深到浅渐进融合。当前配置与参数量已经固定，训练和测试结果仍保持待定。
 
 ## 固定实验条件
 
@@ -220,7 +220,7 @@ checkpoint 与 TensorBoard 路径
 | --- | --- | --- | --- | --- |
 | 最终层卷积 baseline | Galileo base, patch4 | final `features` | projection + residual conv + upsample | 检查空间细化读取能力 |
 | 多层同尺度融合 baseline | 相同 | layers 3/6/9/12，均为16×16 | projection + additive residual fusion | 检查跨层信息收益 |
-| 多尺度 Galileo-DPT | 相同 | layers 3/6/9/12，重组为多尺度 | reassemble + progressive fusion | 正在实现，结果待补 |
+| Galileo-Adapted 2D DPT | 相同 | layers 3/6/9/12，重组为多尺度 | learned reassemble + progressive fusion | 方案四已实现，结果待补 |
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
 | 3D-Aware DPT | 相同，在线冻结 | layers 3/6/9/12 × T12 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
 | Galileo 论文线性探测 | 相同 | final `features` | 单个 Linear，逐 patch 输出 4×4 像素 logits | 复现论文 Table 17 probing 基线 |
@@ -298,34 +298,62 @@ Galileo layer 3/6/9/12
 
 最终层 baseline 使用同一 `.npz` 的 `features`；多层同尺度 baseline 使用 `features_by_layer`。二者不需要分别跑 encoder。由于所有输入层在运行时都是 `16×16`，这里没有形成 DPT 原论文的多尺度特征金字塔。
 
-## 多尺度 Galileo-DPT（正在实现）
+## Galileo-Adapted 2D DPT（方案四，已实现）
 
-目标结构：
+配置：
+
+```text
+configs/galileo_adapted_dpt_shared.yaml
+```
+
+该结构不机械复制 DPT 的图像 ViT readout，而是把共享缓存中已经完成 Galileo 时空上下文化和 `spacetime_mean` 的 layer 3/6/9/12 作为专用输入适配接口：
 
 ```text
 Galileo layers 3/6/9/12，each [B, 768, 16, 16]
-  -> independent projection / reassemble
-  -> [B, C, 64, 64]
-     [B, C, 32, 32]
-     [B, C, 16, 16]
-     [B, C,  8,  8]
+  -> independent 1x1 projection, GroupNorm, GELU
+  -> learned reassemble
+  -> [B, 256, 64, 64]  (layer 3,  ConvTranspose x4)
+     [B, 256, 32, 32]  (layer 6,  ConvTranspose x2)
+     [B, 256, 16, 16]  (layer 9,  identity refine)
+     [B, 256,  8,  8]  (layer 12, stride-2 Conv)
   -> deep-to-shallow progressive fusion
-  -> segmentation head
+  -> 256-to-128 segmentation head
   -> [B, 19, 64, 64]
 ```
 
-该结构应继续读取现有共享缓存，不重新训练 Galileo，不改变 PASTIS 输入和 fold。由于 Galileo 的 token 结构与图像 ViT 不完全相同，本项目复用已经验证的结构化空间聚合，不机械复制 DPT 的 class-token readout；因此准确表述是“适配 Galileo 的多尺度 DPT”，而不是逐行复现原始代码。
+每一级融合先将深层特征双线性上采样到 lateral 尺寸，再使用带 GroupNorm/GELU 的 residual convolution unit 细化 lateral 和融合结果。GroupNorm 不依赖 batch 统计，适合后续因显存调整 physical batch；四个 projection 相互独立，保留不同 Galileo 深度层级的分布差异。
+
+它继续读取现有共享缓存，不重新训练 Galileo，不改变 PASTIS 输入、fold 或 `spacetime_mean`。因此方案二和方案四之间的主要变量是“同尺度相加”与“多尺度 reassemble + 渐进融合”。准确表述是“适配 Galileo 的 2D DPT decoder”，不是 DPT 原论文 encoder 的完整复现。
+
+训练：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_shared.yaml
+```
+
+默认 physical/effective batch 均为 16，与方案一、二一致。OOM 时可临时使用 `--batch-size 4`，并在正式对比前将配置增加 `gradient_accumulation_steps: 4` 以保持 effective batch 16。
+
+实现位置：
+
+```text
+models/decoders/galileo_dpt.py
+models/cached.py
+models/model.py
+configs/galileo_adapted_dpt_shared.yaml
+```
 
 训练完成后补充：
 
 | 项目 | 数值 |
 | --- | --- |
-| 配置与 commit | 待补 |
-| 可训练参数 | 待补 |
+| 配置与 commit | `configs/galileo_adapted_dpt_shared.yaml` / 待提交 |
+| 可训练参数 | 18,337,427（约 18.34M） |
 | 峰值显存 / 训练时间 | 待补 |
 | best val mIoU / epoch | 待补 |
 | fold5 test loss / mIoU | 待补 |
 | per-class IoU 与定性观察 | 待补 |
+
+该规模高于当前多层 DPT 的约 `9.06M`，因此比较结果时应同时报告参数量；若方案四更好，不能仅凭单次结果断言收益全部来自多尺度重组。
 
 在数据产生前，不预写“优于 baseline”或“多尺度融合有效”等结论。
 

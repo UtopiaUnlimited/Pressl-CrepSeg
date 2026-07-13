@@ -418,7 +418,7 @@
   <rect x="945" y="1015" width="350" height="60" rx="8" class="ongoing"/>
 
   <text x="1120" y="1053" text-anchor="middle" class="accent">
-    设计中
+    已实现，待训练
   </text>
 
   <!-- Branch 4 -->
@@ -485,7 +485,7 @@
   <rect x="1385" y="1015" width="350" height="60" rx="8" class="ongoing"/>
 
   <text x="1560" y="1053" text-anchor="middle" class="accent">
-    设计中
+    已实现，待训练
   </text>
 
   <!-- Branch 5 -->

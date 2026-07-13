@@ -178,7 +178,7 @@ layers 3/6/9/12, each [B, 768, 16, 16]
 1. 完成论文线性探测的 16 学习率 × 5 runs sweep，得到可与论文 39.2% 正式比较的均值与方差。
 2. 对线性 head、最终层卷积和多层融合至少补充 3 个相同 seed，统一报告 mean ± std。
 3. 加入参数量匹配的轻量卷积 decoder，判断收益来自空间归纳偏置还是单纯容量增加。
-4. 继续训练 UPerNet-style 与 3D-Aware DPT，保持同一 fold、输入和 checkpoint 规则。
+4. 训练已经实现的 Galileo-Adapted 2D DPT、UPerNet-style 与 3D-Aware DPT，保持同一 fold、输入和 checkpoint 规则。
 5. 增加混淆矩阵、类别频率和典型 tile 可视化，重点分析 class 4、7、10、17、18。
 
 ## 10. 复现命令

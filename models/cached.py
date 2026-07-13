@@ -6,6 +6,7 @@ from torch import nn
 from models.decoders import (
     DPTMultiLayerDecoder,
     DPTSingleLayerDecoder,
+    GalileoDPTDecoder,
     GalileoLinearProbeDecoder,
     UPerNetDecoder,
 )
@@ -63,7 +64,7 @@ def build_cached_feature_model(
             decoder_blocks=int(model_cfg.get("decoder_blocks", 3)),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
-    elif decoder_name in {"multiscale_dpt", "multi_layer_dpt", "multilayer_dpt"}:
+    elif decoder_name in {"multi_layer_dpt", "multilayer_dpt"}:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
         decoder = DPTMultiLayerDecoder(
             in_channels=int(in_channels),
@@ -73,6 +74,21 @@ def build_cached_feature_model(
             decoder_blocks=int(model_cfg.get("decoder_blocks", 3)),
             fusion_blocks=int(model_cfg.get("fusion_blocks", 1)),
             dropout=float(model_cfg.get("dropout", 0.0)),
+        )
+    elif decoder_name in {
+        "galileo_dpt",
+        "galileo_adapted_dpt",
+        "multiscale_dpt",
+    }:
+        hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        decoder = GalileoDPTDecoder(
+            in_channels=int(in_channels),
+            num_classes=int(data_cfg["num_classes"]),
+            num_layers=int(num_layers or len(hidden_layers)),
+            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
+            fusion_blocks=int(model_cfg.get("fusion_blocks", 2)),
+            head_channels=int(model_cfg.get("head_channels", 128)),
+            dropout=float(model_cfg.get("dropout", 0.1)),
         )
     elif decoder_name in {"upernet", "upernet_style", "upernet-style"}:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
