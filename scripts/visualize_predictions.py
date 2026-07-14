@@ -63,14 +63,19 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--split", choices=["val", "test"], default="test")
-    parser.add_argument("--num-samples", type=int, default=3)
+    parser.add_argument(
+        "--num-samples",
+        type=int,
+        default=None,
+        help="Optional representative-sample limit; default saves the complete split.",
+    )
     parser.add_argument(
         "--sample-ids",
         nargs="*",
         default=None,
         help="Optional explicit IDs such as 10002_y0_x64; overrides automatic selection.",
     )
-    parser.add_argument("--output-dir", default="outputs/test_predictions")
+    parser.add_argument("--output-dir", default=str(ROOT / "output"))
     parser.add_argument("--device", default=None)
     parser.add_argument("--panel-size", type=int, default=384)
     return parser.parse_args()
@@ -196,23 +201,32 @@ def colorize_mask(mask: np.ndarray) -> np.ndarray:
     return colored
 
 
-def sample_metrics(target: np.ndarray, prediction: np.ndarray) -> tuple[float, float]:
+def sample_metrics(target: np.ndarray, prediction: np.ndarray) -> tuple[float, float, float]:
     valid = (target >= 0) & (target < len(PASTIS_PALETTE))
     if not valid.any():
-        return float("nan"), float("nan")
+        return float("nan"), float("nan"), float("nan")
     target_valid = target[valid]
     prediction_valid = prediction[valid]
     accuracy = float((target_valid == prediction_valid).mean())
 
     ious = []
+    f1_scores = []
     classes = np.union1d(np.unique(target_valid), np.unique(prediction_valid))
     for class_id in classes:
         target_class = target_valid == class_id
         prediction_class = prediction_valid == class_id
+        intersection = np.logical_and(target_class, prediction_class).sum()
         union = np.logical_or(target_class, prediction_class).sum()
         if union:
-            ious.append(np.logical_and(target_class, prediction_class).sum() / union)
-    return accuracy, float(np.mean(ious)) if ious else float("nan")
+            ious.append(intersection / union)
+        denominator = target_class.sum() + prediction_class.sum()
+        if denominator:
+            f1_scores.append(2.0 * intersection / denominator)
+    return (
+        accuracy,
+        float(np.mean(ious)) if ious else float("nan"),
+        float(np.mean(f1_scores)) if f1_scores else float("nan"),
+    )
 
 
 def _font(size: int) -> ImageFont.ImageFont:
@@ -257,10 +271,11 @@ def render_triptych(
     title_font = _font(22)
     meta_font = _font(17)
 
-    accuracy, miou = sample_metrics(target, prediction)
+    accuracy, miou, f1 = sample_metrics(target, prediction)
     draw.text(
         (margin, 9),
-        f"{sample_id} | fold {fold} | pixel accuracy {accuracy:.3f} | sample mIoU {miou:.3f}",
+        f"{sample_id} | fold {fold} | accuracy {accuracy:.3f} | "
+        f"mIoU {miou:.3f} | macro F1 {f1:.3f}",
         font=meta_font,
         fill=(25, 25, 25),
     )
@@ -331,6 +346,8 @@ def main() -> None:
     dataset = build_pastis_dataset(config["data"], args.split)
     if args.sample_ids:
         selected_indices = _indices_for_sample_ids(dataset, args.sample_ids)
+    elif args.num_samples is None:
+        selected_indices = list(range(len(dataset)))
     else:
         selected_indices = select_representative_indices(dataset, args.num_samples)
 
@@ -348,6 +365,7 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     rendered: list[Image.Image] = []
+    build_overview = len(selected_indices) <= 20
     print(
         f"checkpoint={checkpoint_path} epoch={checkpoint.get('epoch', 'unknown')} "
         f"device={device}"
@@ -371,14 +389,15 @@ def main() -> None:
         )
         output_path = output_dir / f"{args.split}_{sample_id}.png"
         comparison.save(output_path)
-        rendered.append(comparison)
-        accuracy, miou = sample_metrics(target, prediction)
+        if build_overview:
+            rendered.append(comparison)
+        accuracy, miou, f1 = sample_metrics(target, prediction)
         print(
             f"sample={sample_id} pixel_accuracy={accuracy:.5f} "
-            f"sample_miou={miou:.5f} output={output_path}"
+            f"sample_miou={miou:.5f} sample_f1={f1:.5f} output={output_path}"
         )
 
-    if rendered:
+    if rendered and len(rendered) <= 20:
         gap = 16
         overview = Image.new(
             "RGB",

@@ -6,7 +6,8 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from metrics import ConfusionMatrix, mean_iou
+from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy
+from .plotting import save_training_history
 
 
 class Trainer:
@@ -84,12 +85,17 @@ class Trainer:
         self.best_val_miou = float("-inf")
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir = Path(log_dir)
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.history: list[dict[str, float]] = []
 
         try:
             from torch.utils.tensorboard import SummaryWriter
         except ImportError:
             SummaryWriter = None
-        self.writer = SummaryWriter(log_dir=str(log_dir)) if SummaryWriter is not None else None
+        self.writer = (
+            SummaryWriter(log_dir=str(self.log_dir)) if SummaryWriter is not None else None
+        )
 
     def fit(
         self,
@@ -101,36 +107,61 @@ class Trainer:
         last_epoch = 0
         last_val_loss = float("nan")
         last_val_miou = float("nan")
+        last_val_acc = float("nan")
+        last_val_f1 = float("nan")
         for epoch in range(1, epochs + 1):
             train_loss, global_step = self.train_epoch(epoch, global_step, max_train_batches)
-            val_loss, val_miou = self.validate(epoch, max_val_batches)
+            validation = self.validate(epoch, max_val_batches)
+            val_loss, val_miou, val_acc, val_f1 = self._unpack_validation_metrics(
+                validation
+            )
             lr = self.optimizer.param_groups[0]["lr"]
+
+            self.history.append(
+                {
+                    "epoch": epoch,
+                    "train_loss": train_loss,
+                    "val_loss": val_loss,
+                    "val_miou": val_miou,
+                    "val_acc": val_acc,
+                    "val_f1": val_f1,
+                }
+            )
 
             print(
                 f"epoch={epoch} train_loss={train_loss:.5f} "
-                f"val_loss={val_loss:.5f} val_miou={val_miou:.5f} lr={lr:.8f}"
+                f"val_loss={val_loss:.5f} val_miou={val_miou:.5f} "
+                f"val_acc={val_acc:.5f} val_f1={val_f1:.5f} lr={lr:.8f}"
             )
             if self.writer is not None:
                 self.writer.add_scalar("loss/train", train_loss, epoch)
                 self.writer.add_scalar("loss/val", val_loss, epoch)
                 self.writer.add_scalar("metrics/val_miou", val_miou, epoch)
+                self.writer.add_scalar("metrics/val_acc", val_acc, epoch)
+                self.writer.add_scalar("metrics/val_f1", val_f1, epoch)
                 self.writer.add_scalar("lr", lr, epoch)
                 if self.device.type == "cuda":
                     self.writer.add_scalar("gpu/max_memory_allocated", torch.cuda.max_memory_allocated(), epoch)
 
             if self.save_best and val_loss < self.best_val_loss:
                 self.best_val_loss = val_loss
-                self.save_checkpoint("best_val_loss.pt", epoch, val_loss, val_miou)
+                self.save_checkpoint(
+                    "best_val_loss.pt", epoch, val_loss, val_miou, val_acc, val_f1
+                )
                 # Keep the historical filename compatible with existing commands.
-                self.save_checkpoint("best.pt", epoch, val_loss, val_miou)
+                self.save_checkpoint("best.pt", epoch, val_loss, val_miou, val_acc, val_f1)
 
             if self.save_best and val_miou > self.best_val_miou:
                 self.best_val_miou = val_miou
-                self.save_checkpoint("best_val_miou.pt", epoch, val_loss, val_miou)
+                self.save_checkpoint(
+                    "best_val_miou.pt", epoch, val_loss, val_miou, val_acc, val_f1
+                )
 
             last_epoch = epoch
             last_val_loss = val_loss
             last_val_miou = val_miou
+            last_val_acc = val_acc
+            last_val_f1 = val_f1
             if self.early_stopping_enabled:
                 metric = val_loss if self.early_stopping_monitor == "val_loss" else val_miou
                 if self._is_early_stopping_improvement(metric):
@@ -155,19 +186,44 @@ class Trainer:
                     break
 
         if self.save_last and last_epoch > 0:
-            self.save_checkpoint("last.pt", last_epoch, last_val_loss, last_val_miou)
+            self.save_checkpoint(
+                "last.pt",
+                last_epoch,
+                last_val_loss,
+                last_val_miou,
+                last_val_acc,
+                last_val_f1,
+            )
 
         if self.writer is not None:
             self.writer.close()
+        save_training_history(self.history, self.log_dir)
         return {
             "epochs_trained": last_epoch,
             "last_val_loss": last_val_loss,
             "last_val_miou": last_val_miou,
+            "last_val_acc": last_val_acc,
+            "last_val_f1": last_val_f1,
             "best_val_loss": self.best_val_loss,
             "best_val_miou": self.best_val_miou,
             "stopped_early": self.stopped_epoch is not None,
             "stopped_epoch": self.stopped_epoch,
         }
+
+    @staticmethod
+    def _unpack_validation_metrics(
+        validation: tuple[float, ...],
+    ) -> tuple[float, float, float, float]:
+        """Accept the historical 2-tuple from custom Trainer subclasses."""
+
+        if len(validation) == 4:
+            return tuple(float(value) for value in validation)
+        if len(validation) == 2:
+            val_loss, val_miou = validation
+            return float(val_loss), float(val_miou), 0.0, 0.0
+        raise ValueError(
+            "validate() must return (loss, mIoU) or (loss, mIoU, accuracy, F1)."
+        )
 
     def _is_early_stopping_improvement(self, metric: float) -> bool:
         if self.early_stopping_mode == "min":
@@ -234,7 +290,11 @@ class Trainer:
         return total_loss / max(1, batch_count), global_step
 
     @torch.no_grad()
-    def validate(self, epoch: int, max_batches: int | None = None) -> tuple[float, float]:
+    def validate(
+        self,
+        epoch: int,
+        max_batches: int | None = None,
+    ) -> tuple[float, float, float, float]:
         self.model.eval()
         total_loss = 0.0
         batch_count = 0
@@ -254,7 +314,9 @@ class Trainer:
             confusion.update(logits, target)
 
         miou, _ = mean_iou(confusion.matrix)
-        return total_loss / max(1, batch_count), miou
+        accuracy = pixel_accuracy(confusion.matrix)
+        f1, _ = macro_f1(confusion.matrix)
+        return total_loss / max(1, batch_count), miou, accuracy, f1
 
     def save_checkpoint(
         self,
@@ -262,6 +324,8 @@ class Trainer:
         epoch: int,
         val_loss: float,
         val_miou: float,
+        val_acc: float = float("nan"),
+        val_f1: float = float("nan"),
     ) -> None:
         path = self.checkpoint_dir / name
         state_dict = self.model.state_dict()
@@ -281,6 +345,8 @@ class Trainer:
                 "epoch": epoch,
                 "val_loss": val_loss,
                 "val_miou": val_miou,
+                "val_acc": val_acc,
+                "val_f1": val_f1,
                 "model": state_dict,
                 "optimizer": self.optimizer.state_dict(),
                 "trainable_only": self.save_trainable_only,

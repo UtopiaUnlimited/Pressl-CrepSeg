@@ -310,6 +310,17 @@ conda run -n presl tensorboard --logdir logs
 
 浏览器访问 `http://localhost:6006`。如果已经激活 `presl` 环境，也可以直接运行 `tensorboard --logdir logs`。
 
+每轮验证还会从整个 fold4 的累计混淆矩阵计算像素准确率 `val_acc` 和宏平均 `val_f1`。其中 void/ignore 像素不参与统计，宏平均 F1 只平均在真值或预测中出现过的类别。训练控制台、TensorBoard 和 checkpoint 都会记录这两个指标。
+
+训练结束（包括触发早停）后，不依赖 TensorBoard，程序会在该实验的 `train.log_dir` 下自动写出原始 epoch 数据和曲线：
+
+- `training_history.json`、`training_history.csv`
+- `train_loss.png`、`val_loss.png`
+- `val_miou.png`、`val_acc.png`、`val_f1.png`
+- `training_curves.png`（五项指标总览）
+
+曲线不做平滑；mIoU、Acc 和 F1 的纵轴固定为 `[0, 1]`，loss 纵轴从 `0` 开始，避免自动缩放夸大较小的后期变化。
+
 训练会同时保存最低 `val_loss` 的 `best_val_loss.pt` 和最高 `val_mIoU` 的 `best_val_miou.pt`。为兼容已有命令，`best.pt` 与 `best_val_loss.pt` 含义相同。最终报告 mIoU 时建议评估 `best_val_miou.pt`，并运行多个 seed；论文式线性探测固定使用最后一轮 `last.pt`。
 
 ## 最终评估
@@ -326,19 +337,21 @@ conda run -n presl python -B scripts/cache_features.py --config configs/galileo_
 conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42_cached/best_val_miou.pt --split test
 ```
 
+评估会输出 `test_loss`、`test_miou`、`test_acc`、`test_f1`、逐类别 IoU 和逐类别 F1，同时把 test split 的每一个样本保存到项目根目录 `output/`。每张 PNG 从左到右依次为真实 RGB 合成图、真值和预测。可用 `--output-dir` 修改目录、用 `--panel-size` 修改单个面板尺寸；在线评估 `scripts/eval.py` 与缓存评估 `scripts/eval_cached.py` 的行为一致。
+
 评估 3D-Aware DPT 时同样在线运行冻结 Galileo，不需要 test 特征缓存：
 
 ```bash
 conda run -n presl python -B scripts/eval.py --config configs/galileo_3d_aware_dpt.yaml --checkpoint checkpoints/galileo_3d_aware_dpt_late_fusion_seed42/best_val_miou.pt --split test
 ```
 
-定性查看 3 个 test tile（不需要先生成完整 test 缓存）：
+如果只想定性查看 3 个有代表性的 test tile（不需要先生成完整 test 缓存）：
 
 ```powershell
 conda run -n presl python -B scripts/visualize_predictions.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42_cached/best_val_miou.pt --split test --num-samples 3
 ```
 
-脚本只在线编码自动选出的 3 个样本，输出到 `outputs/test_predictions/`。每行从左到右依次为 12 个月 Sentinel-2 B4/B3/B2 中位数合成、真实标签和网络预测；真实标签与预测使用同一套类别颜色，void 区域显示为灰色。自动选图只依据真实标签的有效比例和类别丰富度，不查看模型预测；需要固定样本时可传入 `--sample-ids 10002_y0_x0 10002_y0_x64`。
+显式传入 `--num-samples 3` 时，脚本只在线编码自动选出的 3 个样本；省略该参数时默认输出完整 split。结果默认写入 `output/`。每行从左到右依次为 12 个月 Sentinel-2 B4/B3/B2 中位数合成、真实标签和网络预测；真实标签与预测使用同一套类别颜色，void 区域显示为灰色。自动选图只依据真实标签的有效比例和类别丰富度，不查看模型预测；需要固定样本时可传入 `--sample-ids 10002_y0_x0 10002_y0_x64`。
 
 ## 实验原则
 

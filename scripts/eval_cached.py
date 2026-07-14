@@ -11,10 +11,16 @@ from tqdm import tqdm
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from data import CachedFeatureDataset, cached_feature_collate_fn  # noqa: E402
+from data import (  # noqa: E402
+    CachedFeatureDataset,
+    PASTISDataset,
+    build_pastis_dataset,
+    cached_feature_collate_fn,
+)
 from losses import build_loss  # noqa: E402
-from metrics import ConfusionMatrix, mean_iou  # noqa: E402
+from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy  # noqa: E402
 from models import build_cached_feature_model  # noqa: E402
+from scripts.visualize_predictions import make_rgb_composite, render_triptych  # noqa: E402
 from utils import feature_cache_dir, load_config  # noqa: E402
 
 
@@ -22,11 +28,30 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
     parser.add_argument("--checkpoint", required=True)
-    parser.add_argument("--split", choices=["val", "test"], default="val")
+    parser.add_argument("--split", choices=["val", "test"], default="test")
     parser.add_argument("--cache-dir", default=None)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--device", default=None)
+    parser.add_argument(
+        "--output-dir",
+        default=str(ROOT / "output"),
+        help="Directory for every RGB / ground-truth / prediction triptych.",
+    )
+    parser.add_argument("--panel-size", type=int, default=384)
     return parser.parse_args()
+
+
+def sample_index_by_id(dataset: PASTISDataset) -> dict[str, int]:
+    index_by_id: dict[str, int] = {}
+    for record_index, record in enumerate(dataset.records):
+        for tile_id in range(dataset.tiles_per_record):
+            tile_row, tile_col = divmod(tile_id, dataset.tiles_per_side)
+            sample_id = (
+                f"{record.patch_id}_y{tile_row * dataset.tile_size}"
+                f"_x{tile_col * dataset.tile_size}"
+            )
+            index_by_id[sample_id] = record_index * dataset.tiles_per_record + tile_id
+    return index_by_id
 
 
 def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLoader:
@@ -75,6 +100,11 @@ def main() -> None:
 
     total_loss = 0.0
     batch_count = 0
+    raw_dataset = build_pastis_dataset(config["data"], args.split)
+    raw_index_by_id = sample_index_by_id(raw_dataset)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    saved_count = 0
     for batch in tqdm(loader, desc=f"cached {args.split}"):
         target = batch["target"].to(device, non_blocking=True)
         batch["target"] = target
@@ -83,10 +113,41 @@ def main() -> None:
         batch_count += 1
         confusion.update(logits, target)
 
+        predictions = logits.argmax(dim=1).detach().cpu().numpy()
+        targets = target.detach().cpu().numpy()
+        for sample_index, sample_id in enumerate(batch["sample_id"]):
+            if sample_id not in raw_index_by_id:
+                raise KeyError(
+                    f"Cached sample is not present in raw {args.split} split: {sample_id}"
+                )
+            raw_sample = raw_dataset[raw_index_by_id[sample_id]]
+            comparison = render_triptych(
+                rgb=make_rgb_composite(raw_sample, config),
+                target=targets[sample_index],
+                prediction=predictions[sample_index],
+                sample_id=sample_id,
+                fold=int(raw_sample["fold"]),
+                panel_size=args.panel_size,
+            )
+            comparison.save(output_dir / f"{args.split}_{sample_id}.png")
+            saved_count += 1
+
     miou, per_class_iou = mean_iou(confusion.matrix)
+    accuracy = pixel_accuracy(confusion.matrix)
+    f1, per_class_f1 = macro_f1(confusion.matrix)
     print(f"{args.split}_loss={total_loss / max(1, batch_count):.5f}")
     print(f"{args.split}_miou={miou:.5f}")
-    print("per_class_iou=" + ",".join(f"{value:.5f}" for value in per_class_iou.tolist()))
+    print(f"{args.split}_acc={accuracy:.5f}")
+    print(f"{args.split}_f1={f1:.5f}")
+    print(
+        "per_class_iou="
+        + ",".join(f"{value:.5f}" for value in per_class_iou.tolist())
+    )
+    print(
+        "per_class_f1="
+        + ",".join(f"{value:.5f}" for value in per_class_f1.tolist())
+    )
+    print(f"saved_predictions={saved_count} output_dir={output_dir.resolve()}")
 
 
 if __name__ == "__main__":

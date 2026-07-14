@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 
 from data import CachedFeatureDataset, cached_feature_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
-from metrics import ConfusionMatrix, mean_iou  # noqa: E402
+from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy  # noqa: E402
 from models import build_cached_feature_model  # noqa: E402
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
 from utils import feature_cache_dir, load_config, seed_everything  # noqa: E402
@@ -83,7 +83,7 @@ def evaluate(
     amp: bool,
     amp_dtype: torch.dtype,
     max_batches: int | None,
-) -> tuple[float, float]:
+) -> tuple[float, float, float, float]:
     model.eval()
     confusion = ConfusionMatrix(num_classes=num_classes, ignore_index=ignore_index)
     total_loss = 0.0
@@ -104,7 +104,9 @@ def evaluate(
         batch_count += 1
         confusion.update(logits, target)
     miou, _ = mean_iou(confusion.matrix)
-    return total_loss / max(1, batch_count), miou
+    accuracy = pixel_accuracy(confusion.matrix)
+    f1, _ = macro_f1(confusion.matrix)
+    return total_loss / max(1, batch_count), miou, accuracy, f1
 
 
 def write_results(path: Path, payload: dict) -> None:
@@ -188,6 +190,8 @@ def main() -> None:
                 "learning_rate": float(learning_rate),
                 "val_loss": float(summary["last_val_loss"]),
                 "val_miou": float(summary["last_val_miou"]),
+                "val_acc": float(summary["last_val_acc"]),
+                "val_f1": float(summary["last_val_f1"]),
                 "checkpoint": str(Path(config["train"]["checkpoint_dir"]) / "last.pt"),
             }
             candidates.append(candidate)
@@ -209,7 +213,7 @@ def main() -> None:
             if str(selected_config["train"].get("amp_dtype", "float16")) == "bfloat16"
             else torch.float16
         )
-        test_loss, test_miou = evaluate(
+        test_loss, test_miou, test_acc, test_f1 = evaluate(
             model=model,
             loader=test_loader,
             criterion=criterion,
@@ -227,6 +231,8 @@ def main() -> None:
             "val_miou": selected["val_miou"],
             "test_loss": test_loss,
             "test_miou": test_miou,
+            "test_acc": test_acc,
+            "test_f1": test_f1,
             "checkpoint": selected["checkpoint"],
             "candidates": candidates,
         }
@@ -235,6 +241,8 @@ def main() -> None:
         print(f"selected run={run_id}: {run_result}")
 
     test_scores = [float(result["test_miou"]) for result in run_results]
+    test_acc_scores = [float(result["test_acc"]) for result in run_results]
+    test_f1_scores = [float(result["test_f1"]) for result in run_results]
     payload = {
         "protocol": {
             "epochs": int(base_config["train"]["epochs"]),
@@ -244,6 +252,10 @@ def main() -> None:
         },
         "test_miou_mean": statistics.mean(test_scores),
         "test_miou_population_std": statistics.pstdev(test_scores),
+        "test_acc_mean": statistics.mean(test_acc_scores),
+        "test_acc_population_std": statistics.pstdev(test_acc_scores),
+        "test_f1_mean": statistics.mean(test_f1_scores),
+        "test_f1_population_std": statistics.pstdev(test_f1_scores),
         "runs": run_results,
     }
     write_results(output_path, payload)
