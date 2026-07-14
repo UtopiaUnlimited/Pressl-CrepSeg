@@ -1,0 +1,16 @@
+{
+  "root": "data\\PASTIS",
+  "folds": [
+    1,
+    2,
+    3
+  ],
+  "patch_count": 1455,
+  "aggregation": "aggregate_monthly_s2(start_offset=1, num_timesteps=12)",
+  "ndvi_bands": {
+    "red": "B4",
+    "nir": "B8"
+  },
+  "void_label": 19,
+  "warning": "This is train-only descriptive analysis; it is not a calibrated probability prior."
+}

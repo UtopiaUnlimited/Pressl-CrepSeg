@@ -105,7 +105,10 @@ PASTIS 有效标签为 `0..18`。具体映射见 [`docs/next.md`](next.md#pastis
 ```text
 data/priors/pastis_france_phenology_sources.csv
 data/priors/pastis_france_phenology_prior.csv
+data/priors/pastis_ext_prior_draft.csv
 docs/PHENOLOGY_PRIOR_SOURCES.md
+docs/PHENOLOGY_PRIOR_DRAFT.md
+docs/PHENOLOGY_LAYER_HANDLING.md
 ```
 
 类别到检索对象的第一版映射和来源候选已经整理在 [`PHENOLOGY_PRIOR_SOURCES.md`](PHENOLOGY_PRIOR_SOURCES.md)。当前结论是：19 个有效标签中，13 类可以对应主要作物但部分仍有用途/亚型歧义，5 类只能对应作物组，Background 应保持中性。
