@@ -8,6 +8,7 @@ import torch
 from data.pastis import (
     GALILEO_S2_MEAN,
     GALILEO_S2_STD,
+    PASTIS_CLASS_NAMES,
     aggregate_monthly_s2,
     normalize_s2_for_galileo,
     remap_void_label,
@@ -17,6 +18,11 @@ from utils.cache_paths import feature_cache_dir
 
 
 class PastisPaperProtocolTest(unittest.TestCase):
+    def test_official_class_mapping_has_background_and_eighteen_crops(self) -> None:
+        self.assertEqual(len(PASTIS_CLASS_NAMES), 19)
+        self.assertEqual(PASTIS_CLASS_NAMES[0], "Background")
+        self.assertEqual(PASTIS_CLASS_NAMES[18], "Sorghum")
+
     def test_monthly_aggregation_uses_crop_year_and_interpolates_missing_month(self) -> None:
         dates = [
             20180920,
@@ -93,6 +99,26 @@ class PastisPaperProtocolTest(unittest.TestCase):
             feature_cache_dir(config, "train"),
             "data/cache/galileo-base-patch8/"
             "monthly12_tile64_patch4_hl3-6-9-12_train",
+        )
+
+    def test_temporal_cache_path_is_separate_from_legacy_cache(self) -> None:
+        config = {
+            "data": {
+                "temporal_aggregation": "monthly",
+                "selected_timesteps": 12,
+                "tile_size": 64,
+            },
+            "cache": {"format": "temporal_v2", "temporal_dtype": "float16"},
+            "encoder": {
+                "name": "galileo-base-patch8",
+                "patch_size": 4,
+                "hidden_layers": [3, 6, 9, 12],
+            },
+        }
+        self.assertEqual(
+            feature_cache_dir(config, "train"),
+            "data/cache/galileo-base-patch8/"
+            "monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_train",
         )
 
 

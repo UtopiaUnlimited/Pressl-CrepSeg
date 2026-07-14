@@ -99,6 +99,13 @@ class GalileoReassemble(nn.Module):
             x = F.interpolate(x, size=target_size, mode="bilinear", align_corners=False)
         return self.refine(x)
 
+    def forward_native(self, feature: torch.Tensor) -> torch.Tensor:
+        """Project and refine without discarding the native Galileo grid."""
+
+        if feature.ndim != 4:
+            raise ValueError(f"Expected Galileo feature [B, D, H, W], got {tuple(feature.shape)}")
+        return self.refine(self.projection(feature))
+
 
 class FeatureFusionBlock(nn.Module):
     """Fuse a deep path with one lateral DPT feature at the lateral scale."""
@@ -138,6 +145,7 @@ class GalileoDPTDecoder(nn.Module):
         fusion_blocks: int = 2,
         head_channels: int = 128,
         dropout: float = 0.1,
+        preserve_native_deep_skip: bool = True,
     ) -> None:
         super().__init__()
         if num_layers != 4:
@@ -148,6 +156,7 @@ class GalileoDPTDecoder(nn.Module):
             raise ValueError("fusion_blocks must be at least one.")
 
         self.num_layers = int(num_layers)
+        self.preserve_native_deep_skip = bool(preserve_native_deep_skip)
         self.reassemble = nn.ModuleList(
             [
                 GalileoReassemble(
@@ -207,10 +216,21 @@ class GalileoDPTDecoder(nn.Module):
             raise ValueError(f"All Galileo DPT inputs must share one grid shape, got {shapes}.")
 
         sizes = self.pyramid_sizes(target_size)
-        pyramid = tuple(
+        pyramid = [
             adapter(feature, size)
             for adapter, feature, size in zip(self.reassemble, features, sizes)
-        )
+        ]
+
+        if self.preserve_native_deep_skip:
+            deep_native = self.reassemble[-1].forward_native(features[-1])
+            if deep_native.shape[-2:] != pyramid[-2].shape[-2:]:
+                deep_native = F.interpolate(
+                    deep_native,
+                    size=pyramid[-2].shape[-2:],
+                    mode="bilinear",
+                    align_corners=False,
+                )
+            pyramid[-2] = pyramid[-2] + deep_native
 
         x = self.deep_refine(pyramid[-1])
         for lateral, fusion in zip(reversed(pyramid[:-1]), reversed(self.fusions)):

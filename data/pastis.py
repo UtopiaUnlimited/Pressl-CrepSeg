@@ -12,6 +12,29 @@ from torch.utils.data import Dataset
 
 # Galileo's official evaluation calls these the "OURS" Sentinel-2 statistics.
 # PASTIS supplies B2, B3, B4, B5, B6, B7, B8, B8A, B11, and B12 in this order.
+PASTIS_CLASS_NAMES = (
+    "Background",
+    "Meadow",
+    "Soft winter wheat",
+    "Corn",
+    "Winter barley",
+    "Winter rapeseed",
+    "Spring barley",
+    "Sunflower",
+    "Grapevine",
+    "Beet",
+    "Winter triticale",
+    "Winter durum wheat",
+    "Fruits, vegetables, flowers",
+    "Potatoes",
+    "Leguminous fodder",
+    "Soybeans",
+    "Orchard",
+    "Mixed cereal",
+    "Sorghum",
+)
+PASTIS_VOID_LABEL = 19
+
 GALILEO_S2_MEAN = np.asarray(
     [
         1395.3408730676722,

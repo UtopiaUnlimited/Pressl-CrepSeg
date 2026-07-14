@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="2240" height="1300" viewBox="0 0 2240 1300" role="img" aria-labelledby="title desc">
   <title id="title">PreSSL-CropSeg 项目技术路线图</title>
-  <desc id="desc">PASTIS 多时相输入经过论文协议预处理和冻结 Galileo 编码后，分别进入四条早期融合 decoder 路线，以及保留时间维并在线训练的 3D-Aware DPT 晚期融合路线，最终统一评估十九类作物语义分割结果。</desc>
+  <desc id="desc">PASTIS 多时相输入经过论文协议预处理和冻结 Galileo 编码后，分别进入四条早期融合 decoder 路线，以及读取保留时间维共享缓存的 3D-Aware DPT 晚期融合路线，最终统一评估十九类作物语义分割结果。</desc>
 
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
@@ -203,7 +203,7 @@
   </text>
 
   <text x="1422" y="422" text-anchor="middle" class="body">
-    晚期方案五：只合并 band group，在线保留 T=12
+    晚期方案五：只合并 band group，缓存保留 T=12
   </text>
 
   <!-- Branching -->
@@ -463,15 +463,15 @@
   </text>
 
   <text x="1410" y="842" class="body">
-    • layers 3/6/9/12 多尺度重组
+    • 金字塔：64 / 32 / 16 / 8
   </text>
 
   <text x="1410" y="878" class="body">
-    • 深到浅渐进融合
+    • final 16×16 原尺度旁路
   </text>
 
   <text x="1410" y="914" class="body">
-    • 逐级空间分辨率恢复
+    • 深到浅渐进融合与恢复
   </text>
 
   <text x="1410" y="950" class="body">
@@ -496,7 +496,7 @@
   </text>
 
   <text x="2000" y="604" text-anchor="middle" class="small">
-    阶段二新增 · 晚期融合 · 在线冻结 Galileo
+    阶段二新增 · 晚期融合 · 冻结 Galileo
   </text>
 
   <rect x="1825" y="625" width="350" height="88" rx="8" class="encoder"/>
@@ -506,7 +506,7 @@
   <text x="1879" y="654" text-anchor="middle" class="tag">Input</text>
 
   <text x="2000" y="681" text-anchor="middle" class="body-strong">
-    Galileo layers 3 / 6 / 9 / 12
+    Galileo block 3 / 6 / 9 / final
   </text>
 
   <text x="2000" y="705" text-anchor="middle" class="shape">
@@ -526,15 +526,15 @@
   </text>
 
   <text x="1850" y="842" class="body">
-    • 3D Reassemble：64 / 32 / 16 / 8
+    • 3D 金字塔：64 / 32 / 16 / 8
   </text>
 
   <text x="1850" y="878" class="body">
-    • Global 3D + Divided ST Attention
+    • final 16×16 时间特征旁路
   </text>
 
   <text x="1850" y="914" class="body">
-    • Gated coarse-to-fine Fusion
+    • Global 3D + 门控时空融合
   </text>
 
   <text x="1850" y="950" class="body">
@@ -576,6 +576,6 @@
   </text>
 
   <text x="1120" y="1288" text-anchor="middle" class="small">
-    核心控制变量：输入协议、Galileo SSL 权重与冻结状态一致；早期融合读取共享缓存，晚期融合在线保留时间 token
+    核心控制变量：输入协议、Galileo SSL 权重与冻结状态一致；方案一至五读取对应共享缓存，方案五保留时间 token
   </text>
 </svg>

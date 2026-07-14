@@ -290,6 +290,11 @@ class Reassemble3D(nn.Module):
     def forward(self, x: torch.Tensor, size: tuple[int, int]) -> torch.Tensor:
         return self.refine(_resize_spatial(self.projection(x), size))
 
+    def forward_native(self, x: torch.Tensor) -> torch.Tensor:
+        """Project and refine while retaining the native spatial token grid."""
+
+        return self.refine(self.projection(x))
+
 
 class GatedCrossScaleFusion3D(nn.Module):
     def __init__(self, channels: int) -> None:
@@ -357,6 +362,7 @@ class ThreeDAwareDPTDecoder(nn.Module):
         drop_path: float = 0.1,
         temporal_pool_heads: int = 8,
         num_months: int = 12,
+        preserve_native_deep_skip: bool = True,
     ) -> None:
         super().__init__()
         if num_layers != 4:
@@ -367,6 +373,7 @@ class ThreeDAwareDPTDecoder(nn.Module):
             raise ValueError("decoder_channels must be divisible by temporal_pool_heads.")
 
         self.num_layers = int(num_layers)
+        self.preserve_native_deep_skip = bool(preserve_native_deep_skip)
         self.month_embedding = nn.Embedding(int(num_months), decoder_channels)
         self.layer_embedding = nn.Parameter(torch.empty(num_layers, decoder_channels))
         nn.init.trunc_normal_(self.layer_embedding, std=0.02)
@@ -444,6 +451,7 @@ class ThreeDAwareDPTDecoder(nn.Module):
         ]
 
         pyramid = []
+        deep_native = None
         for layer_index, (feature, reassemble, size) in enumerate(
             zip(features, self.reassemble, scales)
         ):
@@ -455,10 +463,24 @@ class ThreeDAwareDPTDecoder(nn.Module):
             if feature.shape[:2] != (batch, timesteps):
                 raise ValueError("Temporal feature and month shapes do not match.")
             feature = feature.permute(0, 2, 1, 3, 4)
+            native_feature = feature
             feature = reassemble(feature, size)
             feature = feature + month_embedding
             feature = feature + self.layer_embedding[layer_index].view(1, -1, 1, 1, 1)
             pyramid.append(feature)
+            if self.preserve_native_deep_skip and layer_index == self.num_layers - 1:
+                deep_native = reassemble.forward_native(native_feature)
+                deep_native = deep_native + self.layer_embedding[layer_index].view(
+                    1, -1, 1, 1, 1
+                )
+
+        if self.preserve_native_deep_skip:
+            if deep_native is None:
+                raise RuntimeError("The native deepest temporal feature was not constructed.")
+            pyramid[-2] = pyramid[-2] + _resize_spatial(
+                deep_native,
+                pyramid[-2].shape[-2:],
+            )
 
         x = pyramid[-1]
         for block in self.global_blocks:

@@ -14,7 +14,7 @@ PASTIS Sentinel-2 time series
   -> 19-class semantic segmentation logits
 ```
 
-现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。方案一至四在 decoder 前对时间 token 求均值并读取同一版缓存；方案五 `3d_aware_dpt` 使用同一冻结 Galileo 在线提取四层逐月特征，在完整 3D DPT 多尺度融合后才消除时间维。
+现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。方案一至四在 decoder 前对时间 token 求均值；方案五 `3d_aware_dpt` 使用冻结 Galileo 的四级逐月特征，在完整 3D DPT 多尺度融合后才消除时间维。当前推荐方案一至五读取对应共享缓存，方案五也保留原来的在线入口用于历史复现。
 
 ## 技术路线图
 
@@ -31,7 +31,7 @@ PASTIS Sentinel-2 time series
 - 多层同尺度融合 decoder（历史配置名 `multi_layer_dpt`）
 - Galileo-Adapted 2D DPT（四级 learned reassemble + 渐进融合）
 - UPerNet-style decoder（PPM + FPN）
-- 3D-Aware DPT：3D Reassemble、全局/分解时空注意力、门控多尺度融合与时间查询池化
+- 3D-Aware DPT：3D Reassemble、final 原尺度时间旁路、全局/分解时空注意力、门控多尺度融合与时间查询池化
 - 多层 Galileo 特征共享缓存
 - 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
@@ -99,6 +99,8 @@ Galileo patch: 4
 void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 ```
 
+19 个有效类别是 1 个非农业背景类和 18 个农业/作物类别，逐类中英文名称及含义见 [`docs/next.md`](docs/next.md#pastis-的19个有效类别)。
+
 当前 raw PASTIS 转换规则：
 
 1. 去掉首尾不完整月份，取 `2018-10` 到 `2019-09` 的12个月作物年。
@@ -123,12 +125,13 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | 配置 | 用途 |
 | --- | --- |
 | `configs/galileo_dpt.yaml` | 最终层卷积 baseline 的旧配置，`hidden_layers: []` |
-| `configs/galileo_shared_cache.yaml` | 生成 layer 3/6/9/12 共享缓存 |
+| `configs/galileo_shared_cache.yaml` | 生成旧版 `spatial_v1` 共享缓存 |
+| `configs/galileo_temporal_shared_cache.yaml` | 生成只保存四级完整 T 的 `temporal_v2` 共享缓存 |
 | `configs/galileo_single_layer_dpt_shared.yaml` | 使用共享缓存训练最终层卷积 baseline |
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
-| `configs/galileo_adapted_dpt_shared.yaml` | 使用共享缓存训练方案四 Galileo-Adapted 2D DPT |
-| `configs/galileo_3d_aware_dpt.yaml` | 在线冻结 Galileo，训练保留 T=12 的 3D-Aware DPT |
+| `configs/galileo_adapted_dpt_shared.yaml` | 使用共享缓存训练带 final 原尺度旁路的方案四 Galileo-Adapted 2D DPT |
+| `configs/galileo_3d_aware_dpt.yaml` | 使用 T=12 缓存或在线冻结 Galileo，训练带时间旁路的 3D-Aware DPT |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
@@ -173,6 +176,8 @@ target labels=-1..18
 
 ## 生成共享缓存
 
+### 旧版 spatial_v1
+
 旧的 `t24_patch8_*` 缓存不符合论文协议，不能在本分支继续使用。新目录名包含完整协议，不会覆盖旧缓存。
 
 先生成 train 和 val：
@@ -212,6 +217,42 @@ dates / months / aggregation_counts
 
 8GB 显存建议从共享配置的 `data.batch_size: 2` 开始；OOM 时命令行加 `--batch-size 1`。本协议的 `64x64 + T12 + patch4` 仍输出 `16x16` grid，但时序比旧缓存更短。
 
+已有 `spatial_v1` 不需要删除。原来的方案一至四训练命令仍默认读取这些目录，可以马上继续训练和评估。
+
+### 新版 temporal_v2
+
+为了让方案一至五共享同一次 Galileo 编码，新缓存保留四个隐藏层完整的时间轴：
+
+```text
+temporal_features_by_layer  # block3/block6/block9/encoder_final
+                            # [L=4, T=12, D=768, 16, 16]
+target                      # [64, 64]，void 为 -1
+patch_id / sample_id / tile_id / tile_y / tile_x
+dates / months / aggregation_counts
+```
+
+`temporal_v2` **不再重复保存** `features`、`features_by_layer` 或 `hidden_state`。最深一级使用经过 Galileo final normalization 的 `encoder_final`，使方案一能够恢复原来的最终特征；其余三级为 block 3/6/9。方案一至四加载时从 T 特征现场求均值，方案五直接使用完整 T。这里“不压缩 T”是指不做时间平均；文件仍使用 `np.savez_compressed` 做无损磁盘压缩。
+
+生成命令：
+
+```bash
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_temporal_shared_cache.yaml --split train
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_temporal_shared_cache.yaml --split val
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_temporal_shared_cache.yaml --split test
+```
+
+默认目录：
+
+```text
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_train/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_val/
+data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_test/
+```
+
+默认将 temporal feature 保存为 `float16`。单个样本的四级 T 特征原始大小约 18 MiB；真实 smoke 文件约 16.6 MiB，按全部 9,732 个子块估算约 157 GiB，实际总大小会随特征压缩率变化。若改用 `float32`，体积约翻倍；本地磁盘不足时应把 `data/cache` 链接到 Linux 服务器的大容量磁盘。
+
+因为新缓存不保存时间均值，方案一至四每次读取时都要解压 T 特征并现场求均值，I/O 会比旧缓存慢。已有空间 decoder 仍优先使用旧缓存；`temporal_v2` 的主要价值是让新一轮方案一至五在同一未压缩时间接口上做受控比较。
+
 ## 训练 Decoder
 
 最终层卷积 baseline（历史配置名）：
@@ -238,15 +279,39 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_up
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_shared.yaml
 ```
 
-该方案直接读取共享缓存的 layer 3/6/9/12，将四个 `[B,768,16,16]` 特征 learned reassemble 为 `64/32/16/8` 四级金字塔，再由深到浅逐级融合。它不重新运行 Galileo，也不覆盖方案一、二的日志和 checkpoint。
+该方案直接读取共享缓存的 layer 3/6/9/12，将四个 `[B,768,16,16]` 特征 learned reassemble 为 `64/32/16/8` 四级金字塔。最深特征降到 `8x8` 只用于上下文分支；同一套投影与细化权重还会保留一份 final `16x16` 原尺度旁路，并把它注入 `16x16` 融合级，再由深到浅逐级恢复。它不重新运行 Galileo，也不覆盖方案一、二的日志和 checkpoint。
 
-3D-Aware DPT 晚期融合不生成特征缓存，直接在线运行冻结 Galileo：
+上述旧命令默认读取 `spatial_v1`。方案一至四改用新缓存时，在原命令末尾添加：
+
+```text
+--cache-format temporal_v2 --temporal-dtype float16
+```
+
+例如方案四：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_shared.yaml --cache-format temporal_v2 --temporal-dtype float16
+```
+
+3D-Aware DPT 使用 `temporal_v2` 后不再在线重复运行 Galileo：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
+```
+
+方案五同样只把 final 从 `16x16` 降到 `8x8` 用于全局时空注意力，同时保留 `[B,256,T,16,16]` 原尺度时间旁路并注入 `16x16` 融合级。方案四、五都通过 `model.preserve_native_deep_skip: true` 开启该行为，且复用已有层，不增加参数量或 state-dict 键。两份配置使用带 `native_skip` 的新日志与 checkpoint 目录，避免覆盖旧实验；复现旧结构时可将开关设为 `false`。
+
+重采样审计结果：方案一和方案二在最终输出上采样前始终保持 `16x16`；方案三 UPerNet 的 PPM 是并行上下文分支，原始 `16x16` 特征仍直接参与拼接。这三种结构不存在“唯一特征先降到 `8x8`”的问题，因此不需要修改计算图。
+
+如需复现实验五原来的在线冻结 Galileo 路线，旧命令仍保留：
 
 ```bash
 conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_dpt.yaml
 ```
 
-该配置默认 physical batch 为 2、梯度累积 8 次，有效 batch 为 16。Galileo 始终保持 `eval()` 和无梯度状态，只有 3D-Aware DPT decoder 更新参数；checkpoint 也只保存可训练 decoder，评估时从本地 pretrained 目录重新加载冻结 Galileo。
+该配置默认 physical batch 为 2、梯度累积 8 次，有效 batch 为 16。缓存训练和在线训练都只更新 3D-Aware DPT decoder，但缓存训练不再为每个 epoch 重复计算 Galileo。
+
+旧缓存和新缓存属于两条明确的实验记录。旧 checkpoint 继续配旧 `spatial_v1` 评估；使用 `temporal_v2` 派生特征的方案一至四应重新训练，不把新旧缓存结果混在一次受控对比中。
 
 ## 线性探测复现
 
@@ -339,7 +404,13 @@ conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_sin
 
 评估会输出 `test_loss`、`test_miou`、`test_acc`、`test_f1`、逐类别 IoU 和逐类别 F1，同时把 test split 的每一个样本保存到项目根目录 `output/`。每张 PNG 从左到右依次为真实 RGB 合成图、真值和预测。可用 `--output-dir` 修改目录、用 `--panel-size` 修改单个面板尺寸；在线评估 `scripts/eval.py` 与缓存评估 `scripts/eval_cached.py` 的行为一致。
 
-评估 3D-Aware DPT 时同样在线运行冻结 Galileo，不需要 test 特征缓存：
+使用 `temporal_v2` 评估 3D-Aware DPT：
+
+```bash
+conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_3d_aware_dpt.yaml --checkpoint checkpoints/galileo_3d_aware_dpt_native_skip_late_fusion_seed42_cached/best_val_miou.pt --split test --cache-format temporal_v2 --temporal-dtype float16
+```
+
+评估旧的在线方案五 checkpoint 时，应先在配置中把 `model.preserve_native_deep_skip` 设为 `false`，再使用：
 
 ```bash
 conda run -n presl python -B scripts/eval.py --config configs/galileo_3d_aware_dpt.yaml --checkpoint checkpoints/galileo_3d_aware_dpt_late_fusion_seed42/best_val_miou.pt --split test
@@ -356,7 +427,37 @@ conda run -n presl python -B scripts/visualize_predictions.py --config configs/g
 ## 实验原则
 
 - decoder 对比只改变 `model.decoder` 及其专属结构参数。
-- 早期融合方案一至四共用 `monthly12_tile64_patch4_hl3-6-9-12` 缓存；晚期融合方案五不缓存，在线保留同一 Galileo 的逐月 token。
+- 旧实验中方案一至四共用 `spatial_v1`；新实验中方案一至五共用只保存 T 特征的 `temporal_v2`。
 - 不改变 fold、输入缩放、月份、patch size、loss 或评测口径。
 - test fold 只用于最终报告，不用于 early stopping 或选超参数。
 - `data/PASTIS`、缓存、权重、日志、checkpoint 和 Python cache 都不提交到 Git。
+
+## Linux 运行
+
+训练代码使用相对路径和 `pathlib`，核心训练、缓存和评估脚本不依赖 Windows API，复制到 Linux 后通常不需要改 Python 代码。`.npz` 缓存和 PyTorch checkpoint 也可以在 Windows 与 Linux 之间读取。
+
+需要注意：
+
+1. Linux 文件名区分大小写，数据目录必须保持 `DATA_S2`、`ANNOTATIONS`、`INSTANCE_ANNOTATIONS` 和 `metadata.geojson` 的原始大小写。
+2. `data.root` 和 `encoder.checkpoint` 默认是相对仓库根目录的路径；从仓库根目录执行命令即可。
+3. 根据服务器 CUDA 版本安装对应的 PyTorch，再执行 `pip install -r requirements.txt`。不要直接复制 Windows conda 环境目录。
+4. `.hf_cache`、`logs`、`checkpoints` 和 `data/cache` 必须位于有写权限的磁盘。
+5. Linux 的 DataLoader 通常可以把 `num_workers` 调高，但先从配置值开始，确认共享内存 `/dev/shm` 足够后再增加。
+
+大缓存建议放到服务器数据盘并建立软链接：
+
+```bash
+mkdir -p /mnt/large_disk/Pressl-CrepSeg-cache
+mkdir -p data
+ln -s /mnt/large_disk/Pressl-CrepSeg-cache data/cache
+```
+
+环境和路径检查：
+
+```bash
+conda activate presl
+python -B scripts/check_env.py --config configs/galileo_temporal_shared_cache.yaml --try-model
+python -B -m unittest discover -s tests -v
+```
+
+仓库中 `presentation/**/build` 的少量历史报告可能记录 Windows 绝对路径，但它们只是生成物，不会被训练代码读取。

@@ -107,6 +107,9 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
             fusion_blocks=int(model_cfg.get("fusion_blocks", 2)),
             head_channels=int(model_cfg.get("head_channels", 128)),
             dropout=float(model_cfg.get("dropout", 0.1)),
+            preserve_native_deep_skip=bool(
+                model_cfg.get("preserve_native_deep_skip", True)
+            ),
         )
     elif decoder_name in {"upernet", "upernet_style", "upernet-style"}:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
@@ -135,6 +138,9 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
             drop_path=float(model_cfg.get("drop_path", 0.1)),
             temporal_pool_heads=int(model_cfg.get("temporal_pool_heads", 8)),
             num_months=int(model_cfg.get("num_months", 12)),
+            preserve_native_deep_skip=bool(
+                model_cfg.get("preserve_native_deep_skip", True)
+            ),
         )
     else:
         raise ValueError(f"Unsupported decoder: {decoder_name}")

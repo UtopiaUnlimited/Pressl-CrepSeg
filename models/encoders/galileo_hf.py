@@ -14,6 +14,7 @@ class GalileoFeatureGrid(NamedTuple):
     features: torch.Tensor
     grid_size: tuple[int, int]
     hidden_state: torch.Tensor
+    temporal_features: torch.Tensor
     features_by_layer: tuple[torch.Tensor, ...]
     temporal_features_by_layer: tuple[torch.Tensor, ...]
 
@@ -188,6 +189,7 @@ class GalileoHFEncoder(nn.Module):
     def _forward_sequential(self, samples: list[dict]) -> GalileoFeatureGrid:
         feature_grids = []
         hidden_states = []
+        temporal_feature_grids = []
         layer_feature_grids: list[list[torch.Tensor]] = [[] for _ in self.hidden_layers]
         temporal_layer_feature_grids: list[list[torch.Tensor]] = [
             [] for _ in self.hidden_layers
@@ -198,6 +200,8 @@ class GalileoHFEncoder(nn.Module):
             result = self._forward_one(sample)
             feature_grids.append(result.features)
             hidden_states.append(result.hidden_state)
+            if result.temporal_features.numel() > 0:
+                temporal_feature_grids.append(result.temporal_features)
             for layer_index, layer_features in enumerate(result.features_by_layer):
                 layer_feature_grids[layer_index].append(layer_features)
             for layer_index, layer_features in enumerate(result.temporal_features_by_layer):
@@ -217,11 +221,17 @@ class GalileoHFEncoder(nn.Module):
             torch.cat(layer_features, dim=0)
             for layer_features in temporal_layer_feature_grids
         )
+        temporal_features = (
+            torch.cat(temporal_feature_grids, dim=0)
+            if temporal_feature_grids
+            else features.new_empty(0)
+        )
 
         return GalileoFeatureGrid(
             features=features,
             grid_size=grid_size or (0, 0),
             hidden_state=hidden_state,
+            temporal_features=temporal_features,
             features_by_layer=features_by_layer,
             temporal_features_by_layer=temporal_features_by_layer,
         )
@@ -284,6 +294,12 @@ class GalileoHFEncoder(nn.Module):
             grid_h,
             grid_w,
         )
+        temporal_features = self._hidden_to_temporal_feature_grid(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=int(timesteps),
+        ) if self.preserve_temporal_features else features.new_empty(0)
         features_by_layer = tuple(
             self._hidden_to_feature_grid(
                 captured_hidden_layers[layer],
@@ -306,6 +322,7 @@ class GalileoHFEncoder(nn.Module):
             features=features,
             grid_size=(grid_h, grid_w),
             hidden_state=hidden,
+            temporal_features=temporal_features,
             features_by_layer=features_by_layer,
             temporal_features_by_layer=temporal_features_by_layer,
         )
@@ -352,6 +369,12 @@ class GalileoHFEncoder(nn.Module):
             timesteps=int(s2.shape[0]),
         )
         features = spatial_tokens.transpose(1, 2).reshape(1, spatial_tokens.shape[-1], grid_h, grid_w)
+        temporal_features = self._hidden_to_temporal_feature_grid(
+            hidden,
+            grid_h=grid_h,
+            grid_w=grid_w,
+            timesteps=int(s2.shape[0]),
+        ) if self.preserve_temporal_features else features.new_empty(0)
         features_by_layer = tuple(
             self._hidden_to_feature_grid(
                 captured_hidden_layers[layer],
@@ -374,6 +397,7 @@ class GalileoHFEncoder(nn.Module):
             features=features,
             grid_size=(grid_h, grid_w),
             hidden_state=hidden,
+            temporal_features=temporal_features,
             features_by_layer=features_by_layer,
             temporal_features_by_layer=temporal_features_by_layer,
         )

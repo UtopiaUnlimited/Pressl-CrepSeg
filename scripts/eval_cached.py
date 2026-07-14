@@ -19,9 +19,13 @@ from data import (  # noqa: E402
 )
 from losses import build_loss  # noqa: E402
 from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy  # noqa: E402
-from models import build_cached_feature_model  # noqa: E402
+from models import (  # noqa: E402
+    build_cached_feature_model,
+    cached_decoder_uses_feature_pyramid,
+    cached_decoder_uses_temporal_features,
+)
 from scripts.visualize_predictions import make_rgb_composite, render_triptych  # noqa: E402
-from utils import feature_cache_dir, load_config  # noqa: E402
+from utils import apply_cache_overrides, feature_cache_dir, load_config  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -30,6 +34,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", choices=["val", "test"], default="test")
     parser.add_argument("--cache-dir", default=None)
+    parser.add_argument("--cache-format", choices=["spatial_v1", "temporal_v2"], default=None)
+    parser.add_argument("--temporal-dtype", choices=["float16", "float32"], default=None)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--device", default=None)
     parser.add_argument(
@@ -55,10 +61,11 @@ def sample_index_by_id(dataset: PASTISDataset) -> dict[str, int]:
 
 
 def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLoader:
-    decoder_name = str(config.get("model", {}).get("decoder", "")).lower()
+    load_temporal = cached_decoder_uses_temporal_features(config)
     dataset = CachedFeatureDataset(
         cache_dir,
-        load_features_by_layer=decoder_name not in {"linear_probe", "linear", "lp"},
+        load_features_by_layer=cached_decoder_uses_feature_pyramid(config),
+        load_temporal_features_by_layer=load_temporal,
     )
     return DataLoader(
         dataset,
@@ -74,11 +81,15 @@ def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLo
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
+    config = apply_cache_overrides(config, args.cache_format, args.temporal_dtype)
     cache_dir = args.cache_dir or feature_cache_dir(config, args.split)
     loader = build_loader(cache_dir, config, args.batch_size)
 
     first_batch = next(iter(loader))
-    if "features_by_layer" in first_batch:
+    if "temporal_features_by_layer" in first_batch:
+        in_channels = int(first_batch["temporal_features_by_layer"].shape[3])
+        num_layers = int(first_batch["temporal_features_by_layer"].shape[1])
+    elif "features_by_layer" in first_batch:
         in_channels = int(first_batch["features_by_layer"].shape[2])
         num_layers = int(first_batch["features_by_layer"].shape[1])
     else:

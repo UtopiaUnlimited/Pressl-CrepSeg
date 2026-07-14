@@ -13,9 +13,19 @@ sys.path.insert(0, str(ROOT))
 
 from data import CachedFeatureDataset, cached_feature_collate_fn  # noqa: E402
 from losses import build_loss  # noqa: E402
-from models import build_cached_feature_model  # noqa: E402
+from models import (  # noqa: E402
+    build_cached_feature_model,
+    cached_decoder_uses_feature_pyramid,
+    cached_decoder_uses_temporal_features,
+)
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
-from utils import feature_cache_dir, load_config, merge_cli_overrides, seed_everything  # noqa: E402
+from utils import (  # noqa: E402
+    apply_cache_overrides,
+    feature_cache_dir,
+    load_config,
+    merge_cli_overrides,
+    seed_everything,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -23,6 +33,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
     parser.add_argument("--train-cache-dir", default=None)
     parser.add_argument("--val-cache-dir", default=None)
+    parser.add_argument("--cache-format", choices=["spatial_v1", "temporal_v2"], default=None)
+    parser.add_argument("--temporal-dtype", choices=["float16", "float32"], default=None)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--max-train-batches", type=int, default=None)
@@ -33,11 +45,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_loader(cache_dir: str, config: dict, shuffle: bool) -> DataLoader:
-    decoder_name = str(config.get("model", {}).get("decoder", "")).lower()
-    load_features_by_layer = decoder_name not in {"linear_probe", "linear", "lp"}
+    load_temporal = cached_decoder_uses_temporal_features(config)
+    load_features_by_layer = cached_decoder_uses_feature_pyramid(config)
     dataset = CachedFeatureDataset(
         cache_dir,
         load_features_by_layer=load_features_by_layer,
+        load_temporal_features_by_layer=load_temporal,
     )
     return DataLoader(
         dataset,
@@ -52,6 +65,7 @@ def build_loader(cache_dir: str, config: dict, shuffle: bool) -> DataLoader:
 def main() -> None:
     args = parse_args()
     config = merge_cli_overrides(load_config(args.config), args)
+    config = apply_cache_overrides(config, args.cache_format, args.temporal_dtype)
     seed_everything(int(config.get("seed", 42)))
 
     train_cache_dir = args.train_cache_dir or feature_cache_dir(config, "train")
@@ -60,7 +74,10 @@ def main() -> None:
     val_loader = build_loader(val_cache_dir, config, shuffle=False)
 
     first_batch = next(iter(train_loader))
-    if "features_by_layer" in first_batch:
+    if "temporal_features_by_layer" in first_batch:
+        in_channels = int(first_batch["temporal_features_by_layer"].shape[3])
+        num_layers = int(first_batch["temporal_features_by_layer"].shape[1])
+    elif "features_by_layer" in first_batch:
         in_channels = int(first_batch["features_by_layer"].shape[2])
         num_layers = int(first_batch["features_by_layer"].shape[1])
     else:

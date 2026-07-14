@@ -17,8 +17,12 @@ data:
   ignore_index: -1
   normalization: galileo_norm_no_clip
   normalization_std_multiplier: 2.0
-  batch_size: 16
-  num_workers: 2
+  batch_size: 2
+  num_workers: 0
+
+cache:
+  format: temporal_v2
+  temporal_dtype: float16
 
 encoder:
   name: galileo-base-patch8
@@ -33,11 +37,9 @@ encoder:
   hidden_size: null
 
 model:
-  decoder: galileo_dpt
+  decoder: single_layer_dpt
   decoder_channels: 256
-  fusion_blocks: 2
-  head_channels: 128
-  preserve_native_deep_skip: true
+  decoder_blocks: 3
   dropout: 0.1
 
 loss:
@@ -59,8 +61,8 @@ scheduler:
 train:
   epochs: 100
   amp: false
-  log_dir: logs/galileo_adapted_dpt_native_skip_paper_input_bs16_seed42
-  checkpoint_dir: checkpoints/galileo_adapted_dpt_native_skip_paper_input_bs16_seed42
+  log_dir: logs/galileo_temporal_cache_placeholder
+  checkpoint_dir: checkpoints/galileo_temporal_cache_placeholder
   save_best: true
   early_stopping:
     enabled: true

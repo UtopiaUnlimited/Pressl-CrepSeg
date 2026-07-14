@@ -13,7 +13,7 @@ PASTIS paper-aligned input
 
 当前已经完成的 `single_layer_dpt` 和 `multi_layer_dpt` 是历史配置名：前者实际为**最终层卷积 decoder**，后者实际为**多层同尺度融合 decoder**。二者用于建立受控 baseline，均不是 DPT 原论文的完整复现。
 
-现已实现的 **Galileo-Adapted 2D DPT（方案四）**是当前 DPT 主方法：它将 layer 3/6/9/12 的同尺寸特征重组为多尺度金字塔，并进行深到浅渐进融合。当前配置与参数量已经固定，训练和测试结果仍保持待定。
+现已实现的 **Galileo-Adapted 2D DPT（方案四）**是当前 DPT 主方法：它将 layer 3/6/9/12 的同尺寸特征重组为多尺度金字塔，保留 final 原尺度旁路，并进行深到浅渐进融合。当前配置与参数量已经固定，训练和测试结果仍保持待定。
 
 ## 固定实验条件
 
@@ -97,7 +97,9 @@ OOM 排查时可以临时减小 batch size。batch size 只影响吞吐，不改
 
 ## 共享缓存
 
-decoder 对比统一使用：
+缓存现在分成两条互不覆盖的实验记录。
+
+旧版 `spatial_v1` 继续使用：
 
 ```text
 configs/galileo_shared_cache.yaml
@@ -137,6 +139,22 @@ t24_patch8_hl3-6-9-12_*
 ```
 
 这保证一张原始 PASTIS patch 的四个子块不会互相覆盖。缓存还记录 `aggregation_counts`，可检查每个月由多少原始 Sentinel-2 观测组成；值为0表示该月使用了相邻月插值。
+
+新版 `temporal_v2` 使用：
+
+```text
+configs/galileo_temporal_shared_cache.yaml
+```
+
+每个 `.npz` 只保存：
+
+```text
+temporal_features_by_layer  # block3/block6/block9/encoder_final
+                            # [4, 12, 768, 16, 16]
+target 和少量元数据
+```
+
+它不重复保存 `features`、`features_by_layer` 或 `hidden_state`。最深一级使用 final-normalized encoder output，而不是额外重复保存 block 12 和 final 两份 T 特征。方案一至四在 loader 中沿 T 求均值，方案五直接读取 T。旧配置和旧命令默认仍指向 `spatial_v1`；对训练命令增加 `--cache-format temporal_v2 --temporal-dtype float16` 才切换到新缓存。
 
 ## 运行顺序
 
@@ -220,9 +238,9 @@ checkpoint 与 TensorBoard 路径
 | --- | --- | --- | --- | --- |
 | 最终层卷积 baseline | Galileo base, patch4 | final `features` | projection + residual conv + upsample | 检查空间细化读取能力 |
 | 多层同尺度融合 baseline | 相同 | layers 3/6/9/12，均为16×16 | projection + additive residual fusion | 检查跨层信息收益 |
-| Galileo-Adapted 2D DPT | 相同 | layers 3/6/9/12，重组为多尺度 | learned reassemble + progressive fusion | 方案四已实现，结果待补 |
+| Galileo-Adapted 2D DPT | 相同 | layers 3/6/9/12，多尺度 + final 原尺度旁路 | learned reassemble + progressive fusion | 方案四已实现，结果待补 |
 | UPerNet-style | 相同 | layers 3/6/9/12 | PPM + FPN-style | 比较另一类分割 decoder |
-| 3D-Aware DPT | 相同，在线冻结 | layers 3/6/9/12 × T12 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
+| 3D-Aware DPT | 相同，冻结并可缓存 | block 3/6/9/final × T12，final 时间旁路 | 3D reassemble + 时空 attention + temporal query pooling | 比较晚期时间融合 |
 | Galileo 论文线性探测 | 相同 | final `features` | 单个 Linear，逐 patch 输出 4×4 像素 logits | 复现论文 Table 17 probing 基线 |
 | 同协议线性 head | 相同 | final `features` | 与论文探测相同的单个 Linear | 在统一训练协议下隔离 decoder 结构收益 |
 
@@ -316,12 +334,14 @@ Galileo layers 3/6/9/12，each [B, 768, 16, 16]
      [B, 256, 32, 32]  (layer 6,  ConvTranspose x2)
      [B, 256, 16, 16]  (layer 9,  identity refine)
      [B, 256,  8,  8]  (layer 12, stride-2 Conv)
+  -> parallel native skip [B, 256, 16, 16] (layer 12/final)
+  -> inject native skip into the 16x16 fusion stage
   -> deep-to-shallow progressive fusion
   -> 256-to-128 segmentation head
   -> [B, 19, 64, 64]
 ```
 
-每一级融合先将深层特征双线性上采样到 lateral 尺寸，再使用带 GroupNorm/GELU 的 residual convolution unit 细化 lateral 和融合结果。GroupNorm 不依赖 batch 统计，适合后续因显存调整 physical batch；四个 projection 相互独立，保留不同 Galileo 深度层级的分布差异。
+每一级融合先将深层特征双线性上采样到 lateral 尺寸，再使用带 GroupNorm/GELU 的 residual convolution unit 细化 lateral 和融合结果。最深层的 `8x8` 只作为低分辨率上下文分支；同一个 layer 12/final 输入还通过共享 projection/refine 保持 `16x16`，并与 layer 9 的 `16x16` lateral 一起进入融合。GroupNorm 不依赖 batch 统计，适合后续因显存调整 physical batch；四个 projection 相互独立，保留不同 Galileo 深度层级的分布差异。
 
 它继续读取现有共享缓存，不重新训练 Galileo，不改变 PASTIS 输入、fold 或 `spacetime_mean`。因此方案二和方案四之间的主要变量是“同尺度相加”与“多尺度 reassemble + 渐进融合”。准确表述是“适配 Galileo 的 2D DPT decoder”，不是 DPT 原论文 encoder 的完整复现。
 
@@ -359,7 +379,7 @@ configs/galileo_adapted_dpt_shared.yaml
 
 ## 3D-Aware DPT 晚期融合（方案五）
 
-方案五保持 PASTIS monthly-12 输入、Galileo 权重、冻结策略、fold、loss 和评测口径不变，但不读取已经执行 `spacetime_mean` 的共享缓存。它在线提取 Galileo 第 3/6/9/12 层 token，只平均 band-group 轴，保留：
+方案五保持 PASTIS monthly-12 输入、Galileo 权重、冻结策略、fold、loss 和评测口径不变。它读取 `temporal_v2`，其中 Galileo 的 block 3/6/9 与经过最终归一化的 encoder output 只平均 band-group 轴，保留：
 
 ```text
 [B, 4, T=12, D=768, 16, 16]
@@ -367,19 +387,29 @@ configs/galileo_adapted_dpt_shared.yaml
 
 完整 decoder 包含：
 
-1. **3D Reassemble**：四个隐藏层投影到 256 通道，并重组为 `64/32/16/8` 四个空间尺度，时间长度保持 12。
+1. **3D Reassemble**：四个隐藏层投影到 256 通道，并重组为 `64/32/16/8` 四个空间尺度，时间长度保持 12；final 同时保留 `[B,256,T,16,16]` 原尺度旁路。
 2. **Global 3D bottleneck**：在最深 `8x8` 特征上执行全局时空自注意力。
-3. **Divided space-time blocks**：高分辨率阶段交替执行逐像素全局时间注意力、偏移窗口空间注意力和分解式 3D depthwise convolution。
-4. **Gated DPT fusion**：从深到浅逐级空间上采样，以门控方式融合 lateral feature，全程保留 T。
-5. **Temporal query pooling**：在 `64x64` 特征上用多头查询注意力融合 12 个月，最后输出 `[B, 19, 64, 64]`。
+3. **Native skip injection**：把 final 原尺度时间特征注入 `16x16` lateral，避免全局分支的 `16x16 -> 8x8` 成为唯一信息通路。
+4. **Divided space-time blocks**：高分辨率阶段交替执行逐像素全局时间注意力、偏移窗口空间注意力和分解式 3D depthwise convolution。
+5. **Gated DPT fusion**：从深到浅逐级空间上采样，以门控方式融合 lateral feature，全程保留 T。
+6. **Temporal query pooling**：在 `64x64` 特征上用多头查询注意力融合 12 个月，最后输出 `[B, 19, 64, 64]`。
 
-训练入口：
+缓存训练入口：
 
 ```bash
-conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_dpt.yaml
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
 ```
 
-该路线不生成额外 temporal cache。冻结 Galileo 每个 batch 在线前向，训练器通过梯度累积维持有效 batch；日志和 checkpoint 使用独立目录，不覆盖早期融合实验。
+旧的在线入口 `scripts/train.py` 仍保留，用于复现已有实验。新路线只在缓存生成时运行一次冻结 Galileo；decoder 训练期间不再重复前向。两条路线使用独立日志和 checkpoint，结果不得混在同一次受控比较中。
+
+### 空间重采样审计
+
+- 方案一最终层卷积 baseline：在 decoder 内保持 `16x16`，只在输出前上采样到 `64x64`。
+- 方案二多层同尺度 baseline：四层始终在 `16x16` 融合，只在输出前上采样。
+- 方案三 UPerNet-style：PPM 的 `1/2/3/6` 池化是并行上下文分支，未池化的原始 `16x16` 特征作为第一个分支直接参与 concatenate。
+- 方案四和方案五：保留 `8x8` 全局上下文分支，同时新增 final `16x16` 原尺度旁路；配置项为 `preserve_native_deep_skip: true`。
+
+方案四、五的旁路复用已有 projection/refine，不增加参数量，也不新增 state-dict 键。旧 checkpoint 可以严格加载，但旧权重并未在新计算图下训练，正式比较应重新训练并使用带 `native_skip` 的独立日志目录；要复现旧输出，应把该开关设为 `false`。
 
 ## UPerNet-Style Decoder
 
@@ -406,6 +436,6 @@ models/cached.py
 configs/galileo_upernet_shared.yaml
 ```
 
-共享缓存流程无需变化。
+它既可继续使用旧 `spatial_v1`，也可从 `temporal_v2` 现场求时间均值；后者需要重新训练并单独记录结果。
 
-当前实现对最深的 layer 12 特征执行 `1/2/3/6` 四级 PPM，对 layer 3/6/9 执行 lateral projection，再由深到浅完成 FPN top-down 融合。由于四层 Galileo 特征均为 `16x16`，FPN 在这里融合的是 transformer 深度层级，而不是 CNN 的空间分辨率层级。
+当前实现对最深的 layer 12 特征执行 `1/2/3/6` 四级 PPM，对 layer 3/6/9 执行 lateral projection，再由深到浅完成 FPN top-down 融合。PPM concatenate 的第一个分支就是未经池化的原始 layer 12 `16x16` 特征，所以池化上下文不会替换原始信息。由于四层 Galileo 特征均为 `16x16`，FPN 在这里融合的是 transformer 深度层级，而不是 CNN 的空间分辨率层级。
