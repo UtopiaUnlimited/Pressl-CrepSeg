@@ -20,6 +20,10 @@ data:
   batch_size: 32
   num_workers: 4
 
+cache:
+  format: temporal_v2
+  temporal_dtype: float16
+
 encoder:
   name: galileo-base-patch8
   checkpoint: pretrained/galileo-base-patch8
@@ -33,11 +37,15 @@ encoder:
   hidden_size: null
 
 model:
-  decoder: upernet
+  decoder: temporal_readout_upernet
   decoder_channels: 256
   ppm_channels: 64
   ppm_scales: [1, 2, 3, 6]
   dropout: 0.1
+  temporal_readout:
+    num_months: 12
+    hidden_channels: 192
+    dropout: 0.1
 
 loss:
   name: ce_dice
@@ -58,8 +66,8 @@ scheduler:
 train:
   epochs: 100
   amp: false
-  log_dir: logs/galileo_upernet_shared_paper_input_bs16
-  checkpoint_dir: checkpoints/galileo_upernet_shared_paper_input_bs16
+  log_dir: logs/galileo_upernet_temporal_readout_seed42
+  checkpoint_dir: checkpoints/galileo_upernet_temporal_readout_seed42
   save_best: true
   early_stopping:
     enabled: false

@@ -65,7 +65,7 @@ train:
   checkpoint_dir: checkpoints/galileo_temporal_cache_placeholder
   save_best: true
   early_stopping:
-    enabled: true
+    enabled: false
     monitor: val_miou
     mode: max
     patience: 12
