@@ -132,6 +132,62 @@ target: [64, 64]
 
 旧的空间缓存即使含有 `months`，只要它保存的是 `features: [768,16,16]` 而没有 `temporal_features_by_layer`，就已经平均掉 T，不能用于物候旁路。
 
+### 远端缓存训练命令
+
+以下命令应在**缓存所在机器的项目根目录**运行。将 `$envName` 替换为该机器实际的 Conda 环境名称；将 `$trainCache`、`$valCache` 替换为组员生成的 `temporal_v2` 目录。训练阶段只使用 train/val cache，fold5 test cache 留到 P0/P1/P2 的实验设计和验证集模型选择固定后再使用。
+
+```powershell
+$envName = "llm"
+$trainCache = "D:\\path\\to\\monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_train"
+$valCache = "D:\\path\\to\\monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_val"
+```
+
+先用 P0 做极小 smoke test，确认缓存键、张量形状、CUDA 和 DataLoader 都正常：
+
+```powershell
+conda run -n $envName python -B scripts/train_cached.py `
+  --config configs/galileo_3d_aware_dpt_phenology_none.yaml `
+  --train-cache-dir $trainCache `
+  --val-cache-dir $valCache `
+  --cache-format temporal_v2 `
+  --temporal-dtype float16 `
+  --max-train-batches 2 `
+  --max-val-batches 2 `
+  --epochs 1 `
+  --device cuda
+```
+
+smoke test 成功后，以完全相同的 cache 和设备依次训练 P0、P1、P2。三者配置默认均为 seed 42；不要在三次之间修改 batch size、loss、optimizer 或 early stopping。
+
+```powershell
+# P0：严格无先验基线
+conda run -n $envName python -B scripts/train_cached.py `
+  --config configs/galileo_3d_aware_dpt_phenology_none.yaml `
+  --train-cache-dir $trainCache `
+  --val-cache-dir $valCache `
+  --cache-format temporal_v2 `
+  --temporal-dtype float16 `
+  --device cuda
+
+# P1：正确外部物候先验
+conda run -n $envName python -B scripts/train_cached.py `
+  --config configs/galileo_3d_aware_dpt_phenology_ext.yaml `
+  --train-cache-dir $trainCache `
+  --val-cache-dir $valCache `
+  --cache-format temporal_v2 `
+  --temporal-dtype float16 `
+  --device cuda
+
+# P2：类别对应置乱的错误先验
+conda run -n $envName python -B scripts/train_cached.py `
+  --config configs/galileo_3d_aware_dpt_phenology_ext_shuffled.yaml `
+  --train-cache-dir $trainCache `
+  --val-cache-dir $valCache `
+  --cache-format temporal_v2 `
+  --temporal-dtype float16 `
+  --device cuda
+```
+
 当前旁路实现已经接入 `3D-Aware DPT`：先验由 `P[class, month]` 经过 `PhenologyPriorAdapter` 投影到 decoder 通道，在每层 `Reassemble3D` 之后、任何 temporal attention 和跨层融合之前残差注入。Galileo encoder 保持冻结，时间轴保持完整。
 
 消融时使用：
