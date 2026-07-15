@@ -153,7 +153,7 @@ $valCache = "D:\\path\\to\\monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tfp16_
 
 ```powershell
 conda run -n $envName python -B scripts/train_cached.py `
-  --config configs/galileo_3d_aware_dpt_late_fusion.yaml `
+  --config configs/galileo_3d_aware_dpt.yaml `
   --train-cache-dir $trainCache `
   --val-cache-dir $valCache `
   --cache-format temporal_v2 `
@@ -169,7 +169,7 @@ smoke test 成功后，以完全相同的 cache 和设备依次训练 P0、P1、
 ```powershell
 # P0：严格无先验基线
 conda run -n $envName python -B scripts/train_cached.py `
-  --config configs/galileo_3d_aware_dpt_late_fusion.yaml `
+  --config configs/galileo_3d_aware_dpt.yaml `
   --train-cache-dir $trainCache `
   --val-cache-dir $valCache `
   --cache-format temporal_v2 `
@@ -178,7 +178,7 @@ conda run -n $envName python -B scripts/train_cached.py `
 
 # P1：正确外部物候先验
 conda run -n $envName python -B scripts/train_cached.py `
-  --config configs/galileo_3d_aware_dpt_late_fusion.yaml `
+  --config configs/galileo_3d_aware_dpt.yaml `
   --phenology-config configs/phenology/external.yaml `
   --train-cache-dir $trainCache `
   --val-cache-dir $valCache `
@@ -188,7 +188,7 @@ conda run -n $envName python -B scripts/train_cached.py `
 
 # P2：类别对应置乱的错误先验
 conda run -n $envName python -B scripts/train_cached.py `
-  --config configs/galileo_3d_aware_dpt_late_fusion.yaml `
+  --config configs/galileo_3d_aware_dpt.yaml `
   --phenology-config configs/phenology/external_class_shuffled.yaml `
   --train-cache-dir $trainCache `
   --val-cache-dir $valCache `
@@ -201,7 +201,7 @@ conda run -n $envName python -B scripts/train_cached.py `
 
 消融时使用：
 
-- 无先验 P0：基础配置 `configs/galileo_3d_aware_dpt_late_fusion.yaml`，不传 overlay；
+- 无先验 P0：基础配置 `configs/galileo_3d_aware_dpt.yaml`，不传 overlay；
 - 外部先验 P1：基础配置加 `--phenology-config configs/phenology/external.yaml`；
 - 错误先验 P2：基础配置加 `--phenology-config configs/phenology/external_class_shuffled.yaml`；
 - 数据先验：作为 P1 有明确收益后的下一阶段，新建只含 `phenology` 字段的 overlay，路径指向 `data/priors/pastis_data_prior_draft.csv`。

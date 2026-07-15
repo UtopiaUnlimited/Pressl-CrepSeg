@@ -33,13 +33,6 @@ encoder:
   hidden_layers: [3, 6, 9, 12]
   hidden_size: null
 
-phenology:
-  enabled: false
-  source: external
-  path: data/priors/pastis_ext_prior_draft.csv
-  hidden_dim: 128
-  strength: 0.1
-
 model:
   decoder: 3d_aware_dpt
   decoder_channels: 256

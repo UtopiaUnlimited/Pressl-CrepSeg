@@ -75,7 +75,7 @@ F' -> 3D-Aware DPT -> segmentation logits
 ```text
 configs/galileo_upernet_temporal_readout.yaml
 configs/galileo_multi_layer_dpt_temporal_readout.yaml
-configs/galileo_3d_aware_dpt_late_fusion.yaml
+configs/galileo_3d_aware_dpt.yaml
 ```
 
 先验配置只描述先验表：

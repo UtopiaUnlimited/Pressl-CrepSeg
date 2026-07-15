@@ -75,7 +75,7 @@ class TemporalReadoutDecoderTest(unittest.TestCase):
             "galileo_multi_layer_dpt_temporal_readout.yaml",
             "galileo_upernet_temporal_readout.yaml",
             "galileo_adapted_dpt_temporal_readout.yaml",
-            "galileo_3d_aware_dpt_late_fusion.yaml",
+            "galileo_3d_aware_dpt.yaml",
         )
         overlay = PROJECT_ROOT / "configs" / "phenology" / "external.yaml"
 

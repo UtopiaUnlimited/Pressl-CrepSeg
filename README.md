@@ -137,8 +137,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案二 |
 | `configs/galileo_upernet_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案三 |
 | `configs/galileo_adapted_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案四 |
-| `configs/galileo_3d_aware_dpt.yaml` | 历史 3D-Aware DPT 配置，保留用于复现已有实验 |
-| `configs/galileo_3d_aware_dpt_late_fusion.yaml` | 当前受控实验用的 3D-Aware DPT 内部晚期融合配置；不附加 Temporal Readout，可叠加任意物候 overlay |
+| `configs/galileo_3d_aware_dpt.yaml` | 3D-Aware DPT 的内部晚期融合配置；不附加 Temporal Readout，可叠加任意物候 overlay |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
@@ -336,16 +335,16 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d
 
 ```bash
 # P0：严格无先验 baseline
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt_late_fusion.yaml --cache-format temporal_v2 --temporal-dtype float16
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
 
 # P1：正确的外部物候先验
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt_late_fusion.yaml --phenology-config configs/phenology/external.yaml --cache-format temporal_v2 --temporal-dtype float16
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --phenology-config configs/phenology/external.yaml --cache-format temporal_v2 --temporal-dtype float16
 
 # P2：类别对应被置乱的错误先验
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt_late_fusion.yaml --phenology-config configs/phenology/external_class_shuffled.yaml --cache-format temporal_v2 --temporal-dtype float16
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --phenology-config configs/phenology/external_class_shuffled.yaml --cache-format temporal_v2 --temporal-dtype float16
 ```
 
-三次运行的 encoder、输入时间序列、temporal cache、decoder、loss、Prodigy 和 early stopping 相同。P0 不构造 `PhenologyPriorAdapter`；P1 读取正确的 `P_ext`；P2 保留相同曲线和值域、仅置乱 `class_id -> source_class_id`，用于排除“额外旁路参数本身带来提升”的解释。旁路在 decoder 调用前将每层的 Galileo 缓存特征 `[B,T,768,H,W]` 与共享先验残差 `[B,T,768,1,1]` 相加；随后 3D-Aware DPT 才投影到自己的 256 个内部通道并做时间注意力和跨层融合。历史配置 `galileo_3d_aware_dpt.yaml` 保留用于复现已有实验，但因其 early stopping 设置不同，不作为 P0/P1/P2 的严格对照。
+三次运行的 encoder、输入时间序列、temporal cache、decoder、loss、Prodigy 和 early stopping 相同。P0 不构造 `PhenologyPriorAdapter`；P1 读取正确的 `P_ext`；P2 保留相同曲线和值域、仅置乱 `class_id -> source_class_id`，用于排除“额外旁路参数本身带来提升”的解释。旁路在 decoder 调用前将每层的 Galileo 缓存特征 `[B,T,768,H,W]` 与共享先验残差 `[B,T,768,1,1]` 相加；随后 3D-Aware DPT 才投影到自己的 256 个内部通道并做时间注意力和跨层融合。
 
 方案五同样只把 final 从 `16x16` 降到 `8x8` 用于全局时空注意力，同时保留 `[B,256,T,16,16]` 原尺度时间旁路并注入 `16x16` 融合级。方案四、五都通过 `model.preserve_native_deep_skip: true` 开启该行为，且复用已有层，不增加参数量或 state-dict 键。两份配置使用带 `native_skip` 的新日志与 checkpoint 目录，避免覆盖旧实验；复现旧结构时可将开关设为 `false`。
 
