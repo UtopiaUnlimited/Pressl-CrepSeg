@@ -11,14 +11,24 @@ from models.decoders import (
     UPerNetDecoder,
 )
 from models.encoders import GalileoHFEncoder
-from models.phenology import build_phenology_prior
+from models.phenology import (
+    PhenologyPriorAdapter,
+    build_phenology_prior,
+    inject_temporal_phenology_prior,
+)
 
 
 class GalileoDPTSegmentation(nn.Module):
-    def __init__(self, encoder: GalileoHFEncoder, decoder: nn.Module) -> None:
+    def __init__(
+        self,
+        encoder: GalileoHFEncoder,
+        decoder: nn.Module,
+        temporal_phenology_prior: PhenologyPriorAdapter | None = None,
+    ) -> None:
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
+        self.temporal_phenology_prior = temporal_phenology_prior
 
     def forward(self, batch: dict) -> torch.Tensor:
         encoded = self.encoder(batch["samples"])
@@ -32,8 +42,13 @@ class GalileoDPTSegmentation(nn.Module):
                 raise ValueError("This decoder needs temporal Galileo hidden-layer features.")
             months = torch.stack([sample["months"] for sample in batch["samples"]], dim=0)
             months = months.to(encoded.temporal_features_by_layer[0].device, non_blocking=True)
-            return self.decoder(
+            features = inject_temporal_phenology_prior(
                 encoded.temporal_features_by_layer,
+                months,
+                self.temporal_phenology_prior,
+            )
+            return self.decoder(
+                features,
                 months=months,
                 target_size=target_size,
             )
@@ -130,12 +145,11 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
         )
     elif temporal_decoder:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
-        decoder_channels = int(model_cfg.get("decoder_channels", 256))
         decoder = ThreeDAwareDPTDecoder(
             in_channels=int(hidden_size),
             num_classes=int(data_cfg["num_classes"]),
             num_layers=len(hidden_layers),
-            decoder_channels=decoder_channels,
+            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
             num_heads=int(model_cfg.get("num_heads", 8)),
             spatial_window=int(model_cfg.get("spatial_window", 8)),
             global_3d_blocks=int(model_cfg.get("global_3d_blocks", 4)),
@@ -148,11 +162,14 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
             preserve_native_deep_skip=bool(
                 model_cfg.get("preserve_native_deep_skip", True)
             ),
-            phenology_prior=build_phenology_prior(
-                config,
-                decoder_channels=decoder_channels,
-            ),
         )
     else:
         raise ValueError(f"Unsupported decoder: {decoder_name}")
-    return GalileoDPTSegmentation(encoder=encoder, decoder=decoder)
+    return GalileoDPTSegmentation(
+        encoder=encoder,
+        decoder=decoder,
+        temporal_phenology_prior=build_phenology_prior(
+            config,
+            feature_channels=int(hidden_size),
+        ),
+    )

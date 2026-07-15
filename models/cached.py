@@ -13,7 +13,11 @@ from models.decoders import (
     TemporalReadoutDecoder,
     UPerNetDecoder,
 )
-from models.phenology import build_phenology_prior
+from models.phenology import (
+    PhenologyPriorAdapter,
+    build_phenology_prior,
+    inject_temporal_phenology_prior,
+)
 
 
 THREE_D_CACHED_DECODER_NAMES = {
@@ -47,11 +51,16 @@ def cached_decoder_uses_feature_pyramid(config: dict) -> bool:
 
 
 class CachedFeatureSegmentation(nn.Module):
-    """Train the decoder/head from cached Galileo spatial feature maps."""
+    """Train a decoder/head from cached Galileo feature maps."""
 
-    def __init__(self, decoder: nn.Module) -> None:
+    def __init__(
+        self,
+        decoder: nn.Module,
+        temporal_phenology_prior: PhenologyPriorAdapter | None = None,
+    ) -> None:
         super().__init__()
         self.decoder = decoder
+        self.temporal_phenology_prior = temporal_phenology_prior
 
     def forward(self, batch: dict) -> torch.Tensor:
         device = next(self.decoder.parameters()).device
@@ -77,6 +86,11 @@ class CachedFeatureSegmentation(nn.Module):
             features = tuple(
                 temporal_features[:, layer_index].to(device, non_blocking=True)
                 for layer_index in layer_indices
+            )
+            features = inject_temporal_phenology_prior(
+                features,
+                months,
+                self.temporal_phenology_prior,
             )
             return self.decoder(features, months=months, target_size=target_size)
 
@@ -109,10 +123,9 @@ def build_cached_feature_model(
         decoder_name,
     )
     phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
-    if phenology_enabled and decoder_name not in THREE_D_CACHED_DECODER_NAMES:
+    if phenology_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
         raise ValueError(
-            "Phenology prior injection is currently implemented for 3d_aware_dpt; "
-            "temporal readout decoders are not yet wired to the prior side branch."
+            "Phenology prior injection requires a decoder that preserves the temporal dimension."
         )
     if spatial_decoder_name in {"linear_probe", "linear", "lp"}:
         decoder = GalileoLinearProbeDecoder(
@@ -170,12 +183,11 @@ def build_cached_feature_model(
         )
     elif decoder_name in THREE_D_CACHED_DECODER_NAMES:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
-        decoder_channels = int(model_cfg.get("decoder_channels", 256))
         decoder = ThreeDAwareDPTDecoder(
             in_channels=int(in_channels),
             num_classes=int(data_cfg["num_classes"]),
             num_layers=int(num_layers or len(hidden_layers)),
-            decoder_channels=decoder_channels,
+            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
             num_heads=int(model_cfg.get("num_heads", 8)),
             spatial_window=int(model_cfg.get("spatial_window", 8)),
             global_3d_blocks=int(model_cfg.get("global_3d_blocks", 4)),
@@ -187,10 +199,6 @@ def build_cached_feature_model(
             num_months=int(model_cfg.get("num_months", 12)),
             preserve_native_deep_skip=bool(
                 model_cfg.get("preserve_native_deep_skip", True)
-            ),
-            phenology_prior=build_phenology_prior(
-                config,
-                decoder_channels=decoder_channels,
             ),
         )
     else:
@@ -208,4 +216,10 @@ def build_cached_feature_model(
             hidden_channels=readout_cfg.get("hidden_channels"),
             dropout=float(readout_cfg.get("dropout", 0.0)),
         )
-    return CachedFeatureSegmentation(decoder=decoder)
+    return CachedFeatureSegmentation(
+        decoder=decoder,
+        temporal_phenology_prior=build_phenology_prior(
+            config,
+            feature_channels=int(in_channels),
+        ),
+    )

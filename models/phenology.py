@@ -87,16 +87,18 @@ def load_phenology_prior(
 
 
 class PhenologyPriorAdapter(nn.Module):
-    """Project class-month priors into a temporal decoder feature context.
+    """Project class-month priors into a Galileo temporal feature context.
 
-    The same class-by-month table is shared by every encoder layer. The layer
-    identity remains represented by the decoder's existing layer embedding.
+    The output is added to frozen Galileo features before they enter a
+    time-preserving decoder. The same class-by-month table is deliberately
+    shared by every selected encoder layer; decoder-specific layer handling
+    remains inside the decoder.
     """
 
     def __init__(
         self,
         prior_table: torch.Tensor,
-        decoder_channels: int,
+        feature_channels: int,
         hidden_dim: int = 128,
         strength: float = 0.1,
     ) -> None:
@@ -114,8 +116,8 @@ class PhenologyPriorAdapter(nn.Module):
         self.projector = nn.Sequential(
             nn.Linear(prior_table.shape[0], int(hidden_dim)),
             nn.GELU(),
-            nn.Linear(int(hidden_dim), int(decoder_channels)),
-            nn.LayerNorm(int(decoder_channels)),
+            nn.Linear(int(hidden_dim), int(feature_channels)),
+            nn.LayerNorm(int(feature_channels)),
         )
 
     def forward(self, months: torch.Tensor) -> torch.Tensor:
@@ -131,9 +133,48 @@ class PhenologyPriorAdapter(nn.Module):
         return self.projector(prior) * self.strength
 
 
+def inject_temporal_phenology_prior(
+    features: tuple[torch.Tensor, ...] | list[torch.Tensor],
+    months: torch.Tensor,
+    prior_adapter: PhenologyPriorAdapter | None,
+) -> tuple[torch.Tensor, ...]:
+    """Add one shared calendar-conditioned residual to each temporal layer.
+
+    Both inputs and outputs use ``[B, T, D, H, W]``. Keeping this operation
+    at the cached/Galileo feature boundary makes it independent of the
+    downstream decoder architecture.
+    """
+
+    features = tuple(features)
+    if prior_adapter is None:
+        return features
+    if not features:
+        raise ValueError("Cannot inject a phenology prior into an empty feature tuple.")
+
+    context = prior_adapter(months)
+    if context.ndim != 3:
+        raise ValueError(f"Expected prior context [B, T, D], got {tuple(context.shape)}")
+    context = context.unsqueeze(-1).unsqueeze(-1)
+
+    injected = []
+    for feature in features:
+        if feature.ndim != 5:
+            raise ValueError(
+                "Expected temporal features [B, T, D, H, W], "
+                f"got {tuple(feature.shape)}"
+            )
+        if feature.shape[:3] != context.shape[:3]:
+            raise ValueError(
+                "Temporal feature and phenology context shapes do not match: "
+                f"{tuple(feature.shape[:3])} vs {tuple(context.shape[:3])}"
+            )
+        injected.append(feature + context)
+    return tuple(injected)
+
+
 def build_phenology_prior(
     config: dict,
-    decoder_channels: int,
+    feature_channels: int,
 ) -> PhenologyPriorAdapter | None:
     phenology_cfg = config.get("phenology", {}) or {}
     if not bool(phenology_cfg.get("enabled", False)):
@@ -146,7 +187,7 @@ def build_phenology_prior(
     table = load_phenology_prior(path, num_classes=num_classes)
     return PhenologyPriorAdapter(
         prior_table=table,
-        decoder_channels=int(decoder_channels),
+        feature_channels=int(feature_channels),
         hidden_dim=int(phenology_cfg.get("hidden_dim", 128)),
         strength=float(phenology_cfg.get("strength", 0.1)),
     )

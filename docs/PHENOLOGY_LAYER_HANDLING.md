@@ -146,19 +146,22 @@ months        -> [B, T]
 | temporal UPerNet | 各层保留 `T`，再做 temporal readout | UPerNet 的 PPM/FPN 融合 |
 | 3D-Aware DPT | 多层时空 block 中联合融合 `L,T,H,W` | 时空跨尺度融合后输出 |
 
-物候先验的公共注入点应位于各路线的 temporal fusion 之前。这是一个 decoder 侧的**旁路残差注入**，不是修改 Galileo encoder、删除月份或用先验筛选输入：
+物候先验的公共注入点应位于各路线的 temporal fusion 之前、**decoder 调用之前**。这是一个 Galileo 特征侧的**旁路残差注入**，不是修改 Galileo encoder、删除月份或用先验筛选输入：
 
 ```text
-temporal cache F[l,t] + months[:,t] + P_ext[:,month_t]
-                         |
-                   shared prior side branch
-                         v
-                 temporal fusion of each decoder
-                         v
-                 decoder-specific layer fusion
+temporal cache F[l,t] [B,T,768,H,W]    months[:,t] + P_ext[:,month_t]
+                  |                                  |
+                  |                            shared prior adapter
+                  |                                  v
+                  +--------------------------> q_t [B,T,768,1,1]
+                                                     |
+F'[l,t] = F[l,t] + q_t [B,T,768,H,W] <-------------+
+                  |
+                  v
+        temporal fusion of each decoder -> decoder-specific layer fusion
 ```
 
-这样比较 decoder 时，所有模型看到相同的 Galileo 表征和相同的物候输入；改变的只是“时间如何融合”和“空间层级如何融合”。对于不同层，可以增加很轻量的 `layer_adapter_l`，但它只适配特征通道，不改变 `P_ext` 的月份语义。
+这样比较 decoder 时，所有模型看到相同的 Galileo 表征和相同的物候输入；改变的只是“时间如何融合”和“空间层级如何融合”。当前同一个 `q_t` 广播到每个选中的层；如以后验证需要层特定适配器，必须另立实验，不能混入 P0/P1/P2。
 
 严格的先验消融使用配置开关：
 
