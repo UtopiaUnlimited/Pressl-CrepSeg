@@ -455,6 +455,28 @@ conda run -n presl tensorboard --logdir logs
 
 曲线不做平滑；mIoU、Acc 和 F1 的纵轴固定为 `[0, 1]`，loss 纵轴从 `0` 开始，避免自动缩放夸大较小的后期变化。
 
+### 自选方案、指标和 epoch 绘图
+
+`scripts/plot_training_curves.py` 可以读取 TensorBoard event；即使训练被手动停止、尚未生成 `training_history.json`，也能按当前已经完成的 epoch 画图。先列出 `logs/` 中可用的运行：
+
+```powershell
+conda run -n presl python -B scripts/plot_training_curves.py --list-runs
+```
+
+例如对比方案一、二在前 60 个 epoch 的 train loss、val loss 和 val mIoU：
+
+```powershell
+conda run -n presl python -B scripts/plot_training_curves.py --runs 1 2 --metrics train_loss val_loss val_miou --max-epoch 60 --output output/scheme1_vs_scheme2_epoch60.png
+```
+
+只画方案五第 10 至 50 个 epoch 的 val mIoU，并自动放大纵轴：
+
+```powershell
+conda run -n presl python -B scripts/plot_training_curves.py --runs 5 --metrics val_miou --min-epoch 10 --max-epoch 50 --auto-y --output output/scheme5_val_miou.png
+```
+
+`--runs` 支持方案别名 `1..5`、`scheme1..scheme5`、日志目录名或 `标签=日志目录名`；`--metrics` 可选 `train_loss`、`val_loss`、`val_miou`、`val_acc`、`val_f1` 和 `lr`。多项指标默认纵向排列，可用 `--columns 2` 改为两列；`--smoothing-window 5` 表示 5 个 epoch 的尾随滑动平均，默认值 `1` 保留原始曲线。需要固定纵轴时可传入如 `--y-limit val_miou=0.3:0.7`。
+
 训练会同时保存最低 `val_loss` 的 `best_val_loss.pt` 和最高 `val_mIoU` 的 `best_val_miou.pt`。为兼容已有命令，`best.pt` 与 `best_val_loss.pt` 含义相同。最终报告 mIoU 时建议评估 `best_val_miou.pt`，并运行多个 seed；论文式线性探测固定使用最后一轮 `last.pt`。
 
 ## 最终评估
