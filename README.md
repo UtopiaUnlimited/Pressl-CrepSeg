@@ -124,6 +124,8 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 
 ## 配置文件
 
+物候先验训练、切换 decoder、缓存验收与 test 评估的操作步骤统一见 [PHENOLOGY_RUNBOOK.md](docs/PHENOLOGY_RUNBOOK.md)。
+
 | 配置 | 用途 |
 | --- | --- |
 | `configs/galileo_dpt.yaml` | 最终层卷积 baseline 的旧配置，`hidden_layers: []` |

@@ -141,6 +141,8 @@ target: [64, 64]
 
 ### 远端缓存训练命令
 
+日常执行请以 [PHENOLOGY_RUNBOOK.md](PHENOLOGY_RUNBOOK.md) 为准；本节保留当时的设计记录和 P0/P1/P2 命令背景。
+
 以下命令应在**缓存所在机器的项目根目录**运行。将 `$envName` 替换为该机器实际的 Conda 环境名称；将 `$trainCache`、`$valCache` 替换为组员生成的 `temporal_v2` 目录。训练阶段只使用 train/val cache，fold5 test cache 留到 P0/P1/P2 的实验设计和验证集模型选择固定后再使用。
 
 ```powershell
