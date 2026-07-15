@@ -333,6 +333,24 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_ad
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
 ```
 
+### 方案五：时间维处理位置
+
+当前方案五是**末端晚期融合**，不是“3D 模块处理一部分时间后，在 decoder 中段转成标准 2D DPT”。时间维在完整的四级 3D 金字塔中始终保留：
+
+```text
+[B, 4, T, 768, 16, 16]
+  -> 3D Reassemble: [B, 256, T, 64/32/16/8]
+  -> 8x8 Global Space-Time Attention
+  -> 各尺度 Temporal Attention + Spatial Window Attention + Local 3D Conv
+  -> Gated Cross-Scale Fusion: 8 -> 16 -> 32 -> 64（全程保留 T）
+  -> Temporal Query Pool: [B, 256, T, 64, 64] -> [B, 256, 64, 64]
+  -> 19-class Head: [B, 19, 64, 64]
+```
+
+最后的 `Temporal Query Pool` 不是固定均值池化。它在每个空间位置上把 12 个月组织为 `[T,256]` 序列，以“时间均值特征 + 可学习 query”为查询执行 8 头注意力，再生成一个内容相关的时间汇聚结果。月份嵌入、深层全局时空注意力、各尺度时间注意力、3D 局部卷积和跨尺度门控融合都发生在这一步之前，因此最终读出并不是方案五唯一的时间建模模块。
+
+单张语义分割结果不含时间轴，所以 `T` 最终必须在某处消除；当前代码选择在完整 3D 金字塔融合后、二维分类头前消除。若后续改为“深层 3D 建模 -> 中段时间读出 -> 标准 2D DPT 恢复”，应作为独立的中段融合实验，使用新的配置、日志和 checkpoint，不能继续加载当前方案五权重。
+
 物候先验旁路消融使用同一份 `temporal_v2` 缓存：
 
 ```bash
@@ -347,6 +365,8 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d
 ```
 
 三次运行的 encoder、输入时间序列、temporal cache、decoder、loss、Prodigy 和 early stopping 相同。P0 不构造 `PhenologyPriorAdapter`；P1 读取正确的 `P_ext`；P2 保留相同曲线和值域、仅置乱 `class_id -> source_class_id`，用于排除“额外旁路参数本身带来提升”的解释。旁路在 decoder 调用前将每层的 Galileo 缓存特征 `[B,T,768,H,W]` 与共享先验残差 `[B,T,768,1,1]` 相加；随后 3D-Aware DPT 才投影到自己的 256 个内部通道并做时间注意力和跨层融合。
+
+纵向简化架构图（可直接用于 PPT）：[pictures/phenology_prior_bypass_architecture.svg](pictures/phenology_prior_bypass_architecture.svg)。
 
 方案五同样只把 final 从 `16x16` 降到 `8x8` 用于全局时空注意力，同时保留 `[B,256,T,16,16]` 原尺度时间旁路并注入 `16x16` 融合级。方案四、五都通过 `model.preserve_native_deep_skip: true` 开启该行为，且复用已有层，不增加参数量或 state-dict 键。两份配置使用带 `native_skip` 的新日志与 checkpoint 目录，避免覆盖旧实验；复现旧结构时可将开关设为 `false`。
 
@@ -445,13 +465,21 @@ conda run -n presl tensorboard --logdir logs
 conda run -n presl python -B scripts/cache_features.py --config configs/galileo_shared_cache.yaml --split test
 ```
 
+上面生成的是旧实验使用的 `spatial_v1` test 缓存。方案一至五的新时间保留实验必须生成或下载 `temporal_v2` test 缓存：
+
+```bash
+conda run -n presl python -B scripts/cache_features.py --config configs/galileo_temporal_shared_cache.yaml --split test
+```
+
 评估 single-layer DPT：
 
 ```bash
 conda run -n presl python -B scripts/eval_cached.py --config configs/galileo_single_layer_dpt_shared.yaml --checkpoint checkpoints/galileo_single_layer_dpt_shared_paper_input_bs16_rerun_seed42_cached/best_val_miou.pt --split test
 ```
 
-评估会输出 `test_loss`、`test_miou`、`test_acc`、`test_f1`、逐类别 IoU 和逐类别 F1，同时把 test split 的每一个样本保存到项目根目录 `output/`。每张 PNG 从左到右依次为真实 RGB 合成图、真值和预测。可用 `--output-dir` 修改目录、用 `--panel-size` 修改单个面板尺寸；在线评估 `scripts/eval.py` 与缓存评估 `scripts/eval_cached.py` 的行为一致。
+评估会输出 `test_loss`、`test_miou`、`test_acc`、`test_f1`、逐类别 IoU 和逐类别 F1。当前 fold5 包含 496 个原始 `128x128` patch，每个 patch 被切为 4 个 `64x64` tile，因此 `scripts/eval.py` 和 `scripts/eval_cached.py` 默认都会遍历并保存全部 **1984 个 test tile**。每个 tile 在项目根目录 `output/` 中生成一张 PNG，从左到右依次为 RGB 合成图、真值和预测，文件名形如 `test_10002_y0_x64.png`。
+
+当前评估脚本不会自动把四个 tile 拼回一张 `128x128` 原始 patch 图，也没有“只计算指标但不保存图片”的开关。可用 `--output-dir` 修改目录、用 `--panel-size` 修改单个面板尺寸；若只需要少量定性结果，应使用后面的 `visualize_predictions.py --num-samples N`。
 
 使用 `temporal_v2` 评估 3D-Aware DPT：
 
