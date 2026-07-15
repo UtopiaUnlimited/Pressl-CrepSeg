@@ -299,6 +299,18 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_ad
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
 ```
 
+物候先验旁路消融使用同一份 `temporal_v2` 缓存：
+
+```bash
+# 无先验 baseline
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
+
+# 启用外部物候先验旁路
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt_phenology_ext.yaml --cache-format temporal_v2 --temporal-dtype float16
+```
+
+两份配置的 encoder、输入时间序列和 temporal cache 相同，区别只有 decoder 是否构造 `PhenologyPriorAdapter`。旁路在每层 `Reassemble3D` 后、时间注意力和跨层融合前注入；修改 `phenology.path` 可切换到训练集 `P_data`。
+
 方案五同样只把 final 从 `16x16` 降到 `8x8` 用于全局时空注意力，同时保留 `[B,256,T,16,16]` 原尺度时间旁路并注入 `16x16` 融合级。方案四、五都通过 `model.preserve_native_deep_skip: true` 开启该行为，且复用已有层，不增加参数量或 state-dict 键。两份配置使用带 `native_skip` 的新日志与 checkpoint 目录，避免覆盖旧实验；复现旧结构时可将开关设为 `false`。
 
 重采样审计结果：方案一和方案二在最终输出上采样前始终保持 `16x16`；方案三 UPerNet 的 PPM 是并行上下文分支，原始 `16x16` 特征仍直接参与拼接。这三种结构不存在“唯一特征先降到 `8x8`”的问题，因此不需要修改计算图。

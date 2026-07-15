@@ -34,7 +34,7 @@ encoder:
   hidden_size: null
 
 phenology:
-  enabled: false
+  enabled: true
   source: external
   path: data/priors/pastis_ext_prior_draft.csv
   hidden_dim: 128
@@ -76,8 +76,8 @@ train:
   gradient_accumulation_steps: 8
   max_grad_norm: 1.0
   save_trainable_only: true
-  log_dir: logs/galileo_3d_aware_dpt_native_skip_late_fusion_seed42
-  checkpoint_dir: checkpoints/galileo_3d_aware_dpt_native_skip_late_fusion_seed42
+  log_dir: logs/galileo_3d_aware_dpt_phenology_ext_seed42
+  checkpoint_dir: checkpoints/galileo_3d_aware_dpt_phenology_ext_seed42
   save_best: true
   early_stopping:
     enabled: true

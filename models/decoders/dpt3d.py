@@ -363,6 +363,7 @@ class ThreeDAwareDPTDecoder(nn.Module):
         temporal_pool_heads: int = 8,
         num_months: int = 12,
         preserve_native_deep_skip: bool = True,
+        phenology_prior: nn.Module | None = None,
     ) -> None:
         super().__init__()
         if num_layers != 4:
@@ -374,6 +375,7 @@ class ThreeDAwareDPTDecoder(nn.Module):
 
         self.num_layers = int(num_layers)
         self.preserve_native_deep_skip = bool(preserve_native_deep_skip)
+        self.phenology_prior = phenology_prior
         self.month_embedding = nn.Embedding(int(num_months), decoder_channels)
         self.layer_embedding = nn.Parameter(torch.empty(num_layers, decoder_channels))
         nn.init.trunc_normal_(self.layer_embedding, std=0.02)
@@ -442,6 +444,9 @@ class ThreeDAwareDPTDecoder(nn.Module):
 
         batch, timesteps = months.shape
         month_embedding = self.month_embedding(months).permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1)
+        prior_context = None
+        if self.phenology_prior is not None:
+            prior_context = self.phenology_prior(months).permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1)
         scales = [
             (
                 max(1, math.ceil(target_size[0] / (2**layer_index))),
@@ -467,6 +472,11 @@ class ThreeDAwareDPTDecoder(nn.Module):
             feature = reassemble(feature, size)
             feature = feature + month_embedding
             feature = feature + self.layer_embedding[layer_index].view(1, -1, 1, 1, 1)
+            if prior_context is not None:
+                # Inject the shared class-month context before any temporal
+                # attention or cross-layer fusion; layer identity stays in the
+                # existing layer embedding above.
+                feature = feature + prior_context
             pyramid.append(feature)
             if self.preserve_native_deep_skip and layer_index == self.num_layers - 1:
                 deep_native = reassemble.forward_native(native_feature)

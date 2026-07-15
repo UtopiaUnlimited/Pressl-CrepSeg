@@ -11,6 +11,7 @@ from models.decoders import (
     UPerNetDecoder,
 )
 from models.encoders import GalileoHFEncoder
+from models.phenology import build_phenology_prior
 
 
 class GalileoDPTSegmentation(nn.Module):
@@ -53,6 +54,11 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
         "3d-aware-dpt",
         "three_d_aware_dpt",
     }
+    phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
+    if phenology_enabled and not temporal_decoder:
+        raise ValueError(
+            "Phenology prior injection requires a decoder that preserves the temporal dimension."
+        )
     if temporal_decoder and not bool(encoder_cfg.get("freeze", True)):
         raise ValueError("3D-Aware DPT experiments require the Galileo encoder to stay frozen.")
 
@@ -124,11 +130,12 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
         )
     elif temporal_decoder:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        decoder_channels = int(model_cfg.get("decoder_channels", 256))
         decoder = ThreeDAwareDPTDecoder(
             in_channels=int(hidden_size),
             num_classes=int(data_cfg["num_classes"]),
             num_layers=len(hidden_layers),
-            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
+            decoder_channels=decoder_channels,
             num_heads=int(model_cfg.get("num_heads", 8)),
             spatial_window=int(model_cfg.get("spatial_window", 8)),
             global_3d_blocks=int(model_cfg.get("global_3d_blocks", 4)),
@@ -140,6 +147,10 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
             num_months=int(model_cfg.get("num_months", 12)),
             preserve_native_deep_skip=bool(
                 model_cfg.get("preserve_native_deep_skip", True)
+            ),
+            phenology_prior=build_phenology_prior(
+                config,
+                decoder_channels=decoder_channels,
             ),
         )
     else:

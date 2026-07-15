@@ -11,6 +11,7 @@ from models.decoders import (
     ThreeDAwareDPTDecoder,
     UPerNetDecoder,
 )
+from models.phenology import build_phenology_prior
 
 
 TEMPORAL_CACHED_DECODER_NAMES = {
@@ -94,6 +95,11 @@ def build_cached_feature_model(
     encoder_cfg = config.get("encoder", {})
     model_cfg = config["model"]
     decoder_name = str(model_cfg.get("decoder", "single_layer_dpt")).lower()
+    phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
+    if phenology_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
+        raise ValueError(
+            "Phenology prior injection requires a cached decoder that preserves the temporal dimension."
+        )
     if decoder_name in {"linear_probe", "linear", "lp"}:
         decoder = GalileoLinearProbeDecoder(
             in_channels=int(in_channels),
@@ -150,11 +156,12 @@ def build_cached_feature_model(
         )
     elif decoder_name in TEMPORAL_CACHED_DECODER_NAMES:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        decoder_channels = int(model_cfg.get("decoder_channels", 256))
         decoder = ThreeDAwareDPTDecoder(
             in_channels=int(in_channels),
             num_classes=int(data_cfg["num_classes"]),
             num_layers=int(num_layers or len(hidden_layers)),
-            decoder_channels=int(model_cfg.get("decoder_channels", 256)),
+            decoder_channels=decoder_channels,
             num_heads=int(model_cfg.get("num_heads", 8)),
             spatial_window=int(model_cfg.get("spatial_window", 8)),
             global_3d_blocks=int(model_cfg.get("global_3d_blocks", 4)),
@@ -166,6 +173,10 @@ def build_cached_feature_model(
             num_months=int(model_cfg.get("num_months", 12)),
             preserve_native_deep_skip=bool(
                 model_cfg.get("preserve_native_deep_skip", True)
+            ),
+            phenology_prior=build_phenology_prior(
+                config,
+                decoder_channels=decoder_channels,
             ),
         )
     else:

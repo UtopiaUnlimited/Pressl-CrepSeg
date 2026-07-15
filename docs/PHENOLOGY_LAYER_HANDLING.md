@@ -146,12 +146,12 @@ months        -> [B, T]
 | temporal UPerNet | 各层保留 `T`，再做 temporal readout | UPerNet 的 PPM/FPN 融合 |
 | 3D-Aware DPT | 多层时空 block 中联合融合 `L,T,H,W` | 时空跨尺度融合后输出 |
 
-物候先验的公共注入点应位于各路线的 temporal fusion 之前：
+物候先验的公共注入点应位于各路线的 temporal fusion 之前。这是一个 decoder 侧的**旁路残差注入**，不是修改 Galileo encoder、删除月份或用先验筛选输入：
 
 ```text
 temporal cache F[l,t] + months[:,t] + P_ext[:,month_t]
                          |
-                   shared prior branch
+                   shared prior side branch
                          v
                  temporal fusion of each decoder
                          v
@@ -159,6 +159,24 @@ temporal cache F[l,t] + months[:,t] + P_ext[:,month_t]
 ```
 
 这样比较 decoder 时，所有模型看到相同的 Galileo 表征和相同的物候输入；改变的只是“时间如何融合”和“空间层级如何融合”。对于不同层，可以增加很轻量的 `layer_adapter_l`，但它只适配特征通道，不改变 `P_ext` 的月份语义。
+
+严格的先验消融使用配置开关：
+
+```yaml
+phenology:
+  enabled: false  # no-prior baseline
+```
+
+与：
+
+```yaml
+phenology:
+  enabled: true   # prior side branch
+  path: data/priors/pastis_ext_prior_draft.csv
+  strength: 0.1
+```
+
+`enabled=false` 时不会构造 `PhenologyPriorAdapter`，因此 baseline 不增加先验分支参数。`strength=0` 可以用于检查旁路的数值回退，但因为模块仍然存在，它不是最严格的参数量对照。
 
 因此当前最推荐的顺序是：
 
