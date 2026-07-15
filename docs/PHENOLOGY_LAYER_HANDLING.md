@@ -180,7 +180,7 @@ phenology:
 
 因此当前最推荐的顺序是：
 
-1. 先为所有需要比较的 decoder 生成同一套 `temporal_v2` 缓存；
-2. 用 `alpha=0` 跑无先验的 temporal DPT/UPerNet 对照；
-3. 在公共 temporal fusion 前接入共享 `MetaEncoder(month, P_ext[:, month])`；
-4. 最后才比较 layer-specific adapter、FiLM/AdaGN 或 per-month decision fusion。
+1. 先验第一阶段只使用 `3D-Aware DPT`，不扩展到其他 decoder；
+2. 生成并验收 train/val/test 三份相同的 `temporal_v2` 缓存；
+3. 在同一训练协议下跑 P0 无先验、P1 正确 `P_ext`、P2 class-shuffled `P_ext`；
+4. P1 同时优于 P0/P2 后，再比较 `P_data`、layer-specific adapter、FiLM/AdaGN 或 per-month decision fusion。

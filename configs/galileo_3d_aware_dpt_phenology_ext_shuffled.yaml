@@ -1,0 +1,88 @@
+seed: 42
+
+data:
+  root: data/PASTIS
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  temporal_aggregation: monthly
+  selected_timesteps: 12
+  monthly_start_offset: 1
+  source_image_size: 128
+  tile_size: 64
+  image_size: 64
+  num_classes: 19
+  target_channel: 0
+  void_label: 19
+  ignore_index: -1
+  normalization: galileo_norm_no_clip
+  normalization_std_multiplier: 2.0
+  batch_size: 2
+  num_workers: 2
+
+encoder:
+  name: galileo-base-patch8
+  checkpoint: pretrained/galileo-base-patch8
+  patch_size: 4
+  freeze: true
+  normalize: false
+  local_files_only: true
+  output_hidden_states: false
+  spatial_token_strategy: spacetime_mean
+  preserve_temporal_features: true
+  hidden_layers: [3, 6, 9, 12]
+  hidden_size: null
+
+phenology:
+  enabled: true
+  source: external_class_shuffled
+  path: data/priors/pastis_ext_prior_class_shuffled.csv
+  hidden_dim: 128
+  strength: 0.1
+
+model:
+  decoder: 3d_aware_dpt
+  decoder_channels: 256
+  num_heads: 8
+  spatial_window: 8
+  global_3d_blocks: 4
+  fusion_blocks_per_stage: 2
+  mlp_expansion: 4
+  temporal_pool_heads: 8
+  num_months: 12
+  preserve_native_deep_skip: true
+  dropout: 0.1
+  drop_path: 0.1
+
+loss:
+  name: ce_dice
+  ce_weight: 1.0
+  dice_weight: 0.5
+  ignore_index: -1
+
+optimizer:
+  name: prodigy
+  lr: 1.0
+  weight_decay: 0.1
+  decouple: true
+  slice_p: 11
+
+scheduler:
+  name: none
+
+train:
+  epochs: 100
+  amp: true
+  gradient_accumulation_steps: 8
+  max_grad_norm: 1.0
+  save_trainable_only: true
+  log_dir: logs/galileo_3d_aware_dpt_phenology_ext_shuffled_seed42
+  checkpoint_dir: checkpoints/galileo_3d_aware_dpt_phenology_ext_shuffled_seed42
+  save_best: true
+  early_stopping:
+    enabled: true
+    monitor: val_miou
+    mode: max
+    patience: 12
+    min_delta: 0.001
+    start_epoch: 10
