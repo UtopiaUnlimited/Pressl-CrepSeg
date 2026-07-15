@@ -20,6 +20,10 @@ data:
   batch_size: 2
   num_workers: 2
 
+cache:
+  format: temporal_v2
+  temporal_dtype: float16
+
 encoder:
   name: galileo-base-patch8
   checkpoint: pretrained/galileo-base-patch8
@@ -32,13 +36,6 @@ encoder:
   preserve_temporal_features: true
   hidden_layers: [3, 6, 9, 12]
   hidden_size: null
-
-phenology:
-  enabled: true
-  source: external_class_shuffled
-  path: data/priors/pastis_ext_prior_class_shuffled.csv
-  hidden_dim: 128
-  strength: 0.1
 
 model:
   decoder: 3d_aware_dpt
@@ -76,8 +73,8 @@ train:
   gradient_accumulation_steps: 8
   max_grad_norm: 1.0
   save_trainable_only: true
-  log_dir: logs/galileo_3d_aware_dpt_phenology_ext_shuffled_seed42
-  checkpoint_dir: checkpoints/galileo_3d_aware_dpt_phenology_ext_shuffled_seed42
+  log_dir: logs/galileo_3d_aware_dpt_late_fusion_seed42
+  checkpoint_dir: checkpoints/galileo_3d_aware_dpt_late_fusion_seed42
   save_best: true
   early_stopping:
     enabled: true

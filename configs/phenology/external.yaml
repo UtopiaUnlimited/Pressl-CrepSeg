@@ -1,0 +1,8 @@
+run_suffix: external
+
+phenology:
+  enabled: true
+  source: external
+  path: data/priors/pastis_ext_prior_draft.csv
+  hidden_dim: 128
+  strength: 0.1

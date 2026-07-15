@@ -21,6 +21,7 @@ from models import (  # noqa: E402
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
 from utils import (  # noqa: E402
     apply_cache_overrides,
+    apply_phenology_overlay,
     feature_cache_dir,
     load_config,
     merge_cli_overrides,
@@ -31,6 +32,11 @@ from utils import (  # noqa: E402
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
+    parser.add_argument(
+        "--phenology-config",
+        default=None,
+        help="Optional reusable phenology overlay, for example configs/phenology/external.yaml.",
+    )
     parser.add_argument("--train-cache-dir", default=None)
     parser.add_argument("--val-cache-dir", default=None)
     parser.add_argument("--cache-format", choices=["spatial_v1", "temporal_v2"], default=None)
@@ -64,7 +70,8 @@ def build_loader(cache_dir: str, config: dict, shuffle: bool) -> DataLoader:
 
 def main() -> None:
     args = parse_args()
-    config = merge_cli_overrides(load_config(args.config), args)
+    config = apply_phenology_overlay(load_config(args.config), args.phenology_config)
+    config = merge_cli_overrides(config, args)
     config = apply_cache_overrides(config, args.cache_format, args.temporal_dtype)
     seed_everything(int(config.get("seed", 42)))
 

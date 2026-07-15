@@ -11,7 +11,11 @@ from models import (
     cached_decoder_uses_temporal_features,
 )
 from models.decoders import MonthAwareTemporalReadout, TemporalReadoutDecoder
-from utils import feature_cache_dir, load_config
+from utils import apply_phenology_overlay, feature_cache_dir, load_config
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+EXTERNAL_PRIOR_PATH = PROJECT_ROOT / "data" / "priors" / "pastis_ext_prior_draft.csv"
 
 
 class MonthAwareTemporalReadoutTest(unittest.TestCase):
@@ -47,6 +51,46 @@ class MonthAwareTemporalReadoutTest(unittest.TestCase):
 
 
 class TemporalReadoutDecoderTest(unittest.TestCase):
+    def test_phenology_overlay_keeps_decoder_config_and_namespaces_outputs(self) -> None:
+        base = load_config(PROJECT_ROOT / "configs" / "galileo_upernet_temporal_readout.yaml")
+        combined = apply_phenology_overlay(
+            base,
+            PROJECT_ROOT / "configs" / "phenology" / "external.yaml",
+        )
+
+        self.assertEqual(combined["model"]["decoder"], "temporal_readout_upernet")
+        self.assertTrue(combined["phenology"]["enabled"])
+        self.assertEqual(
+            combined["phenology"]["path"],
+            "data/priors/pastis_ext_prior_draft.csv",
+        )
+        self.assertTrue(combined["train"]["log_dir"].endswith("_phenology_external"))
+        self.assertTrue(
+            combined["train"]["checkpoint_dir"].endswith("_phenology_external")
+        )
+
+    def test_one_overlay_composes_with_every_temporal_decoder_route(self) -> None:
+        paths = (
+            "galileo_single_layer_dpt_temporal_readout.yaml",
+            "galileo_multi_layer_dpt_temporal_readout.yaml",
+            "galileo_upernet_temporal_readout.yaml",
+            "galileo_adapted_dpt_temporal_readout.yaml",
+            "galileo_3d_aware_dpt_late_fusion.yaml",
+        )
+        overlay = PROJECT_ROOT / "configs" / "phenology" / "external.yaml"
+
+        for name in paths:
+            with self.subTest(config=name):
+                config = apply_phenology_overlay(
+                    load_config(PROJECT_ROOT / "configs" / name),
+                    overlay,
+                )
+                self.assertTrue(cached_decoder_uses_temporal_features(config))
+                self.assertTrue(config["phenology"]["enabled"])
+                self.assertTrue(
+                    config["train"]["log_dir"].endswith("_phenology_external")
+                )
+
     def test_all_four_configs_use_the_same_temporal_cache_protocol(self) -> None:
         paths = sorted(Path("configs").glob("*_temporal_readout.yaml"))
         self.assertEqual(len(paths), 4)
@@ -98,9 +142,15 @@ class TemporalReadoutDecoderTest(unittest.TestCase):
                     **decoder_options,
                 }
                 config = {
-                    "data": {"num_classes": 5},
+                    "data": {"num_classes": 19},
                     "encoder": {"hidden_layers": [3, 6, 9, 12]},
                     "model": model_cfg,
+                    "phenology": {
+                        "enabled": True,
+                        "path": str(EXTERNAL_PRIOR_PATH),
+                        "hidden_dim": 8,
+                        "strength": 0.1,
+                    },
                 }
                 model = build_cached_feature_model(
                     config,
@@ -123,11 +173,18 @@ class TemporalReadoutDecoderTest(unittest.TestCase):
                 logits = model(batch)
 
                 self.assertIsInstance(model.decoder, TemporalReadoutDecoder)
-                self.assertEqual(tuple(logits.shape), (2, 5, 16, 16))
+                self.assertEqual(tuple(logits.shape), (2, 19, 16, 16))
                 self.assertTrue(torch.isfinite(logits).all())
                 logits.mean().backward()
                 self.assertTrue(
                     any(parameter.grad is not None for parameter in model.parameters())
+                )
+                self.assertIsNotNone(model.temporal_phenology_prior)
+                self.assertTrue(
+                    any(
+                        parameter.grad is not None
+                        for parameter in model.temporal_phenology_prior.parameters()
+                    )
                 )
                 self.assertTrue(cached_decoder_uses_temporal_features(config))
                 self.assertFalse(cached_decoder_uses_feature_pyramid(config))

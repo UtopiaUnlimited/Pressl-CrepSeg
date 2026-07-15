@@ -25,12 +25,18 @@ from models import (  # noqa: E402
     cached_decoder_uses_temporal_features,
 )
 from scripts.visualize_predictions import make_rgb_composite, render_triptych  # noqa: E402
-from utils import apply_cache_overrides, feature_cache_dir, load_config  # noqa: E402
+from utils import (  # noqa: E402
+    apply_cache_overrides,
+    apply_phenology_overlay,
+    feature_cache_dir,
+    load_config,
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
+    parser.add_argument("--phenology-config", default=None)
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", choices=["val", "test"], default="test")
     parser.add_argument("--cache-dir", default=None)
@@ -80,7 +86,7 @@ def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLo
 @torch.no_grad()
 def main() -> None:
     args = parse_args()
-    config = load_config(args.config)
+    config = apply_phenology_overlay(load_config(args.config), args.phenology_config)
     config = apply_cache_overrides(config, args.cache_format, args.temporal_dtype)
     cache_dir = args.cache_dir or feature_cache_dir(config, args.split)
     loader = build_loader(cache_dir, config, args.batch_size)

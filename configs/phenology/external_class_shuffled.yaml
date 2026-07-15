@@ -1,0 +1,8 @@
+run_suffix: external_class_shuffled
+
+phenology:
+  enabled: true
+  source: external_class_shuffled
+  path: data/priors/pastis_ext_prior_class_shuffled.csv
+  hidden_dim: 128
+  strength: 0.1
