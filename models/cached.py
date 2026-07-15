@@ -8,17 +8,22 @@ from models.decoders import (
     DPTSingleLayerDecoder,
     GalileoDPTDecoder,
     GalileoLinearProbeDecoder,
+    TEMPORAL_READOUT_DECODER_BASES,
     ThreeDAwareDPTDecoder,
+    TemporalReadoutDecoder,
     UPerNetDecoder,
 )
 from models.phenology import build_phenology_prior
 
 
-TEMPORAL_CACHED_DECODER_NAMES = {
+THREE_D_CACHED_DECODER_NAMES = {
     "3d_aware_dpt",
     "3d-aware-dpt",
     "three_d_aware_dpt",
 }
+TEMPORAL_CACHED_DECODER_NAMES = (
+    THREE_D_CACHED_DECODER_NAMES | set(TEMPORAL_READOUT_DECODER_BASES)
+)
 FEATURE_PYRAMID_CACHED_DECODER_NAMES = {
     "multi_layer_dpt",
     "multilayer_dpt",
@@ -63,11 +68,15 @@ class CachedFeatureSegmentation(nn.Module):
                     "This decoder needs a temporal_v2 cache with "
                     "temporal_features_by_layer and months."
                 )
-            temporal_features = temporal_features.to(device, non_blocking=True)
             months = months.to(device, non_blocking=True)
+            layer_indices = getattr(
+                self.decoder,
+                "temporal_layer_indices",
+                tuple(range(temporal_features.shape[1])),
+            )
             features = tuple(
-                temporal_features[:, layer_index]
-                for layer_index in range(temporal_features.shape[1])
+                temporal_features[:, layer_index].to(device, non_blocking=True)
+                for layer_index in layer_indices
             )
             return self.decoder(features, months=months, target_size=target_size)
 
@@ -95,18 +104,23 @@ def build_cached_feature_model(
     encoder_cfg = config.get("encoder", {})
     model_cfg = config["model"]
     decoder_name = str(model_cfg.get("decoder", "single_layer_dpt")).lower()
+    spatial_decoder_name = TEMPORAL_READOUT_DECODER_BASES.get(
+        decoder_name,
+        decoder_name,
+    )
     phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
-    if phenology_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
+    if phenology_enabled and decoder_name not in THREE_D_CACHED_DECODER_NAMES:
         raise ValueError(
-            "Phenology prior injection requires a cached decoder that preserves the temporal dimension."
+            "Phenology prior injection is currently implemented for 3d_aware_dpt; "
+            "temporal readout decoders are not yet wired to the prior side branch."
         )
-    if decoder_name in {"linear_probe", "linear", "lp"}:
+    if spatial_decoder_name in {"linear_probe", "linear", "lp"}:
         decoder = GalileoLinearProbeDecoder(
             in_channels=int(in_channels),
             num_classes=int(data_cfg["num_classes"]),
             output_patch_size=int(model_cfg.get("output_patch_size", 4)),
         )
-    elif decoder_name in {"single_layer_dpt", "single", "dpt"}:
+    elif spatial_decoder_name in {"single_layer_dpt", "single", "dpt"}:
         decoder = DPTSingleLayerDecoder(
             in_channels=int(in_channels),
             num_classes=int(data_cfg["num_classes"]),
@@ -114,7 +128,7 @@ def build_cached_feature_model(
             decoder_blocks=int(model_cfg.get("decoder_blocks", 3)),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
-    elif decoder_name in {"multi_layer_dpt", "multilayer_dpt"}:
+    elif spatial_decoder_name in {"multi_layer_dpt", "multilayer_dpt"}:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
         decoder = DPTMultiLayerDecoder(
             in_channels=int(in_channels),
@@ -125,7 +139,7 @@ def build_cached_feature_model(
             fusion_blocks=int(model_cfg.get("fusion_blocks", 1)),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
-    elif decoder_name in {
+    elif spatial_decoder_name in {
         "galileo_dpt",
         "galileo_adapted_dpt",
         "multiscale_dpt",
@@ -143,7 +157,7 @@ def build_cached_feature_model(
                 model_cfg.get("preserve_native_deep_skip", True)
             ),
         )
-    elif decoder_name in {"upernet", "upernet_style", "upernet-style"}:
+    elif spatial_decoder_name in {"upernet", "upernet_style", "upernet-style"}:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
         decoder = UPerNetDecoder(
             in_channels=int(in_channels),
@@ -154,7 +168,7 @@ def build_cached_feature_model(
             ppm_scales=tuple(model_cfg.get("ppm_scales", (1, 2, 3, 6))),
             dropout=float(model_cfg.get("dropout", 0.0)),
         )
-    elif decoder_name in TEMPORAL_CACHED_DECODER_NAMES:
+    elif decoder_name in THREE_D_CACHED_DECODER_NAMES:
         hidden_layers = tuple(encoder_cfg.get("hidden_layers") or ())
         decoder_channels = int(model_cfg.get("decoder_channels", 256))
         decoder = ThreeDAwareDPTDecoder(
@@ -181,4 +195,17 @@ def build_cached_feature_model(
         )
     else:
         raise ValueError(f"Unsupported decoder: {decoder_name}")
+
+    if decoder_name in TEMPORAL_READOUT_DECODER_BASES:
+        readout_cfg = model_cfg.get("temporal_readout", {})
+        configured_layers = tuple(encoder_cfg.get("hidden_layers") or ())
+        temporal_num_layers = int(num_layers or len(configured_layers))
+        decoder = TemporalReadoutDecoder(
+            spatial_decoder=decoder,
+            in_channels=int(in_channels),
+            num_layers=temporal_num_layers,
+            num_months=int(readout_cfg.get("num_months", 12)),
+            hidden_channels=readout_cfg.get("hidden_channels"),
+            dropout=float(readout_cfg.get("dropout", 0.0)),
+        )
     return CachedFeatureSegmentation(decoder=decoder)

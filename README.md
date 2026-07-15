@@ -8,13 +8,14 @@
 PASTIS Sentinel-2 time series
   -> Galileo 论文输入协议
   -> frozen Galileo encoder
-  -> early fusion: spacetime_mean shared cache
-  -> late fusion: online per-month hidden grids
+  -> spatial_v1: encoder 输出端固定 time mean（历史对照）
+  -> temporal_v2: 保留四层逐月上下文化特征
+  -> learned temporal readout / full 3D temporal decoder
   -> convolution / multi-layer / UPerNet / Galileo-DPT / 3D-Aware DPT
   -> 19-class semantic segmentation logits
 ```
 
-现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。方案一至四在 decoder 前对时间 token 求均值；方案五 `3d_aware_dpt` 使用冻结 Galileo 的四级逐月特征，在完整 3D DPT 多尺度融合后才消除时间维。当前推荐方案一至五读取对应共享缓存，方案五也保留原来的在线入口用于历史复现。
+现有 `single_layer_dpt` 与 `multi_layer_dpt` 是历史配置名，实际分别为最终层卷积 baseline 和多层同尺度融合 baseline，均不是完整 DPT。旧版方案一至四在 decoder 前对时间 token 固定求均值；新增版本从 `temporal_v2` 学习逐层、逐空间位置的月份权重，再进入相同二维空间 decoder。方案五 `3d_aware_dpt` 则在完整 3D DPT 多尺度融合后才消除时间维。
 
 ## 技术路线图
 
@@ -32,6 +33,7 @@ PASTIS Sentinel-2 time series
 - Galileo-Adapted 2D DPT（四级 learned reassemble + 渐进融合）
 - UPerNet-style decoder（PPM + FPN）
 - 3D-Aware DPT：3D Reassemble、final 原尺度时间旁路、全局/分解时空注意力、门控多尺度融合与时间查询池化
+- 方案一至四的月份感知可学习时间读出，以及对应的 `temporal_v2` 独立配置
 - 多层 Galileo 特征共享缓存
 - 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
@@ -131,6 +133,10 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_multi_layer_dpt_shared.yaml` | 使用共享缓存训练多层同尺度融合 baseline |
 | `configs/galileo_upernet_shared.yaml` | 使用共享缓存训练 UPerNet-style decoder |
 | `configs/galileo_adapted_dpt_shared.yaml` | 使用共享缓存训练带 final 原尺度旁路的方案四 Galileo-Adapted 2D DPT |
+| `configs/galileo_single_layer_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案一 |
+| `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案二 |
+| `configs/galileo_upernet_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案三 |
+| `configs/galileo_adapted_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案四 |
 | `configs/galileo_3d_aware_dpt.yaml` | 使用 T=12 缓存或在线冻结 Galileo，训练带时间旁路的 3D-Aware DPT |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
@@ -231,7 +237,7 @@ patch_id / sample_id / tile_id / tile_y / tile_x
 dates / months / aggregation_counts
 ```
 
-`temporal_v2` **不再重复保存** `features`、`features_by_layer` 或 `hidden_state`。最深一级使用经过 Galileo final normalization 的 `encoder_final`，使方案一能够恢复原来的最终特征；其余三级为 block 3/6/9。方案一至四加载时从 T 特征现场求均值，方案五直接使用完整 T。这里“不压缩 T”是指不做时间平均；文件仍使用 `np.savez_compressed` 做无损磁盘压缩。
+`temporal_v2` **不再重复保存** `features`、`features_by_layer` 或 `hidden_state`。最深一级使用经过 Galileo final normalization 的 `encoder_final`，其余三级为 block 3/6/9。旧版方案一至四配置读取这种缓存时仍可现场求时间均值，用作固定读出对照；新增的四份 `temporal_readout` 配置则把完整 T 交给可学习月份读出模块。方案五直接让完整 T 进入 3D decoder。这里“不压缩 T”是指不做时间平均；文件仍使用 `np.savez_compressed` 做无损磁盘压缩。
 
 生成命令：
 
@@ -251,7 +257,7 @@ data/cache/galileo-base-patch8/monthly12_tile64_patch4_hl3-6-9-12_temporal-v2_tf
 
 默认将 temporal feature 保存为 `float16`。单个样本的四级 T 特征原始大小约 18 MiB；真实 smoke 文件约 16.6 MiB，按全部 9,732 个子块估算约 157 GiB，实际总大小会随特征压缩率变化。若改用 `float32`，体积约翻倍；本地磁盘不足时应把 `data/cache` 链接到 Linux 服务器的大容量磁盘。
 
-因为新缓存不保存时间均值，方案一至四每次读取时都要解压 T 特征并现场求均值，I/O 会比旧缓存慢。已有空间 decoder 仍优先使用旧缓存；`temporal_v2` 的主要价值是让新一轮方案一至五在同一未压缩时间接口上做受控比较。
+因为新缓存不保存时间均值，读取时必须解压完整 T 特征，I/O 会比旧缓存慢。已有空间 decoder 仍可优先使用旧缓存复现实验；新一轮方案一至五则统一使用 `temporal_v2` 做受控比较。
 
 ## 训练 Decoder
 
@@ -281,17 +287,43 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_ad
 
 该方案直接读取共享缓存的 layer 3/6/9/12，将四个 `[B,768,16,16]` 特征 learned reassemble 为 `64/32/16/8` 四级金字塔。最深特征降到 `8x8` 只用于上下文分支；同一套投影与细化权重还会保留一份 final `16x16` 原尺度旁路，并把它注入 `16x16` 融合级，再由深到浅逐级恢复。它不重新运行 Galileo，也不覆盖方案一、二的日志和 checkpoint。
 
-上述旧命令默认读取 `spatial_v1`。方案一至四改用新缓存时，在原命令末尾添加：
+上述旧命令默认读取 `spatial_v1`。如需验证“同一新缓存现场均值是否能恢复旧接口”，可在原命令末尾添加：
 
 ```text
 --cache-format temporal_v2 --temporal-dtype float16
 ```
 
-例如方案四：
+例如方案四的固定均值对照：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_shared.yaml --cache-format temporal_v2 --temporal-dtype float16
 ```
+
+### 方案一至四：可学习月份读出
+
+新增的四个接口不再固定执行 `mean(T)`。Galileo 已经完成跨月份上下文化，月份读出模块只负责学习“当前空间位置更应该读取哪些月份”：
+
+```text
+[B, L, T, D, 16, 16]
+  -> channel LayerNorm + month embedding + layer embedding
+  -> 每层、每个空间位置预测 T 个分数
+  -> softmax(T) 后对逐月特征加权求和
+[B, L, D, 16, 16]
+  -> 原方案一 / 二 / 三 / 四的二维空间 decoder
+```
+
+时间打分器的末层采用全零初始化，因此训练开始时12个月权重均为 `1/12`，数学上等价于旧的时间均值；训练后才允许不同隐藏层、不同地块位置学习非均匀月份权重。方案一只读出 `encoder_final`，方案二至四分别读出四层后再进入原空间结构。该模块不重复执行完整时间 Transformer，也不改变 Galileo 权重。
+
+训练命令：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_single_layer_dpt_temporal_readout.yaml
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_multi_layer_dpt_temporal_readout.yaml
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_upernet_temporal_readout.yaml
+conda run -n presl python -B scripts/train_cached.py --config configs/galileo_adapted_dpt_temporal_readout.yaml
+```
+
+四份配置已经固定 `cache.format: temporal_v2` 和独立的日志、checkpoint 目录，不需要附加 `--cache-format`。默认 batch size 与各自旧配置一致；显存不足时可先在命令末尾添加 `--batch-size 2`，再按需要增加 `train.gradient_accumulation_steps` 维持有效 batch。
 
 3D-Aware DPT 使用 `temporal_v2` 后不再在线重复运行 Galileo：
 
@@ -323,7 +355,7 @@ conda run -n presl python -B scripts/train.py --config configs/galileo_3d_aware_
 
 该配置默认 physical batch 为 2、梯度累积 8 次，有效 batch 为 16。缓存训练和在线训练都只更新 3D-Aware DPT decoder，但缓存训练不再为每个 epoch 重复计算 Galileo。
 
-旧缓存和新缓存属于两条明确的实验记录。旧 checkpoint 继续配旧 `spatial_v1` 评估；使用 `temporal_v2` 派生特征的方案一至四应重新训练，不把新旧缓存结果混在一次受控对比中。
+旧缓存和新缓存属于两条明确的实验记录。旧 checkpoint 继续配旧 `spatial_v1` 评估；使用 `temporal_v2` 和可学习月份读出的方案一至四必须重新训练，不把新旧缓存结果混在一次受控对比中。
 
 ## 线性探测复现
 
@@ -354,7 +386,7 @@ conda run -n presl python -B scripts/sweep_linear_probe.py --config configs/gali
 
 ### 同协议线性 head 对照
 
-为了单独比较 decoder 结构，另提供一组只保留上述线性 head、其余设置与最终层卷积 baseline 相同的实验：batch size 16、CE+Dice、Prodigy、100 epoch，以及相同的 fold4 `val_mIoU` 早停规则。
+为了单独比较 decoder 结构，另提供一组只保留上述线性 head、其余设置与最终层卷积 baseline 相同的实验：batch size 16、CE+Dice、Prodigy 和 100 epoch。当前与其他配置一样关闭自动早停。
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py --config configs/galileo_linear_decoder_shared.yaml
@@ -364,7 +396,7 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_li
 
 ## 早停与模型保存
 
-方案一至五默认监控 fold4 `val_mIoU`：从第 10 个 epoch 起，连续 12 个 epoch 没有至少 `0.001` 的提升时停止。可在配置中修改：
+当前 `configs/` 下所有配置都关闭自动早停，训练会运行到 `train.epochs`，除非手动用 `Ctrl+C` 终止。早停机制仍保留；需要恢复时将对应配置改为：
 
 ```yaml
 train:
@@ -377,7 +409,7 @@ train:
     start_epoch: 10
 ```
 
-早停只减少无有效提升的后期训练，不改变最佳 checkpoint 的保存逻辑；它绝不能监控 fold5 test。已经启动的 Python 进程不会读取后来修改的配置，需要重启训练才会启用。
+早停只减少无有效提升的后期训练，不改变最佳 checkpoint 的保存逻辑；它绝不能监控 fold5 test。已经启动的 Python 进程不会读取后来修改的配置，需要重启训练才会应用新开关。`Ctrl+C` 是终止进程而不是可恢复暂停：已经完成验证的最佳 `best_val_loss.pt` 和 `best_val_miou.pt` 会保留，但当前未完成 epoch、`last.pt` 和最终曲线文件不保证写出。
 
 TensorBoard：
 
@@ -389,7 +421,7 @@ conda run -n presl tensorboard --logdir logs
 
 每轮验证还会从整个 fold4 的累计混淆矩阵计算像素准确率 `val_acc` 和宏平均 `val_f1`。其中 void/ignore 像素不参与统计，宏平均 F1 只平均在真值或预测中出现过的类别。训练控制台、TensorBoard 和 checkpoint 都会记录这两个指标。
 
-训练结束（包括触发早停）后，不依赖 TensorBoard，程序会在该实验的 `train.log_dir` 下自动写出原始 epoch 数据和曲线：
+正常训练结束（或重新启用后触发早停）后，不依赖 TensorBoard，程序会在该实验的 `train.log_dir` 下自动写出原始 epoch 数据和曲线：
 
 - `training_history.json`、`training_history.csv`
 - `train_loss.png`、`val_loss.png`

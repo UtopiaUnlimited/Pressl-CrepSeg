@@ -59,7 +59,7 @@ train:
   checkpoint_dir: checkpoints/galileo_linear_decoder_shared_paper_input_bs16_seed42
   save_best: true
   early_stopping:
-    enabled: true
+    enabled: false
     monitor: val_miou
     mode: max
     patience: 12

@@ -230,7 +230,7 @@ test_loss / test_mIoU / per-class IoU
 checkpoint 与 TensorBoard 路径
 ```
 
-方案一至五默认以 fold4 `val_mIoU` 早停：第 10 个 epoch 后，连续 12 个 epoch 没有至少 `0.001` 的提升便结束训练。训练同时保存最低 `val_loss` 的 `best_val_loss.pt` 与最高 `val_mIoU` 的 `best_val_miou.pt`；`best.pt` 保留为最低 loss checkpoint 的兼容名称。正式结果统一评估 `best_val_miou.pt` 并运行多个 seed。线性探测为复现论文固定训练 50 epoch，不启用早停，模型选择使用最后一轮。
+训练器支持按 fold4 `val_mIoU` 早停：第 10 个 epoch 后，连续 12 个 epoch 没有至少 `0.001` 的提升便结束训练；但当前 `configs/` 下所有配置均将该开关设为 `false`，由实验者手动决定何时终止。训练同时保存最低 `val_loss` 的 `best_val_loss.pt` 与最高 `val_mIoU` 的 `best_val_miou.pt`；`best.pt` 保留为最低 loss checkpoint 的兼容名称。正式结果统一评估 `best_val_miou.pt` 并运行多个 seed。线性探测为复现论文固定训练 50 epoch，模型选择使用最后一轮。
 
 ## 对比矩阵
 
