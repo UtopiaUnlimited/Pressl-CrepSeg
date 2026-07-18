@@ -42,7 +42,7 @@ SCHEME_RUNS = {
     "2": "galileo_multi_layer_dpt_shared_paper_input_bs16_rerun_seed42_cached",
     "3": "galileo_upernet_shared_paper_input_bs16_cached",
     "4": "galileo_adapted_dpt_native_skip_paper_input_bs16_seed42_cached",
-    "5": "galileo_3d_aware_dpt_native_skip_late_fusion_seed42_cached",
+    "5": "galileo_3d_aware_dpt_late_fusion_seed42",
 }
 
 
