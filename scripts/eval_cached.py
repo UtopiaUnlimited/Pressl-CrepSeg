@@ -28,6 +28,7 @@ from scripts.visualize_predictions import make_rgb_composite, render_triptych  #
 from utils import (  # noqa: E402
     apply_cache_overrides,
     apply_phenology_overlay,
+    apply_prior_injection_overlay,
     feature_cache_dir,
     load_config,
 )
@@ -37,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
     parser.add_argument("--phenology-config", default=None)
+    parser.add_argument("--prior-config", default=None)
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", choices=["val", "test"], default="test")
     parser.add_argument("--cache-dir", default=None)
@@ -87,6 +89,7 @@ def build_loader(cache_dir: str, config: dict, batch_size: int | None) -> DataLo
 def main() -> None:
     args = parse_args()
     config = apply_phenology_overlay(load_config(args.config), args.phenology_config)
+    config = apply_prior_injection_overlay(config, args.prior_config)
     config = apply_cache_overrides(config, args.cache_format, args.temporal_dtype)
     cache_dir = args.cache_dir or feature_cache_dir(config, args.split)
     loader = build_loader(cache_dir, config, args.batch_size)
@@ -105,7 +108,10 @@ def main() -> None:
 
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
     checkpoint = torch.load(args.checkpoint, map_location=device)
-    model.load_state_dict(checkpoint["model"])
+    model.load_state_dict(
+        checkpoint["model"],
+        strict=not bool(checkpoint.get("trainable_only", False)),
+    )
     model.to(device)
     model.eval()
 

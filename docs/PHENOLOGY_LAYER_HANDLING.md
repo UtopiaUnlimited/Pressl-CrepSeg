@@ -1,4 +1,6 @@
-# 多层 Galileo 特征中的物候先验处理
+# [REFERENCE] 多层 Galileo 特征与旧物候旁路边界
+
+> **状态说明（2026-07-18）：** 本文件用于理解 Galileo 多层/时间张量和旧旁路的设计边界；其中旧 Global Add 已被 decoder 前共享 CA-HPI 取代，decoder 内部不设置额外注入点。当前唯一执行规划见 [NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md](NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)。
 
 ## 1. 先把三个维度分开
 

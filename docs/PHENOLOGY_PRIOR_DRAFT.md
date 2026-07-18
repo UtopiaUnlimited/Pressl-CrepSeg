@@ -1,4 +1,6 @@
-# `P_ext` 先验草案说明
+# [REFERENCE] `P_ext` 先验草案与数据审计
+
+> **状态说明（2026-07-18）：** 本文件保留物候来源、数值生成和已有资产的审计信息。文中的 P0/P1/P2 命令属于旧 `Global Add` 流程，不再决定当前工作；已经完成的 P1/P2 基于 Single-layer Temporal Readout。当前方案见 [NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md](NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)。
 
 > 状态：研究草案，不是最终物候标注。数值用于验证“外部物候知识是否有增益”，不能直接解释为法国所有区域的精确月度概率。
 

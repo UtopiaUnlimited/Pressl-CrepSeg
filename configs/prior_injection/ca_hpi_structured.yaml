@@ -1,0 +1,29 @@
+run_suffix: ca_hpi_structured
+
+prior_injection:
+  enabled: true
+  method: ca_hpi
+  token_dim: 128
+
+  source:
+    kind: phenology_table
+    path: data/priors/pastis_ext_prior_draft.csv
+    default_confidence: 1.0
+    confidence_mapping:
+      high: 1.0
+      medium: 0.7
+      low: 0.4
+
+  encoder:
+    hidden_dim: 128
+    time_frequencies: 4
+    dropout: 0.0
+
+  fusion:
+    attention_dim: 128
+    num_heads: 4
+    gate_hidden_dim: 128
+    dropout: 0.1
+    confidence_bias_scale: 1.0
+    initial_strength: 0.0
+    learnable_strength: true

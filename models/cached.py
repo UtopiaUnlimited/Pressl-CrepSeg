@@ -16,7 +16,14 @@ from models.decoders import (
 from models.phenology import (
     PhenologyPriorAdapter,
     build_phenology_prior,
+    build_phenology_token_encoder,
     inject_temporal_phenology_prior,
+)
+from models.prior_injection import (
+    PriorTokenEncoder,
+    TemporalFeaturePyramidPriorInjection,
+    build_temporal_prior_injection,
+    prior_injection_enabled,
 )
 
 
@@ -57,10 +64,20 @@ class CachedFeatureSegmentation(nn.Module):
         self,
         decoder: nn.Module,
         temporal_phenology_prior: PhenologyPriorAdapter | None = None,
+        prior_token_encoder: PriorTokenEncoder | None = None,
+        pre_decoder_prior_injection: TemporalFeaturePyramidPriorInjection | None = None,
     ) -> None:
         super().__init__()
+        if (prior_token_encoder is None) != (pre_decoder_prior_injection is None):
+            raise ValueError(
+                "prior_token_encoder and pre_decoder_prior_injection must be enabled together."
+            )
+        if temporal_phenology_prior is not None and prior_token_encoder is not None:
+            raise ValueError("Legacy phenology and CA-HPI cannot be enabled together.")
         self.decoder = decoder
         self.temporal_phenology_prior = temporal_phenology_prior
+        self.prior_token_encoder = prior_token_encoder
+        self.pre_decoder_prior_injection = pre_decoder_prior_injection
 
     def forward(self, batch: dict) -> torch.Tensor:
         device = next(self.decoder.parameters()).device
@@ -92,6 +109,16 @@ class CachedFeatureSegmentation(nn.Module):
                 months,
                 self.temporal_phenology_prior,
             )
+            if self.prior_token_encoder is not None:
+                prior = self.prior_token_encoder(
+                    batch_size=features[0].shape[0],
+                    batch=batch,
+                )
+                features = self.pre_decoder_prior_injection(
+                    features,
+                    prior,
+                    layer_indices=tuple(int(index) for index in layer_indices),
+                )
             return self.decoder(features, months=months, target_size=target_size)
 
         if getattr(self.decoder, "expects_feature_pyramid", False):
@@ -123,9 +150,16 @@ def build_cached_feature_model(
         decoder_name,
     )
     phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
+    heterogeneous_prior_enabled = prior_injection_enabled(config)
+    if phenology_enabled and heterogeneous_prior_enabled:
+        raise ValueError("Legacy phenology and prior_injection are mutually exclusive.")
     if phenology_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
         raise ValueError(
             "Phenology prior injection requires a decoder that preserves the temporal dimension."
+        )
+    if heterogeneous_prior_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
+        raise ValueError(
+            "CA-HPI requires a decoder that consumes temporal feature pyramids."
         )
     if spatial_decoder_name in {"linear_probe", "linear", "lp"}:
         decoder = GalileoLinearProbeDecoder(
@@ -216,10 +250,20 @@ def build_cached_feature_model(
             hidden_channels=readout_cfg.get("hidden_channels"),
             dropout=float(readout_cfg.get("dropout", 0.0)),
         )
+
+    configured_num_layers = int(
+        num_layers or len(tuple(encoder_cfg.get("hidden_layers") or ()))
+    )
     return CachedFeatureSegmentation(
         decoder=decoder,
         temporal_phenology_prior=build_phenology_prior(
             config,
             feature_channels=int(in_channels),
+        ),
+        prior_token_encoder=build_phenology_token_encoder(config),
+        pre_decoder_prior_injection=build_temporal_prior_injection(
+            config,
+            feature_channels=int(in_channels),
+            num_layers=configured_num_layers,
         ),
     )

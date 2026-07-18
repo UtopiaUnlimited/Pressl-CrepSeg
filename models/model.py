@@ -14,7 +14,14 @@ from models.encoders import GalileoHFEncoder
 from models.phenology import (
     PhenologyPriorAdapter,
     build_phenology_prior,
+    build_phenology_token_encoder,
     inject_temporal_phenology_prior,
+)
+from models.prior_injection import (
+    PriorTokenEncoder,
+    TemporalFeaturePyramidPriorInjection,
+    build_temporal_prior_injection,
+    prior_injection_enabled,
 )
 
 
@@ -24,11 +31,21 @@ class GalileoDPTSegmentation(nn.Module):
         encoder: GalileoHFEncoder,
         decoder: nn.Module,
         temporal_phenology_prior: PhenologyPriorAdapter | None = None,
+        prior_token_encoder: PriorTokenEncoder | None = None,
+        pre_decoder_prior_injection: TemporalFeaturePyramidPriorInjection | None = None,
     ) -> None:
         super().__init__()
+        if (prior_token_encoder is None) != (pre_decoder_prior_injection is None):
+            raise ValueError(
+                "prior_token_encoder and pre_decoder_prior_injection must be enabled together."
+            )
+        if temporal_phenology_prior is not None and prior_token_encoder is not None:
+            raise ValueError("Legacy phenology and CA-HPI cannot be enabled together.")
         self.encoder = encoder
         self.decoder = decoder
         self.temporal_phenology_prior = temporal_phenology_prior
+        self.prior_token_encoder = prior_token_encoder
+        self.pre_decoder_prior_injection = pre_decoder_prior_injection
 
     def forward(self, batch: dict) -> torch.Tensor:
         encoded = self.encoder(batch["samples"])
@@ -47,6 +64,12 @@ class GalileoDPTSegmentation(nn.Module):
                 months,
                 self.temporal_phenology_prior,
             )
+            if self.prior_token_encoder is not None:
+                prior = self.prior_token_encoder(
+                    batch_size=features[0].shape[0],
+                    batch=batch,
+                )
+                features = self.pre_decoder_prior_injection(features, prior)
             return self.decoder(
                 features,
                 months=months,
@@ -70,9 +93,16 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
         "three_d_aware_dpt",
     }
     phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
+    heterogeneous_prior_enabled = prior_injection_enabled(config)
+    if phenology_enabled and heterogeneous_prior_enabled:
+        raise ValueError("Legacy phenology and prior_injection are mutually exclusive.")
     if phenology_enabled and not temporal_decoder:
         raise ValueError(
             "Phenology prior injection requires a decoder that preserves the temporal dimension."
+        )
+    if heterogeneous_prior_enabled and not temporal_decoder:
+        raise ValueError(
+            "CA-HPI requires a decoder that consumes temporal feature pyramids."
         )
     if temporal_decoder and not bool(encoder_cfg.get("freeze", True)):
         raise ValueError("3D-Aware DPT experiments require the Galileo encoder to stay frozen.")
@@ -171,5 +201,11 @@ def build_model(config: dict) -> GalileoDPTSegmentation:
         temporal_phenology_prior=build_phenology_prior(
             config,
             feature_channels=int(hidden_size),
+        ),
+        prior_token_encoder=build_phenology_token_encoder(config),
+        pre_decoder_prior_injection=build_temporal_prior_injection(
+            config,
+            feature_channels=int(hidden_size),
+            num_layers=len(tuple(encoder_cfg.get("hidden_layers") or ())),
         ),
     )

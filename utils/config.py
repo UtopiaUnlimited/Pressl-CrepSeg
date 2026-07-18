@@ -54,6 +54,45 @@ def apply_phenology_overlay(
     return merged
 
 
+def apply_prior_injection_overlay(
+    config: dict[str, Any],
+    overlay_path: str | Path | None,
+) -> dict[str, Any]:
+    """Attach a decoder-agnostic heterogeneous-prior specification."""
+
+    if overlay_path is None:
+        return config
+
+    source = Path(overlay_path)
+    overlay = load_config(source)
+    if not isinstance(overlay, dict):
+        raise ValueError(f"Prior injection overlay must be a mapping: {source}")
+    unexpected = set(overlay) - {"prior_injection", "run_suffix"}
+    if unexpected:
+        raise ValueError(
+            "Prior injection overlay may only define 'prior_injection' and "
+            f"'run_suffix', got {sorted(unexpected)} in {source}"
+        )
+    prior_injection = overlay.get("prior_injection")
+    if not isinstance(prior_injection, dict):
+        raise ValueError(
+            f"Prior injection overlay needs a 'prior_injection' mapping: {source}"
+        )
+
+    merged = copy.deepcopy(config)
+    merged["prior_injection"] = copy.deepcopy(prior_injection)
+
+    suffix = str(overlay.get("run_suffix") or source.stem)
+    train_cfg = merged.get("train")
+    if not isinstance(train_cfg, dict):
+        raise ValueError("Base config needs a train mapping for a prior injection overlay.")
+    for key in ("log_dir", "checkpoint_dir"):
+        value = train_cfg.get(key)
+        if value:
+            train_cfg[key] = f"{value}_prior_{suffix}"
+    return merged
+
+
 def merge_cli_overrides(config: dict[str, Any], args: Any) -> dict[str, Any]:
     if getattr(args, "batch_size", None) is not None:
         config["data"]["batch_size"] = args.batch_size

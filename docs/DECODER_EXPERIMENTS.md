@@ -478,27 +478,27 @@ configs/galileo_upernet_shared.yaml
 
 ## 2026-07-17 Temporal Readout 与物候消融 fold5 test 记录
 
-本节是项目正式实验数据记录。原始结果由组员汇总在 `test结果.md` 中，共包含四种 Temporal Readout 模型以及基于 Multi-layer DPT Temporal Readout 的 P1/P2 物候消融。六次评估均保存了 `1984` 张 fold5 test tile 预测。
+本节是项目正式实验数据记录。原始结果由组员汇总在 `test结果.md` 中，共包含四种 Temporal Readout 模型以及基于 Single-layer DPT Temporal Readout 的 P1/P2 物候消融。六次评估均保存了 `1984` 张 fold5 test tile 预测。
 
 实验名称按配置和现有 checkpoint 命名核对如下：
 
 | 简称 | 实验配置 | 先验设置 |
 | --- | --- | --- |
-| Single | `configs/galileo_single_layer_dpt_temporal_readout.yaml` | 无 |
-| Multi / P0 | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | 无 |
+| Single / P0 | `configs/galileo_single_layer_dpt_temporal_readout.yaml` | 无 |
+| Multi | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | 无 |
 | Adapted | `configs/galileo_adapted_dpt_temporal_readout.yaml` | 无 |
 | UPerNet | `configs/galileo_upernet_temporal_readout.yaml` | 无 |
-| P1 正确物候 | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | `configs/phenology/external.yaml` |
-| P2 类别置乱 | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | `configs/phenology/external_class_shuffled.yaml` |
+| P1 正确物候 | `configs/galileo_single_layer_dpt_temporal_readout.yaml` | `configs/phenology/external.yaml` |
+| P2 类别置乱 | `configs/galileo_single_layer_dpt_temporal_readout.yaml` | `configs/phenology/external_class_shuffled.yaml` |
 
-P1 的本地 checkpoint 目录为 `checkpoints/galileo_multi_layer_dpt_temporal_readout_seed42_phenology_external_cached/`，由此确认 P1/P2 的匹配无先验基线是 `Multi / P0`，不能与 3D-Aware DPT 记录混为一组。
+组内汇总确认，这批 P1/P2 的匹配无先验基线是 `Single / P0`。本地另有一个 `galileo_multi_layer_dpt_temporal_readout_seed42_phenology_external_cached` checkpoint 目录，但它不是这两条 test 结果的实验身份依据，不能据此改写组内汇总的模型映射。这批 Single 消融也不能与 3D-Aware DPT 记录混为一组。
 
 ### 总体指标
 
 | 实验 | Test loss | Test mIoU | Test accuracy | Test macro F1 | Saved predictions |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Single | 0.92940 | 0.54938 | 0.80589 | 0.68833 | 1984 |
-| Multi / P0 | 0.95581 | **0.56154** | **0.81030** | **0.69712** | 1984 |
+| Single / P0 | 0.92940 | 0.54938 | 0.80589 | 0.68833 | 1984 |
+| Multi | 0.95581 | **0.56154** | **0.81030** | **0.69712** | 1984 |
 | Adapted | 0.92311 | 0.54637 | 0.80904 | 0.68433 | 1984 |
 | UPerNet | **0.91416** | 0.54442 | 0.80342 | 0.68279 | 1984 |
 | P1 正确物候 | 0.91485 | 0.55316 | 0.80698 | 0.69155 | 1984 |
@@ -508,45 +508,45 @@ P1 的本地 checkpoint 目录为 `checkpoints/galileo_multi_layer_dpt_temporal_
 
 | 比较 | Δ loss | Δ mIoU | Δ accuracy | Δ macro F1 |
 | --- | ---: | ---: | ---: | ---: |
-| P1 正确物候 − Multi/P0 | -0.04096 | **-0.00838** | -0.00332 | -0.00557 |
-| P2 类别置乱 − Multi/P0 | -0.03558 | **-0.01370** | -0.00568 | -0.01009 |
+| P1 正确物候 − Single/P0 | -0.01455 | **+0.00378** | +0.00109 | +0.00322 |
+| P2 类别置乱 − Single/P0 | -0.00917 | **-0.00154** | -0.00127 | -0.00130 |
 | P1 正确物候 − P2 类别置乱 | -0.00538 | **+0.00532** | +0.00236 | +0.00452 |
 
-这里的 mIoU 差值使用绝对比例；例如 `+0.00532` 等于 `+0.532` 个百分点。结果表明，P1 在总体 mIoU 上比 P2 高 `0.532` 个百分点，但 P1 和 P2 都低于匹配的无先验 Multi/P0。当前单 seed test 只能记录为：**正确类别对应优于置乱对应，但现有 Global Add 物候旁路没有带来相对无先验基线的总体增益。** loss 与 mIoU 的排序并不一致，因此不能以较低 test loss 替代主要分割指标。
+这里的 mIoU 差值使用绝对比例；例如 `+0.00532` 等于 `+0.532` 个百分点。结果表明，P1 比匹配的 Single/P0 高 `0.378` 个百分点，并比 P2 高 `0.532` 个百分点；P2 则比 Single/P0 低 `0.154` 个百分点。当前单 seed test 可记录为：**正确物候在 Single Temporal Readout 上出现弱正信号，且正确类别对应优于置乱对应。** 但在补齐 fold4 validation、checkpoint 和多 seed 证据前，不能据此声称已有稳定增益。loss 与 mIoU 的排序并不一致，因此不能以较低 test loss 替代主要分割指标。
 
 ### 19 类 per-class IoU
 
 下表保持 `data/pastis.py` 中 `PASTIS_CLASS_NAMES` 的类别顺序，数值为原始 IoU 比例。
 
-| ID | 类别 | Single | Multi/P0 | Adapted | UPerNet | P1 正确 | P2 置乱 | P1−P0（pp） | P1−P2（pp） |
+| ID | 类别 | Single/P0 | Multi | Adapted | UPerNet | P1 正确 | P2 置乱 | P1−P0（pp） | P1−P2（pp） |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | Background | 0.72552 | 0.73349 | 0.73197 | 0.72278 | 0.72721 | 0.72537 | -0.63 | +0.18 |
-| 1 | Meadow | 0.62581 | 0.61716 | 0.62643 | 0.60311 | 0.62384 | 0.62686 | +0.67 | -0.30 |
-| 2 | Soft winter wheat | 0.79749 | 0.79116 | 0.80363 | 0.80027 | 0.79247 | 0.78443 | +0.13 | +0.80 |
-| 3 | Corn | 0.81835 | 0.82172 | 0.82114 | 0.81671 | 0.81623 | 0.81510 | -0.55 | +0.11 |
-| 4 | Winter barley | 0.66343 | 0.68536 | 0.65876 | 0.66274 | 0.64757 | 0.64828 | -3.78 | -0.07 |
-| 5 | Winter rapeseed | 0.83313 | 0.83483 | 0.83560 | 0.84032 | 0.84024 | 0.84143 | +0.54 | -0.12 |
-| 6 | Spring barley | 0.48458 | 0.48010 | 0.46404 | 0.40404 | 0.47047 | 0.45114 | -0.96 | +1.93 |
-| 7 | Sunflower | 0.54621 | 0.64480 | 0.58988 | 0.60207 | 0.59033 | 0.57793 | -5.45 | +1.24 |
-| 8 | Grapevine | 0.55059 | 0.53505 | 0.51970 | 0.49182 | 0.52512 | 0.52259 | -0.99 | +0.25 |
-| 9 | Beet | 0.81486 | 0.84216 | 0.81397 | 0.80618 | 0.82610 | 0.81975 | -1.61 | +0.63 |
-| 10 | Winter triticale | 0.29716 | 0.28534 | 0.31062 | 0.27798 | 0.30914 | 0.28703 | +2.38 | +2.21 |
-| 11 | Winter durum wheat | 0.53259 | 0.56191 | 0.54753 | 0.54905 | 0.54430 | 0.52884 | -1.76 | +1.55 |
-| 12 | Fruits, vegetables, flowers | 0.35398 | 0.36837 | 0.31025 | 0.32491 | 0.35563 | 0.34311 | -1.27 | +1.25 |
-| 13 | Potatoes | 0.42217 | 0.48306 | 0.37168 | 0.42169 | 0.45052 | 0.45818 | -3.25 | -0.77 |
-| 14 | Leguminous fodder | 0.29995 | 0.30259 | 0.29801 | 0.27541 | 0.28730 | 0.29316 | -1.53 | -0.59 |
-| 15 | Soybeans | 0.70842 | 0.75544 | 0.72655 | 0.74501 | 0.74097 | 0.72060 | -1.45 | +2.04 |
-| 16 | Orchard | 0.42105 | 0.39981 | 0.40103 | 0.41266 | 0.38138 | 0.38782 | -1.84 | -0.64 |
-| 17 | Mixed cereal | 0.29736 | 0.28819 | 0.30475 | 0.32317 | 0.32631 | 0.30757 | +3.81 | +1.87 |
-| 18 | Sorghum | 0.24560 | 0.23871 | 0.24540 | 0.26403 | 0.25491 | 0.26982 | +1.62 | -1.49 |
+| 0 | Background | 0.72552 | 0.73349 | 0.73197 | 0.72278 | 0.72721 | 0.72537 | +0.17 | +0.18 |
+| 1 | Meadow | 0.62581 | 0.61716 | 0.62643 | 0.60311 | 0.62384 | 0.62686 | -0.20 | -0.30 |
+| 2 | Soft winter wheat | 0.79749 | 0.79116 | 0.80363 | 0.80027 | 0.79247 | 0.78443 | -0.50 | +0.80 |
+| 3 | Corn | 0.81835 | 0.82172 | 0.82114 | 0.81671 | 0.81623 | 0.81510 | -0.21 | +0.11 |
+| 4 | Winter barley | 0.66343 | 0.68536 | 0.65876 | 0.66274 | 0.64757 | 0.64828 | -1.59 | -0.07 |
+| 5 | Winter rapeseed | 0.83313 | 0.83483 | 0.83560 | 0.84032 | 0.84024 | 0.84143 | +0.71 | -0.12 |
+| 6 | Spring barley | 0.48458 | 0.48010 | 0.46404 | 0.40404 | 0.47047 | 0.45114 | -1.41 | +1.93 |
+| 7 | Sunflower | 0.54621 | 0.64480 | 0.58988 | 0.60207 | 0.59033 | 0.57793 | +4.41 | +1.24 |
+| 8 | Grapevine | 0.55059 | 0.53505 | 0.51970 | 0.49182 | 0.52512 | 0.52259 | -2.55 | +0.25 |
+| 9 | Beet | 0.81486 | 0.84216 | 0.81397 | 0.80618 | 0.82610 | 0.81975 | +1.12 | +0.63 |
+| 10 | Winter triticale | 0.29716 | 0.28534 | 0.31062 | 0.27798 | 0.30914 | 0.28703 | +1.20 | +2.21 |
+| 11 | Winter durum wheat | 0.53259 | 0.56191 | 0.54753 | 0.54905 | 0.54430 | 0.52884 | +1.17 | +1.55 |
+| 12 | Fruits, vegetables, flowers | 0.35398 | 0.36837 | 0.31025 | 0.32491 | 0.35563 | 0.34311 | +0.16 | +1.25 |
+| 13 | Potatoes | 0.42217 | 0.48306 | 0.37168 | 0.42169 | 0.45052 | 0.45818 | +2.84 | -0.77 |
+| 14 | Leguminous fodder | 0.29995 | 0.30259 | 0.29801 | 0.27541 | 0.28730 | 0.29316 | -1.27 | -0.59 |
+| 15 | Soybeans | 0.70842 | 0.75544 | 0.72655 | 0.74501 | 0.74097 | 0.72060 | +3.26 | +2.04 |
+| 16 | Orchard | 0.42105 | 0.39981 | 0.40103 | 0.41266 | 0.38138 | 0.38782 | -3.97 | -0.64 |
+| 17 | Mixed cereal | 0.29736 | 0.28819 | 0.30475 | 0.32317 | 0.32631 | 0.30757 | +2.90 | +1.87 |
+| 18 | Sorghum | 0.24560 | 0.23871 | 0.24540 | 0.26403 | 0.25491 | 0.26982 | +0.93 | -1.49 |
 
-P1 相对 Multi/P0 只在 `6/19` 类上升：Meadow、Soft winter wheat、Winter rapeseed、Winter triticale、Mixed cereal 和 Sorghum。提升最大的是 Mixed cereal（`+3.81 pp`）和 Winter triticale（`+2.38 pp`）；下降最大的是 Sunflower（`-5.45 pp`）、Winter barley（`-3.78 pp`）和 Potatoes（`-3.25 pp`）。
+P1 相对 Single/P0 在 `11/19` 类上升。提升最大的是 Sunflower（`+4.41 pp`）、Soybeans（`+3.26 pp`）、Mixed cereal（`+2.90 pp`）和 Potatoes（`+2.84 pp`）；下降最大的是 Orchard（`-3.97 pp`）、Grapevine（`-2.55 pp`）和 Winter barley（`-1.59 pp`）。
 
-P1 相对 P2 在 `12/19` 类上升，其中 Winter triticale（`+2.21 pp`）、Soybeans（`+2.04 pp`）、Spring barley（`+1.93 pp`）和 Mixed cereal（`+1.87 pp`）差值最大；Sorghum（`-1.49 pp`）下降最大。这说明正确/置乱的知识内容对部分分类结果有影响，但不能抵消当前旁路对其他类别造成的损失。
+P1 相对 P2 在 `12/19` 类上升，其中 Winter triticale（`+2.21 pp`）、Soybeans（`+2.04 pp`）、Spring barley（`+1.93 pp`）和 Mixed cereal（`+1.87 pp`）差值最大；Sorghum（`-1.49 pp`）下降最大。这说明正确/置乱的知识内容会影响分类结果，但作用具有明显类别差异，仍需匹配验证集与多 seed 证据判断其稳定性。
 
 ### 19 类 per-class F1
 
-| ID | 类别 | Single | Multi/P0 | Adapted | UPerNet | P1 正确 | P2 置乱 |
+| ID | 类别 | Single/P0 | Multi | Adapted | UPerNet | P1 正确 | P2 置乱 |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 0 | Background | 0.84093 | 0.84626 | 0.84525 | 0.83909 | 0.84207 | 0.84083 |
 | 1 | Meadow | 0.76985 | 0.76326 | 0.77032 | 0.75242 | 0.76835 | 0.77064 |
@@ -572,8 +572,8 @@ P1 相对 P2 在 `12/19` 类上升，其中 Winter triticale（`+2.21 pp`）、S
 
 | 实验 | Output directory |
 | --- | --- |
-| Single | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_single_layer` |
-| Multi / P0 | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_multi_layer` |
+| Single / P0 | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_single_layer` |
+| Multi | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_multi_layer` |
 | Adapted | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_adapted_dpt` |
 | UPerNet | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_upernet` |
 | P1 正确物候 | `/exstorage/gis2026/pressl-cropseg-mirror/output/test_phenology_external` |
@@ -586,6 +586,7 @@ P1 相对 P2 在 `12/19` 类上升，其中 Winter triticale（`+2.21 pp`）、S
 | fold5 test 总体指标 | 已记录 |
 | 19 类 IoU/F1 | 已记录 |
 | 每组预测数量与输出目录 | 已记录 |
+| P1/P2 匹配骨干 | 组内确认是 Single-layer DPT Temporal Readout |
 | Seed | 配置和运行名称指向 `42`，正式归档仍应保存服务器命令 |
 | 精确 checkpoint 路径 | 原始结果文件未附带；需从服务器 test 命令或日志补齐 |
 | `best_val_miou.pt` 对应 epoch 与 fold4 val mIoU | 未提供 |

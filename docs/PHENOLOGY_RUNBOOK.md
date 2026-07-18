@@ -1,6 +1,8 @@
-# 物候先验训练运行手册
+# [LEGACY] Global Add 物候先验训练运行手册
 
-本手册是时间保留 Galileo 缓存与物候先验实验的唯一操作入口。研究设计见 [PHENOLOGY_RESEARCH_LOGIC.md](PHENOLOGY_RESEARCH_LOGIC.md)；这里仅说明如何可靠地运行、切换、评估和记录实验。
+> **历史手册（2026-07-18 标记）：** 本文件只用于复现旧 `Global Add` overlay，不再是当前方法的操作入口。已经完成的 P0/P1/P2 基于 **Single-layer Temporal Readout**；文中的 3D-Aware 命令是当时计划的通用模板，不代表已有 3D-Aware 物候结果。当前唯一执行规划见 [NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md](NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)。
+
+旧方法研究摘要见 [PHENOLOGY_RESEARCH_LOGIC.md](PHENOLOGY_RESEARCH_LOGIC.md)；以下内容保留其运行、切换和评估命令，以便审计历史 checkpoint。
 
 ## 1. 先确认三件事
 
@@ -142,7 +144,7 @@ conda run -n $envName python -B scripts/train_cached.py `
   --device cuda
 ```
 
-第一阶段推荐固定 `$decoder = "configs/galileo_3d_aware_dpt.yaml"` 跑 P0/P1/P2，先判断先验是否有效。之后若需要检验跨 decoder 泛化，只更换 `$decoder`，再重复相同的 P0/P1 或 P0/P1/P2 对照。
+这段命令当时曾计划以 `$decoder = "configs/galileo_3d_aware_dpt.yaml"` 跑 P0/P1/P2，但该计划没有形成当前台账中的 3D-Aware 物候结果。已经完成并记录的 P0/P1/P2 使用 Single-layer Temporal Readout。新 CA-HPI 不沿用本节的实验顺序。
 
 ## 6. 选择 checkpoint 与评估 test
 
@@ -156,7 +158,7 @@ best.pt           # 与旧流程兼容，指向最佳 val loss
 
 因此应根据验证集 mIoU 选择 `best_val_miou.pt`，不要根据 test 结果挑 checkpoint。test 只在训练方案和 checkpoint 已固定后运行一次。
 
-以 P1 为例，缓存训练的 checkpoint 目录是：
+以下是旧计划中以 3D-Aware P1 为例的**目录模板**，不能据此推断服务器上存在对应 checkpoint：
 
 ```text
 checkpoints/galileo_3d_aware_dpt_native_skip_late_fusion_seed42_phenology_external_cached/

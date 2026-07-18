@@ -17,6 +17,7 @@ from models import build_model  # noqa: E402
 from train import Trainer, build_optimizer, build_scheduler  # noqa: E402
 from utils import (  # noqa: E402
     apply_phenology_overlay,
+    apply_prior_injection_overlay,
     load_config,
     merge_cli_overrides,
     seed_everything,
@@ -27,6 +28,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
     parser.add_argument("--phenology-config", default=None)
+    parser.add_argument("--prior-config", default=None)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--max-train-batches", type=int, default=None)
@@ -54,6 +56,7 @@ def build_loader(config: dict, split: str, shuffle: bool) -> DataLoader:
 def main() -> None:
     args = parse_args()
     config = apply_phenology_overlay(load_config(args.config), args.phenology_config)
+    config = apply_prior_injection_overlay(config, args.prior_config)
     config = merge_cli_overrides(config, args)
     seed_everything(int(config.get("seed", 42)))
 

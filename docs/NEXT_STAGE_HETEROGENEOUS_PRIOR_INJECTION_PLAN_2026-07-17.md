@@ -1,414 +1,358 @@
-# 后半阶段核心规划：面向视觉任务的异构先验知识注入
+# 当前唯一执行规划：内容感知的异构先验知识注入
 
-日期：2026-07-17
+状态：**CURRENT / 后半阶段唯一总规划**
 
-任务背景：基于 frozen Galileo 多时相特征的 PASTIS 作物语义分割
+首次整理：2026-07-17
 
-规划依据：助教对后半阶段研究目标的进一步解耦与指导
+最后更新：2026-07-18
 
-## 1. 方向调整
+任务：基于 frozen Galileo 多时相特征的 PASTIS 作物语义分割
 
-现有基线、Temporal Readout、3D-Aware DPT、分类别指标和可视化已经构成完整的研究基础。后半阶段不再以继续堆叠 decoder 或单纯刷新 mIoU 为核心目标，而是集中回答：
+> 本文件决定“接下来做什么”。若其他规划、讲稿或旧运行手册与本文冲突，以本文为准。文档状态见 [README.md](README.md)。
 
-> 如何把文本、结构化表格或 metadata 形式的异构先验，稳定、可解释并可复用地注入视觉神经网络？
+## 1. 已经冻结的方向
 
-作物物候是这个通用问题在当前任务上的具体实例。项目需要同时完成两个层面：
+### 1.1 核心目标
 
-1. **共性：** 建立统一的异构先验编码和视觉特征融合范式，使模块不依赖某一个 decoder，也不局限于遥感任务。
-2. **个性：** 将作物类别、月份、物候阶段、置信度和文本描述转化为适合作物分割的可学习表示，并处理物种差异、混合类别、物候漂移和弱判别特征。
+后半阶段不再以继续设计 decoder、刷最高 mIoU 或单独修补几个困难类别为核心目标。需要解决的研究问题是：
 
-之前提出的困难类别诊断、类别均衡和多原型分析仍然保留，但降为任务诊断与扩展支线，不再取代“异构先验注入”这条核心主线。
+> 如何把数值 metadata、离散属性和文本知识等异构先验，转化为统一表示，并根据视觉内容稳定、可解释、可复用地注入神经网络？
 
-## 2. 核心研究问题与预期贡献
+作物物候是验证这一通用方法的任务实例，而不是方法本身。项目必须同时体现：
 
-### 2.1 核心研究问题
+- **共性：** 一套不写死 PASTIS、19 类、Galileo 或某个 decoder 的先验接口与融合模块；
+- **个性：** 把作物的类别、月份、物候阶段、知识强度、置信度和未知状态组织成可学习知识。
 
-后半阶段围绕四个问题展开：
+### 1.2 固定视觉基线
 
-1. 不同数据形式的先验怎样映射到统一表示空间？
-2. 全局先验怎样根据图像内容，对不同时间、空间位置和类别产生不同作用？
-3. 怎样证明性能变化来自正确知识，而不是额外参数、普通月份编码或随机条件分支？
-4. 怎样让同一个先验模块以较小改动接入不同视觉网络和不同任务？
-
-### 2.2 预期贡献
-
-项目最终应形成三层贡献：
-
-- **通用接口贡献：** 将 numeric metadata、categorical metadata 和 text description 转为统一的 prior tokens。
-- **通用融合贡献：** 设计带内容相关性、置信度和残差门控的先验注入模块。
-- **任务化贡献：** 将作物物候表示为类别—时间—阶段—置信度知识，并验证它在多时相作物分割中的作用边界。
-
-最终叙事不要求“任何先验一定提升精度”，而要求能够回答：什么知识、通过什么机制、在什么条件下会被视觉模型有效利用。
-
-## 3. 总体框架
-
-建议将框架暂命名为 `Heterogeneous Prior Injection (HPI)`，计算流程为：
+主开发骨干固定为：
 
 ```text
-Raw heterogeneous prior
-  ├─ structured numeric metadata
-  ├─ categorical metadata
-  └─ text description
-            ↓
-        Prior Encoder
-            ↓
-Prior Tokens [B, Np, Dp] + mask + confidence + type
-            ↓
-   Projection to vision dimension
-            ↓
-Content-aware Gated Fusion Block
-            ↓
-Vision features / temporal features / logits
-            ↓
-          Task Head
+frozen Galileo temporal_v2 features
+  -> 3D-Aware DPT (native deep skip)
+  -> segmentation logits
 ```
 
-通用框架只规定统一的 token 接口和融合方式。PASTIS 物候任务负责产生具体的 prior tokens，但不能把作物类别、月份表或 Galileo hidden size 写死在通用模块内部。
+选择它是因为它是当前项目结果最好的结构。之后除非发现实现错误，不再把“换 decoder”当成研究进展。`Temporal Readout + Multi-layer DPT` 只在方法成熟后承担跨结构验证。
 
-### 3.1 统一先验接口
+### 1.3 旧实验的准确定位
 
-建议每批先验统一表示为：
+- 已完成的 P0/P1/P2 基于 **Single-layer Temporal Readout**，不是 3D-Aware DPT。
+- P1/P2 使用的是旧 `Global Add` 旁路：把类别—月份向量编码后在 Galileo 特征边界全局广播相加。
+- 这些结果只说明旧注入方式存在很弱的可研究信号，完整数据见 [DECODER_EXPERIMENTS.md](DECODER_EXPERIMENTS.md)。
+- **下一步不是把旧 P1/P2 原样搬到 3D-Aware 上重跑。** 旧方案只作为历史基线和失败诊断，资源优先用于新的注入方法。
+
+## 2. 方法定义：CA-HPI
+
+新方法暂命名为：
+
+> **Content-Aware Heterogeneous Prior Injection（CA-HPI，内容感知异构先验注入）**
+
+它由“统一先验编码”和“内容感知门控融合”两部分组成：
 
 ```text
-prior_tokens:     [B, Np, Dp]
-prior_mask:       [B, Np]
-prior_confidence: [B, Np]
-prior_type:       [B, Np]
-prior_entity_id:  [B, Np]  # 可选，例如 crop class id
-prior_time_id:    [B, Np]  # 可选，例如 calendar month
+numeric / categorical / text prior
+                ↓
+       modality-specific adapters
+                ↓
+ PriorBatch: tokens + mask + confidence + type
+                ↓
+visual tokens query the complete prior token set
+                ↓
+ confidence-aware cross-attention + zero-init gate
+                ↓
+         residual visual features
 ```
 
-接口允许不同任务只替换 `Prior Encoder`，而复用后续融合模块。
+创新重点不是“多加一个 metadata MLP”，而是让不同位置和月份的视觉特征主动选择相关知识，并显式处理知识类型、缺失项和可信度。
 
-### 3.2 三类基础编码器
+### 2.1 通用输入接口
 
-第一版优先支持三类输入：
-
-1. **连续数值与时间：** 使用归一化数值、正弦/Fourier 时间编码和 MLP。
-2. **离散 metadata：** 使用 categorical embedding，例如类别、地区、传感器或阶段类型。
-3. **文本描述：** 使用冻结文本编码器或离线生成的文本 embedding，再投影到统一维度。
-
-助教提到的“正弦编码 + MLP”可作为结构化 metadata 的工程起点；其提及的 DiffusionSat 类工作可作为后续文献检索线索，但正式引用前需要核对准确论文名称和实现。
-
-## 4. 通用融合模块设计
-
-当前实现把某个月的完整类别向量经过 MLP 后广播到所有空间位置。它可以作为最简单的 `Global Add` 基线，但存在两个局限：
-
-- 同一个月份残差对所有像素相同，不能根据图像内容选择相关知识；
-- 自由 MLP 可能把正确、置乱或随机先验重新编码成普通条件向量，使“知识内容是否正确”不容易被严格识别。
-
-因此建议按由简到难的顺序比较四种融合方式。
-
-### 4.1 F0：Global Add
+通用模块只接收以下批数据，不直接读取 CSV、作物名称或数据集配置：
 
 ```text
-F' = F + alpha * Project(GlobalPrior)
+prior_tokens:      [B, Np, Dp]
+prior_mask:        [B, Np]       # True 表示有效 token
+prior_confidence:  [B, Np]       # [0, 1]
+prior_type_id:     [B, Np]       # numeric / categorical / text / ...
+prior_entity_id:   [B, Np]       # 可选，如类别、患者、地区
+prior_time:        [B, Np, Kt]   # 可选，如月份、日期、热时间
 ```
 
-作用：保留现有实现，作为最低复杂度融合基线。
+约束：
 
-### 4.2 F1：FiLM / AdaLN
+- `Np`、`Dp`、类别数和时间长度可变；
+- 缺失知识使用 mask，不以伪造的确定数值填充；
+- confidence 是模型可见的输入，也是 attention bias 的组成部分；
+- 任务相关的数据读取与通用融合块分离。
+
+### 2.2 异构先验编码
+
+第一版支持三种适配器，并统一输出 prior token：
+
+| 输入 | 编码方式 | 例子 |
+| --- | --- | --- |
+| 连续值 / 周期时间 | 归一化 + Fourier/正弦编码 + MLP | 月份、经纬度、物候强度、置信度 |
+| 离散 metadata | embedding + MLP | 类别、阶段、地区、传感器类型 |
+| 文本知识 | 冻结或离线 text embedding + projection | 作物阶段描述、不确定性说明 |
+
+第一轮只实现结构化输入；文本编码器不参与端到端训练。这样可以先检验融合机制，再判断文本是否提供额外信息。
+
+### 2.3 内容感知门控融合
+
+视觉特征 `F ∈ R^(B×D×T×H×W)` 展平为 `V ∈ R^(B×Nv×D)`，其中 `Nv=T×H×W`。视觉 token 作为 query，完整先验库作为 key/value：
 
 ```text
-gamma, beta = MLP(PriorTokens)
-F' = gamma * Norm(F) + beta
+Q = Wq LN(V)
+K = Wk PriorTokens
+U = Wv PriorTokens
+
+A = softmax(QK^T / sqrt(d)
+            + log(confidence + eps)
+            + mask_bias)
+
+Delta = Wo(AU)
+gate  = sigmoid(MLP([LN(V), Delta]))
+Vout  = V + tanh(alpha) * gate * Delta
 ```
 
-作用：检验先验作为全局条件调制视觉特征是否优于直接相加。实现简单，适合作为第一个新模块。
+其中 `alpha` 是零初始化的可学习标量。它保证：
 
-### 4.3 F2：Gated Cross-Attention
+1. 模块刚接入时严格退化为原 decoder 输入和无先验基线；
+2. 模型可按位置和月份决定是否使用知识；
+3. 低置信度与缺失 token 不会被当作强知识；
+4. 可以记录 attention、gate 和 residual norm，检查先验是否真的被使用。
+
+推理阶段始终向每个视觉 token 提供完整先验库，禁止用像素真实类别选择先验，因此不存在标签泄漏。
+
+### 2.4 唯一注入位置：decoder 前公共特征边界
+
+CA-HPI 只放在 Galileo temporal feature pyramid 与 decoder 之间：
 
 ```text
-Q = Wq * VisionTokens
-K, V = Wk/Wv * PriorTokens
-A = softmax(QK^T / sqrt(d) + confidence_bias + mask)
-DeltaF = Wo * (A V)
-F' = F + sigmoid(g(F, DeltaF)) * DeltaF
+Galileo / temporal_v2
+  -> F[l] [B,T,D,H,W], l = 1...L
+  -> shared CA-HPI + layer embedding + zero-init alpha[l]
+  -> F'[l] [B,T,D,H,W]
+  -> any time-preserving decoder
 ```
 
-作用：让每个图像位置根据自身内容选择相关先验 token，是建议的核心方案。
+四层共享同一套 prior encoder、Q/K/V 和 gate，只保留 layer embedding 与逐层残差强度。这样先验模块不读取、也不修改 3D-Aware、Temporal Readout、DPT 或 UPerNet 的内部结构。
 
-设计要求：
+这里保留的是 decoder 前位置，废弃的是旧 `Global Add` 机制：旧方法把同一个 768 维残差广播到全部空间位置；CA-HPI 则让每个时空视觉 token 查询完整先验库，再通过 confidence-aware gate 决定残差。
 
-- gate 初始强度较小或采用零初始化残差，保证接入时不会破坏已有视觉分支；
-- attention 支持 prior mask 和 confidence bias；
-- 模块同时支持二维特征 `[B,D,H,W]` 和时间特征 `[B,T,D,H,W]`；
-- 不读取像素真实类别，避免标签泄漏；
-- 输出维度与输入视觉特征一致，使其可插拔到不同 decoder 前。
+当前不实现 decoder 内部 8×8 注入，不做注入位置消融，也不在输入端、decoder 内部和 logits 端叠加多套模块。
 
-### 4.4 F3：Decision Fusion
+### 2.5 方法的通用性边界
+
+CA-HPI 不包含以下任务常量：
+
+- PASTIS 的 19 类映射；
+- 固定 12 个月；
+- Galileo 的 768 维；
+- 某个 decoder 的内部通道数和模块布局；
+- 某张物候 CSV 的字段名。
+
+新任务只需要实现自己的 prior adapter，并提供 `[B,Np,Dp]`、mask 和 confidence。视觉侧只需把 decoder 接收的时间特征金字塔交给公共前置模块。
+
+### 2.6 拟验证的组合创新点
+
+CA-HPI 不是把 cross-attention 换一个名字。相对现有简单方案，项目需要验证以下组合是否真正成立：
+
+- 相对 Global Add：从“同月知识广播给全部像素”变为“每个视觉时空 token 选择知识”；
+- 相对普通 FiLM：从单个全局条件向量扩展为可变长、多类型、带 mask/confidence 的知识集合；
+- 相对普通 cross-attention：增加知识置信度偏置、unknown 处理和严格零初始化回退；
+- 相对只面向 PASTIS 的模块：把通用接口与作物物候 task adapter 分开；
+- 相对只报告有/无先验：用 random、class-shuffled 和 month-shifted 证明正确知识内容的作用。
+
+这些是待实验支持的方法贡献，不在结果出来前宣称优于已有工作；正式新颖性还需结合 [相关论文调研](RELATED_WORK_HETEROGENEOUS_PRIOR_INJECTION_2026-07-17.md) 继续核对。
+
+## 3. 物候任务实例如何定义
+
+### 3.1 物候 token
+
+每条知识不再只是 `P[class, month]` 中的一个无来源分数，而定义为：
 
 ```text
-logits = image_logits + lambda * prior_conditioned_logits
-```
-
-作用：把先验影响限制在最终决策层，作为 feature fusion 的对照。任务相关部分与通用 HPI block 分开实现。
-
-## 5. 作物物候的任务化表示
-
-### 5.1 不再只使用一张类别—月份分数表
-
-物候知识建议拆成以下字段：
-
-```text
-crop class
-calendar month
+class / entity
+calendar time
 phenological stage
-relative discriminative value
+knowledge value
 source confidence
-regional applicability
-text description
-valid / unknown mask
+scope / region
+valid-or-unknown mask
+optional text description
 ```
 
-每个 token 可以写为：
+当前已实现的 R1 结构化 token 为：
 
 ```text
-z(c,m,s) = E_class(c)
-         + E_time(m)
-         + E_stage(s)
-         + MLP(value, confidence)
-         + Project(text_embedding)
+z(c,m) = E_entity(c)
+       + Fourier(month_m)
+       + MLP(value)
+       + MLP(confidence)
+       + E_type
 ```
 
-未知字段通过 mask 表达，不能用强行填充的确定值伪装成可靠知识。
+`E_stage(s)`、scope 和文本 projection 属于 R2–R4，尚未混入 R1，避免第一轮同时改变融合机制和知识表示。
 
-### 5.2 处理类别内部异质性
+`E_entity` 在所有正确、随机、置乱和月份偏移实验中保持同一套参数；对照只改变知识内容或其对应关系，避免把额外类别 embedding 误判为物候收益。
 
-对于 `Fruits, vegetables, flowers`、`Leguminous fodder`、`Mixed cereal` 等聚合类别，不使用单一确定曲线。可选方案为：
+### 3.2 不确定类别
 
-- 多个物候 token 或多个子原型；
-- 较低 confidence；
-- 宽时间窗口；
-- unknown mask；
-- 文本中显式保留“多物种、管理方式不确定”等描述。
+对聚合、多年生或资料不可靠类别，不强行制作尖锐的单峰曲线：
 
-对于 `Meadow`、`Grapevine`、`Orchard` 等长期覆盖或多年生类别，应允许模型降低时间先验权重，避免用不适合的季节曲线强行调制视觉特征。
+- 聚合类别允许多个 token / 多个候选阶段；
+- 多年生类别使用宽时间窗或低 confidence；
+- 未知阶段设置 mask；
+- 文本可保留“多物种、管理方式或地区不确定”等语义；
+- gate 应允许视觉模型忽略无帮助的时间知识。
 
-### 5.3 类别身份必须与输出语义对齐
+### 3.3 类别选择与标签泄漏
 
-推理阶段不知道像素真实类别，因此不能按标签选择先验。建议让图像 token 同时关注完整的类别先验库，由内容相关 attention 选择相关 token。
+模型看见的是所有类别的物候 token，而不是真实像素类别。视觉 query 根据图像内容选择 token。per-class 结果只用于训练后的分析，不能反向决定测试像素使用哪条曲线。
 
-同时需要避免一个完全自由的 MLP 把 class-shuffled prior 的行置换重新吸收。可采用以下约束之一：
+## 4. 实验设计
 
-- `prior_entity_id` 与分割分类器的类别 prototype 共享或显式对齐；
-- 在 decision branch 中固定“第 c 类证据只与第 c 类先验融合”的对角对应；
-- 冻结部分先验编码器，并只学习通用投影；
-- 将正确与置乱关系直接作用于 attention mask 或 logit bias，而不是只作为 MLP 输入。
+### 4.1 第一轮只比较三件事
 
-该约束是 P1/P2 消融具有解释性的前提。
+所有新实验固定 3D-Aware DPT、`temporal_v2`、数据划分、loss、优化器、seed 和 checkpoint 规则：
 
-## 6. 最小实验矩阵
-
-### 6.1 固定开发骨干
-
-后续模块开发只固定一个稳定且训练成本可控的时间模型，建议优先使用：
-
-```text
-Temporal Readout + Multi-layer DPT
-```
-
-原因是其时间模块与空间 decoder 边界清晰，适合插入统一先验模块。完成模块筛选后，只把最佳方案迁移到一个结构不同的模型，例如 `3D-Aware DPT` 或 `Temporal Readout + UPerNet`，用于验证可插拔性。
-
-### 6.2 融合机制比较
-
-| 编号 | 视觉骨干 | 先验 | 融合方式 | 研究目的 |
-| --- | --- | --- | --- | --- |
-| H0 | 固定 | 无 | 无 | 严格基线 |
-| H1 | 固定 | 正确 numeric prior | Global Add | 复现当前方案 |
-| H2 | 固定 | 正确 numeric prior | FiLM/AdaLN | 检验条件调制 |
-| H3 | 固定 | 正确 numeric prior | Gated Cross-Attention | 核心候选 |
-| H4 | 固定 | 正确 numeric prior | Decision Fusion | 决策层对照 |
-
-先用 seed 42 在 fold4 validation 初筛。只选择一个最佳融合方案进入后续先验表示和多 seed 实验。
-
-### 6.3 先验表示比较
-
-固定最佳融合模块后，再比较：
-
-| 编号 | 先验表示 | 目的 |
+| 编号 | 方法 | 目的 |
 | --- | --- | --- |
-| R1 | numeric class-month curve | 结构化数值基线 |
-| R2 | class-month-stage-confidence tokens | 加入物候结构和不确定性 |
-| R3 | text description embedding | 检验文本知识条件 |
-| R4 | structured + text | 检验混合异构知识 |
+| B0 | 3D-Aware DPT，无先验 | 匹配协议的主基线 |
+| B1 | 3D-Aware + FiLM structured prior | 标准 metadata 调制基线 |
+| M1 | 3D-Aware + CA-HPI structured prior | proposed method |
 
-第一阶段不同时训练大型语言模型。文本编码器优先冻结或离线预计算，避免把增益混同为额外模型容量。
+旧 Single-layer Global Add 的 P0/P1/P2 作为 `Legacy` 结果引用，不列入新的首轮训练清单。若后续论文必须做架构匹配的 Global Add 比较，再作为补充对照，而不是当前阻塞项。
 
-## 7. 必须保留的反事实对照
+### 4.2 M1 必须通过的反事实对照
 
-只比较“有先验/无先验”不足以支持知识注入有效。每个候选融合方案至少需要：
-
-| 对照 | 设置 | 排除的解释 |
+| 对照 | 改变内容 | 排除的解释 |
 | --- | --- | --- |
-| C0 | 无先验、无模块 | 视觉基线 |
-| C1 | 正确先验 | 目标实验 |
-| C2 | 相同参数量 + random tokens | 额外容量 |
-| C3 | class-shuffled prior | 正确类别对应关系 |
-| C4 | month-shifted prior | 正确时间对应关系 |
-| C5 | uniform / unknown prior | 普通条件偏置 |
-| C6 | strength=0 或 gate=0 | 数值回退一致性 |
+| C0 | 无模块 | 原视觉基线 |
+| C1 | module on，训练与评估均固定 `alpha=0` | 数值回退与接线错误 |
+| C2 | 正确 structured prior | 目标实验 |
+| C3 | 相同形状 random tokens | 额外参数/条件分支 |
+| C4 | class-shuffled prior | 正确类别—知识对应 |
+| C5 | month-shifted prior | 正确时间关系 |
+| C6 | uniform / unknown prior | 普通全局偏置 |
+| C7 | 正确 prior，但 confidence 全部置 1 | confidence 是否有贡献 |
 
-成功标准不仅是 `C1 > C0`，而是正确先验需要同时优于随机、类别置乱和月份偏移先验。否则只能说明“增加条件分支可能有用”，不能说明知识内容被有效利用。
+第一轮 seed 42 只用于筛除明显无效设计。不能根据前几个 epoch 判断成败，也不能看 fold5 test 选模块。候选固定后补 seed 43/44，最后一次性评估 test。
 
-## 8. 评价体系
+### 4.3 融合机制通过后再比较先验形式
 
-### 8.1 任务性能
+| 编号 | 先验形式 | 回答的问题 |
+| --- | --- | --- |
+| R1 | class-month numeric curve | 最小结构化知识是否可用 |
+| R2 | class-month-stage-value-confidence | 显式阶段与不确定性是否有用 |
+| R3 | frozen text description embedding | 文本知识是否提供独立信息 |
+| R4 | structured + text | 异构知识是否互补 |
 
-- validation/test mIoU、macro F1、loss；
-- 19 类 per-class IoU/F1；
-- 季节性类别、长期覆盖类别和聚合类别的分组指标；
-- 混淆矩阵和固定样本错误图。
+不要在首轮同时更换融合机制和先验形式，否则无法判断增益来源。
 
-### 8.2 先验是否真正被使用
+### 4.4 可插拔性作为接口验收
 
-- 正确、置乱、随机、月份偏移先验之间的差异；
-- gate 均值、方差和不同层的强度；
-- image-to-prior attention 的类别、月份和空间分布；
-- prior residual 相对 vision feature 的范数比例；
-- 把 prior 替换为 uniform 后输出 logits 的变化。
+代码接口从第一版就必须让同一个 CA-HPI overlay 接到 3D-Aware 和各 Temporal Readout 路线，且：
 
-### 8.3 通用性
+- `PriorBatch`、prior encoder、Q/K/V 和 gate 完全复用；
+- decoder 内部不增加任何 CA-HPI 专用代码；
+- Single 只处理其实际消费的 final layer，Multi/UPerNet/3D-Aware 处理各自消费的层集合；
+- 正式方法筛选仍固定 3D-Aware，其他结构只做接口验证或最终泛化实验。
 
-- 同一 HPI block 是否能接入至少两个不同 decoder；
-- numeric metadata 和 text embedding 是否共用相同 token 接口；
-- 参数量、显存和训练时间增量；
-- 缺失字段、低置信度或部分月份缺失时是否仍能运行。
+## 5. 如何判定研究是否成功
 
-### 8.4 鲁棒性场景
+本项目不以“mIoU 一定大幅提升”为唯一成功标准，证据分三级：
 
-在完整数据实验后，可加入两个更需要先验的受控场景：
+### 强证据
 
-1. 随机缺失部分月份；
-2. 只使用部分训练样本。
+- 正确先验稳定优于无先验、random、class-shuffled 和 month-shifted；
+- 多 seed 方向一致；
+- attention/gate 显示不同视觉内容选择不同知识；
+- 同一接口支持至少两种先验形式，并能接入第二个视觉结构。
 
-如果先验只在信息不足时有效，也属于明确且合理的结论。
+### 有限但成立的证据
 
-## 9. 两条分工线
+- 总体 mIoU 接近，但预先定义的季节性类别、缺失月份或少样本场景稳定受益；
+- 正确先验仍明显优于错误先验；
+- 模型能对低 confidence、unknown 或多年生类别自动降低 gate。
 
-### A. 共性：通用异构先验注入
+### 负结果
 
-负责内容：
+- 正确先验与 random/shuffled/shifted 无稳定差异；或
+- 增益完全来自参数量和条件分支；或
+- gate 长期接近零，说明完整视觉时序已经覆盖这部分知识。
 
-- 图像 + metadata/text 融合文献矩阵；
-- `PriorBatch` 和 `PriorEncoder` 统一接口；
-- FiLM、Gated Cross-Attention、Decision Fusion；
-- mask、confidence、gate 和通用诊断；
-- 跨 decoder 接入和资源开销评估。
+负结果也应保留，但到此停止无界增加物候表和模块组合，转而总结知识冗余、表示不足或任务适用边界。
 
-主要交付：一个与 PASTIS 类别数和 Galileo hidden size 解耦的可复用模块。
+## 6. 分阶段工作规划
 
-### B. 个性：作物物候知识建模
+| 阶段 | 工作 | 交付物 | 进入下一阶段的条件 |
+| --- | --- | --- | --- |
+| S0 方向冻结 | 统一术语、方法、插入点和文档状态 | 本规划 + 文档索引 | 团队不再混淆旧 P1/P2 与新方法 |
+| S1 接口与单元验证 | `PriorBatch`、structured adapter、CA-HPI、shape/mask/no-op 测试 | 可插拔模块与测试 | `alpha=0` 与 B0 输出数值一致 |
+| S2 最小机制初筛 | B0、B1、M1，固定 seed 42 / fold4 | 总体和分类别 val 表、gate 诊断 | M1 有非随机且可解释信号 |
+| S3 因果验证 | C2–C7，随后 seed 43/44 | 反事实矩阵与 mean±std | 正确知识优于错误知识 |
+| S4 物候建模 | R1–R4；处理 stage/confidence/unknown | 物候 token 数据与消融 | 找到知识内容的有效边界 |
+| S5 通用性验证 | 第二 decoder；可选 missing-month / low-data | 插拔成本、资源和鲁棒性报告 | 形成最终论文证据链 |
 
-负责内容：
+实现状态（2026-07-18）：S0 已完成；S1 的 decoder 前 CA-HPI、structured phenology adapter、confidence 映射、配置 overlay 和单元测试已完成。文本 adapter、训练日志诊断和正式 S2 训练尚未开始。
 
-- 作物、月份、阶段、来源和置信度的定义；
-- 聚合类别、多年生类别和 unknown 状态处理；
-- numeric、stage token 和 text description 三种表示；
-- 正确、类别置乱、月份偏移和 uniform 先验；
-- 物候相关分类别分析和可视化。
+当前代码入口：
 
-主要交付：一套有来源、有置信度、有不确定性处理的物候 prior dataset/encoder。
+- [models/prior_injection.py](../models/prior_injection.py)：`PriorBatch`、通用 adapter 边界、structured encoder、CA-HPI 和多层前置注入；
+- [models/phenology.py](../models/phenology.py)：物候表与 confidence 的 task adapter；
+- [ca_hpi_structured.yaml](../configs/prior_injection/ca_hpi_structured.yaml)：当前 structured overlay；
+- [test_prior_injection.py](../tests/test_prior_injection.py)：回退、mask/confidence、跨 decoder 和互斥性测试。
 
-### 共同负责
+## 7. 下一次工程工作的明确顺序
 
-- 固定实验协议；
-- P0/P1/P2 与新反事实消融；
-- 多 seed 验证；
-- 论文/汇报中的结论边界。
+本文档完成后，按以下顺序推进，不再从旧方案清单中随机挑实验：
 
-## 10. 实施阶段与停止标准
+1. [x] 写 `PriorBatch` 与 task adapter 的接口规格和 shape 测试；
+2. [x] 实现 numeric/categorical structured adapter，先不接文本模型；
+3. [x] 实现 CA-HPI，并验证 mask、confidence 和 `alpha=0` 回退；
+4. [x] 在 decoder 前公共 temporal feature pyramid 边界接入，不修改 decoder 内部；
+5. [ ] 跑服务器 2-batch 冒烟测试，确认真实缓存、训练、评估和资源链路；
+6. [ ] 实现并记录 gate/attention/residual 的训练日志；
+7. [ ] 再安排 B0/B1/M1 的完整 fold4 训练；
+8. [ ] M1 通过初筛后才运行反事实和丰富先验。
 
-### 阶段 0：已有结果收口
+## 8. 两条协作工作线
 
-- 完成四种 Temporal Readout test；
-- 保留已有 decoder 和 3D-Aware DPT 作为骨干结果；
-- 整理当前 Global Add 物候实验；
-- 不再新增普通 decoder。
+### 共性线：通用方法
 
-### 阶段 1：统一接口与数值回退
+- `PriorBatch` 与 adapter registry；
+- 已实现 Fourier/MLP 与 categorical embedding；text projection 待实现；
+- CA-HPI、FiLM 基线、mask/confidence/no-op；
+- attention/gate/residual 诊断；
+- 第二 decoder 的轻量适配。
 
-- 实现 `PriorBatch`；
-- 把现有 numeric prior 接入统一接口；
-- 验证 gate=0 时与 H0 输出一致；
-- 输出 prior residual/gate 诊断。
+### 个性线：物候知识
 
-若无法做到严格回退或不同 decoder 需要大量专用代码，应先修正接口，不进入大规模训练。
+- 类别—月份—阶段—置信度记录；
+- 聚合类、多年生类和 unknown 规则；
+- 正确、random、class-shuffled、month-shifted 数据；
+- 来源审计与 text description；
+- 季节性/多年生/聚合类别分组评估。
 
-### 阶段 2：融合模块初筛
+两条线通过统一 `PriorBatch` 对接，不在模型代码里直接读取物候表。
 
-- 固定一个开发骨干；
-- 比较 H0–H4；
-- seed 42、fold4 validation 初筛；
-- 不提前根据 fold5 test 选择模块。
+## 9. 实验纪律
 
-建议内部准入标准：总体 val mIoU 提升至少 `0.5` 个百分点，或预先指定类别组平均 IoU 提升至少 `2.0` 个百分点且总体下降不超过 `0.3` 个百分点。
+- train=`fold1/2/3`，val=`fold4`，test=`fold5`；
+- 所有先验内容和统计只使用外部资料或 train folds；
+- checkpoint 固定按 `best_val_miou.pt` 选择；
+- test 不参与模块、epoch、先验曲线或阈值选择；
+- 每次记录 config、prior version、cache、commit、seed、最佳 epoch 和资源开销；
+- 总体指标、19 类指标、分组指标与反事实差异同时报告；
+- 不用“跑了几个 epoch 没提升”作为停止依据。
 
-### 阶段 3：知识正确性验证
+## 10. 最终研究叙事
 
-- 对最佳融合方案运行 C0–C6；
-- 只有正确先验稳定优于 random、class-shuffled 和 month-shifted，才声称知识内容有效；
-- 否则分析为容量效应、普通条件效应或现有知识表示不足。
+项目最终要讲的是：
 
-### 阶段 4：物候表示和通用性
+> 我们提出 CA-HPI，将数值、类别和文本等异构先验编码为带类型、置信度和缺失掩码的统一 token；视觉时空特征通过内容感知 cross-attention 主动选择相关知识，并以零初始化门控残差安全注入。我们在多时相作物分割中把物候知识具体化为类别—时间—阶段—置信度 token，并用随机、类别置乱和月份偏移对照区分知识内容、额外容量与普通条件效应。
 
-- 比较 R1–R4；
-- 最佳方案补 seed `43/44`；
-- 接入第二个 decoder；
-- 可选运行 missing-month 或 low-data 场景。
-
-若正确先验仍无稳定增益，停止追求精度提升，转而总结注入机制、失败原因和适用条件，不再无界扩展先验表或模块组合。
-
-## 11. 文献检索框架
-
-文献不局限于遥感，按问题而不是领域检索：
-
-- remote sensing image + metadata conditioning；
-- medical image + clinical/tabular metadata fusion；
-- vision-language conditioning；
-- diffusion model metadata conditioning；
-- FiLM、AdaLN、cross-attention、prompt tokens；
-- multimodal missing data and uncertainty-aware fusion；
-- knowledge-guided neural networks；
-- temporal prototype learning and class-conditioned attention。
-
-每篇文献记录：先验形式、编码器、融合位置、融合算子、是否有反事实对照、是否处理缺失/不确定性、是否可跨 backbone。
-
-## 12. 近期执行清单
-
-### 研究定义
-
-- [ ] 将项目后半阶段标题统一为“异构先验知识注入”，物候作为任务实例。
-- [ ] 固定一个开发骨干和一个跨结构验证骨干。
-- [ ] 明确 numeric、stage/confidence、text 三种先验输入格式。
-- [ ] 核对助教提到的 DiffusionSat 类论文及其 metadata encoder 实现。
-
-### 工程实现
-
-- [ ] 建立 `PriorBatch` 数据结构与 mask/confidence 字段。
-- [ ] 将现有 Global Add 改接统一接口，保持旧 checkpoint/配置可复现。
-- [ ] 实现 FiLM/AdaLN 基线。
-- [ ] 实现支持 2D/temporal feature 的 Gated Cross-Attention。
-- [ ] 增加 gate、attention、residual norm 的日志。
-- [ ] 增加 random、class-shuffled、month-shifted、uniform 对照配置。
-
-### 实验与证据
-
-- [ ] 完成 H0–H4 的 fold4 初筛。
-- [ ] 对最佳方案完成 C0–C6。
-- [ ] 输出总体、分类别、分组和混淆指标。
-- [ ] 通过后补 R1–R4、seed 43/44 和第二 decoder。
-
-## 13. 最终研究叙事
-
-建议将最终工作概括为：
-
-> 本项目不把提升作物分割精度作为唯一目标，而是研究异构先验如何被编码为统一 token，并通过内容相关、置信度感知和门控残差方式注入视觉网络。作物物候用于验证结构化数值、类别时间关系和文本描述能否在多时相遥感分割中提供独立信息；正确、随机、类别置乱和时间偏移对照用于区分知识内容、模型容量与普通条件效应。
-
-该叙事允许出现三种都有研究价值的结果：
-
-1. 正确先验稳定提升，证明知识内容和注入机制有效；
-2. 只在缺失月份或少样本条件下提升，说明先验主要改善信息不足场景；
-3. 正确先验不优于反事实先验，说明当前知识表达或任务条件存在冗余，并明确后续方法的适用边界。
-
-核心成果应是“可复用的先验注入方法 + 严格的知识有效性验证”，而不是再增加一个只对当前配置有效的 decoder。
+核心交付物是“一个可复用的先验注入方法 + 一条严格的知识有效性证据链”，而不是新的 decoder，也不是单独为某几个类别刷分。

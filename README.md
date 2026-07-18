@@ -2,6 +2,8 @@
 
 本项目研究 **frozen Galileo 遥感自监督表征在 PASTIS 作物语义分割上的迁移能力**。
 
+> 当前后半阶段已固定 3D-Aware DPT 为视觉基线，核心目标转为内容感知的异构先验知识注入。请先阅读 [项目文档导航](docs/README.md) 和 [当前唯一执行规划](docs/NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)，不要从旧讲稿或旧 Global Add 手册生成后续任务。
+
 当前实验固定同一个 Galileo encoder、输入协议和冻结策略，对比早期与晚期融合 decoder：
 
 ```text
@@ -34,6 +36,8 @@ PASTIS Sentinel-2 time series
 - UPerNet-style decoder（PPM + FPN）
 - 3D-Aware DPT：3D Reassemble、final 原尺度时间旁路、全局/分解时空注意力、门控多尺度融合与时间查询池化
 - 方案一至四的月份感知可学习时间读出，以及对应的 `temporal_v2` 独立配置
+- 通用 `PriorBatch`、structured phenology token encoder 与 CSV confidence 映射
+- decoder 前共享 CA-HPI：内容感知 cross-attention、mask/confidence 和逐层零初始化门控
 - 多层 Galileo 特征共享缓存
 - 冻结 Galileo 在线训练与梯度累积
 - cached feature 训练与评估
@@ -42,10 +46,11 @@ PASTIS Sentinel-2 time series
 - 基于 fold4 `val_mIoU` 的可配置早停
 - TensorBoard loss / val mIoU 日志
 
-待完成实验：
+当前研究状态：
 
-- Galileo-Adapted 2D DPT、UPerNet-style 与 3D-Aware DPT 的正式训练、测试和多 seed 复验
-- 结果和研究结论只在训练完成后补充
+- decoder 对比和四种 Temporal Readout 的阶段性 test 已收口，正式数值与审计缺口统一见实验台账；
+- 3D-Aware DPT 固定为后续视觉基线，不再以新增 decoder 刷分为主线；
+- decoder 前 CA-HPI 最小实现与单元测试已经完成，尚未产生正式训练结果。
 
 详细实验定义见 [docs/DECODER_EXPERIMENTS.md](docs/DECODER_EXPERIMENTS.md)。两个既有 baseline 的首轮结果见 [docs/PROGRESS_REPORT_2026-07-11.md](docs/PROGRESS_REPORT_2026-07-11.md)；加入线性 head 并统一按最高 val mIoU 重测后的报告见 [docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md](docs/PROGRESS_REPORT_2026-07-13_LINEAR_COMPARISON.md)。
 
@@ -124,7 +129,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 
 ## 配置文件
 
-物候先验训练、切换 decoder、缓存验收与 test 评估的操作步骤统一见 [PHENOLOGY_RUNBOOK.md](docs/PHENOLOGY_RUNBOOK.md)。
+常规配置与历史训练命令见下表；旧 `Global Add` overlay 的复现说明见 [LEGACY PHENOLOGY_RUNBOOK.md](docs/PHENOLOGY_RUNBOOK.md)，它不再是当前 CA-HPI 方法的操作入口。
 
 | 配置 | 用途 |
 | --- | --- |
@@ -139,9 +144,23 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_multi_layer_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案二 |
 | `configs/galileo_upernet_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案三 |
 | `configs/galileo_adapted_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案四 |
-| `configs/galileo_3d_aware_dpt.yaml` | 3D-Aware DPT 的内部晚期融合配置；不附加 Temporal Readout，可叠加任意物候 overlay |
+| `configs/galileo_3d_aware_dpt.yaml` | 3D-Aware DPT 内部晚期融合配置；当前先验方法的固定视觉开发骨干 |
+| `configs/prior_injection/ca_hpi_structured.yaml` | decoder 前 CA-HPI structured phenology overlay；通过 `--prior-config` 组合 |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
+
+当前 CA-HPI 缓存训练入口：
+
+```bash
+conda run -n presl python -B scripts/train_cached.py \
+  --config configs/galileo_3d_aware_dpt.yaml \
+  --prior-config configs/prior_injection/ca_hpi_structured.yaml \
+  --cache-format temporal_v2 \
+  --temporal-dtype float16 \
+  --device cuda
+```
+
+评估 checkpoint 时必须传入相同的 `--config` 与 `--prior-config`。旧 Global Add 继续使用 `--phenology-config`，两种参数禁止同时传入。
 
 所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 
@@ -351,22 +370,7 @@ conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d
 
 单张语义分割结果不含时间轴，所以 `T` 最终必须在某处消除；当前代码选择在完整 3D 金字塔融合后、二维分类头前消除。若后续改为“深层 3D 建模 -> 中段时间读出 -> 标准 2D DPT 恢复”，应作为独立的中段融合实验，使用新的配置、日志和 checkpoint，不能继续加载当前方案五权重。
 
-物候先验旁路消融使用同一份 `temporal_v2` 缓存：
-
-```bash
-# P0：严格无先验 baseline
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --cache-format temporal_v2 --temporal-dtype float16
-
-# P1：正确的外部物候先验
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --phenology-config configs/phenology/external.yaml --cache-format temporal_v2 --temporal-dtype float16
-
-# P2：类别对应被置乱的错误先验
-conda run -n presl python -B scripts/train_cached.py --config configs/galileo_3d_aware_dpt.yaml --phenology-config configs/phenology/external_class_shuffled.yaml --cache-format temporal_v2 --temporal-dtype float16
-```
-
-三次运行的 encoder、输入时间序列、temporal cache、decoder、loss、Prodigy 和 early stopping 相同。P0 不构造 `PhenologyPriorAdapter`；P1 读取正确的 `P_ext`；P2 保留相同曲线和值域、仅置乱 `class_id -> source_class_id`，用于排除“额外旁路参数本身带来提升”的解释。旁路在 decoder 调用前将每层的 Galileo 缓存特征 `[B,T,768,H,W]` 与共享先验残差 `[B,T,768,1,1]` 相加；随后 3D-Aware DPT 才投影到自己的 256 个内部通道并做时间注意力和跨层融合。
-
-纵向简化架构图（可直接用于 PPT）：[pictures/phenology_prior_bypass_architecture.svg](pictures/phenology_prior_bypass_architecture.svg)。
+> **历史物候实验说明：** 已完成的 P0/P1/P2 使用 Single-layer Temporal Readout 与旧 `Global Add` 旁路，并不是 3D-Aware DPT 结果。旧 overlay 命令和旁路架构图只用于复现历史实验，见 [LEGACY 运行手册](docs/PHENOLOGY_RUNBOOK.md) 与 [旧方案摘要](docs/PHENOLOGY_PRIOR_INJECTION_PLAN.md)。当前 CA-HPI 保留 decoder 前公共位置，但以逐视觉 token cross-attention 和置信度门控取代全局广播残差。
 
 方案五同样只把 final 从 `16x16` 降到 `8x8` 用于全局时空注意力，同时保留 `[B,256,T,16,16]` 原尺度时间旁路并注入 `16x16` 融合级。方案四、五都通过 `model.preserve_native_deep_skip: true` 开启该行为，且复用已有层，不增加参数量或 state-dict 键。两份配置使用带 `native_skip` 的新日志与 checkpoint 目录，避免覆盖旧实验；复现旧结构时可将开关设为 `false`。
 

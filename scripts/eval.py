@@ -16,13 +16,18 @@ from losses import build_loss  # noqa: E402
 from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy  # noqa: E402
 from models import build_model  # noqa: E402
 from scripts.visualize_predictions import make_rgb_composite, render_triptych  # noqa: E402
-from utils import apply_phenology_overlay, load_config  # noqa: E402
+from utils import (  # noqa: E402
+    apply_phenology_overlay,
+    apply_prior_injection_overlay,
+    load_config,
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/galileo_dpt.yaml")
     parser.add_argument("--phenology-config", default=None)
+    parser.add_argument("--prior-config", default=None)
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", choices=["val", "test"], default="test")
     parser.add_argument("--device", default=None)
@@ -39,6 +44,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     config = apply_phenology_overlay(load_config(args.config), args.phenology_config)
+    config = apply_prior_injection_overlay(config, args.prior_config)
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
 
     data_cfg = config["data"]
