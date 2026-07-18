@@ -1,0 +1,35 @@
+{
+  "source": "ERA5-Land",
+  "feature_names": [
+    "t2m_c",
+    "tp_mm",
+    "ssrd_mj_m2",
+    "swvl1"
+  ],
+  "train_folds": [
+    1,
+    2,
+    3
+  ],
+  "mean": {
+    "t2m_c": 12.623546590728608,
+    "tp_mm": 70.76061499720424,
+    "ssrd_mj_m2": 423.4246026425544,
+    "swvl1": 0.31992903771679015
+  },
+  "std": {
+    "t2m_c": 6.651760201067815,
+    "tp_mm": 41.77669318287626,
+    "ssrd_mj_m2": 222.4903818179269,
+    "swvl1": 0.08357047853259912
+  },
+  "train_value_count": {
+    "t2m_c": 17460,
+    "tp_mm": 17460,
+    "ssrd_mj_m2": 17460,
+    "swvl1": 17460
+  },
+  "zero_variance_features_standardized_with_std_1": [],
+  "table": "data/priors/era5_land_pastis_cropyear_v1.csv",
+  "missing_patch_month_records": 0
+}

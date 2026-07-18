@@ -408,39 +408,62 @@ class PhenologyPriorTokenEncoder(PriorTokenEncoder):
         )
 
 
-def build_phenology_token_encoder(config: dict) -> PhenologyPriorTokenEncoder | None:
-    prior_cfg = config.get("prior_injection", {}) or {}
-    if not bool(prior_cfg.get("enabled", False)):
-        return None
+def build_phenology_token_encoder_from_source(
+    source_cfg: dict,
+    *,
+    num_classes: int,
+    token_dim: int,
+    hidden_dim: int,
+    time_frequencies: int,
+    dropout: float,
+) -> PhenologyPriorTokenEncoder:
+    """Build the M1 adapter from one source mapping.
 
-    source_cfg = prior_cfg.get("source", {}) or {}
+    Kept separate from the config wrapper so multi-source CA-HPI can reuse
+    exactly the same audited class-month table behaviour as the original M1.
+    """
     if not isinstance(source_cfg, dict):
-        raise ValueError("prior_injection.source must be a mapping.")
+        raise ValueError("Phenology source must be a mapping.")
     source_kind = str(source_cfg.get("kind", "phenology_table")).lower()
     if source_kind not in {"phenology_table", "class_month_table"}:
         raise ValueError(f"Unsupported prior source kind: {source_kind}")
     path = source_cfg.get("path")
     if not path:
-        raise ValueError("prior_injection.source.path is required.")
+        raise ValueError("Phenology prior source.path is required.")
 
-    num_classes = int(config["data"]["num_classes"])
     table = load_phenology_prior(path, num_classes=num_classes)
     confidence_mapping = source_cfg.get("confidence_mapping")
     if confidence_mapping is not None and not isinstance(confidence_mapping, dict):
-        raise ValueError("prior_injection.source.confidence_mapping must be a mapping.")
+        raise ValueError("Phenology source.confidence_mapping must be a mapping.")
     confidence_table = load_phenology_confidence(
         path,
         num_classes=num_classes,
         confidence_mapping=confidence_mapping,
         default_confidence=float(source_cfg.get("default_confidence", 1.0)),
     )
-    encoder_cfg = prior_cfg.get("encoder", {}) or {}
     return PhenologyPriorTokenEncoder(
         prior_table=table,
+        token_dim=int(token_dim),
+        hidden_dim=int(hidden_dim),
+        time_frequencies=int(time_frequencies),
+        confidence_table=confidence_table,
+        default_confidence=float(source_cfg.get("default_confidence", 1.0)),
+        dropout=float(dropout),
+    )
+
+
+def build_phenology_token_encoder(config: dict) -> PhenologyPriorTokenEncoder | None:
+    """Compatibility wrapper for the original one-source M1 configuration."""
+    prior_cfg = config.get("prior_injection", {}) or {}
+    if not bool(prior_cfg.get("enabled", False)):
+        return None
+    source_cfg = prior_cfg.get("source", {}) or {}
+    encoder_cfg = prior_cfg.get("encoder", {}) or {}
+    return build_phenology_token_encoder_from_source(
+        source_cfg,
+        num_classes=int(config["data"]["num_classes"]),
         token_dim=int(prior_cfg.get("token_dim", 128)),
         hidden_dim=int(encoder_cfg.get("hidden_dim", 128)),
         time_frequencies=int(encoder_cfg.get("time_frequencies", 4)),
-        confidence_table=confidence_table,
-        default_confidence=float(source_cfg.get("default_confidence", 1.0)),
         dropout=float(encoder_cfg.get("dropout", 0.0)),
     )

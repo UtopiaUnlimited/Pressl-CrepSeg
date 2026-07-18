@@ -1,0 +1,36 @@
+run_suffix: ca_hpi_m3_soilgrids_v1
+
+prior_injection:
+  enabled: true
+  method: ca_hpi
+  token_dim: 128
+
+  sources:
+    - name: m3_soilgrids
+      kind: soil_table
+      path: data/priors/soilgrids_pastis_surface_v1.csv
+      stats_path: data/priors/soilgrids_pastis_surface_v1_stats.json
+      features: [ph, soc_gkg, clay_pct, sand_pct, cec_cmolkg, nitrogen_gkg]
+      depths: ["0-5", "5-15", "15-30"]
+      patch_id_column: patch_id
+      depth_column: depth_cm
+      valid_column: valid
+      confidence_column: confidence
+      allow_missing_patch: false
+
+  encoder:
+    hidden_dim: 128
+    time_frequencies: 4
+    dropout: 0.0
+
+  fusion:
+    attention_dim: 128
+    num_heads: 4
+    gate_hidden_dim: 128
+    dropout: 0.1
+    confidence_bias_scale: 1.0
+    initial_strength: 0.0
+    learnable_strength: true
+
+  diagnostics:
+    enabled: true

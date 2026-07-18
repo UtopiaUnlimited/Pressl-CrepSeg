@@ -16,7 +16,6 @@ from models.decoders import (
 from models.phenology import (
     PhenologyPriorAdapter,
     build_phenology_prior,
-    build_phenology_token_encoder,
     inject_temporal_phenology_prior,
 )
 from models.prior_injection import (
@@ -25,6 +24,7 @@ from models.prior_injection import (
     build_temporal_prior_injection,
     prior_injection_enabled,
 )
+from models.prior_sources import build_prior_token_encoder
 
 
 THREE_D_CACHED_DECODER_NAMES = {
@@ -260,7 +260,7 @@ def build_cached_feature_model(
             config,
             feature_channels=int(in_channels),
         ),
-        prior_token_encoder=build_phenology_token_encoder(config),
+        prior_token_encoder=build_prior_token_encoder(config),
         pre_decoder_prior_injection=build_temporal_prior_injection(
             config,
             feature_channels=int(in_channels),

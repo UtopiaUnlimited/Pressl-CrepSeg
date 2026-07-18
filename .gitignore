@@ -1,5 +1,7 @@
 data/PASTIS/
 data/cache/
+data/priors/raw/
+data/priors/*_raw.csv
 pretrained/
 .hf_cache/
 .cache/

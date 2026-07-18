@@ -29,3 +29,10 @@ transformers>=4.40.0
 huggingface-hub>=0.23.0
 safetensors>=0.4.3
 einops>=0.7.0
+
+# Optional: automated M2/M3 environmental priors
+cdsapi>=0.7.7
+xarray>=2024.1.0
+netCDF4>=1.6.0
+rasterio>=1.3.0
+requests>=2.31.0

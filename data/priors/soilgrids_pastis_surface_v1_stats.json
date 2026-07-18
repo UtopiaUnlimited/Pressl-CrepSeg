@@ -1,0 +1,44 @@
+{
+  "source": "SoilGrids",
+  "feature_names": [
+    "ph",
+    "soc_gkg",
+    "clay_pct",
+    "sand_pct",
+    "cec_cmolkg",
+    "nitrogen_gkg"
+  ],
+  "train_folds": [
+    1,
+    2,
+    3
+  ],
+  "mean": {
+    "ph": 6.532004581901489,
+    "soc_gkg": 23.10987399770905,
+    "clay_pct": 19.707537227949597,
+    "sand_pct": 24.371248568155785,
+    "cec_cmolkg": 17.09954180985109,
+    "nitrogen_gkg": 2.0494432989690723
+  },
+  "std": {
+    "ph": 1.338024304738387,
+    "soc_gkg": 12.215887392863442,
+    "clay_pct": 5.8994391180232055,
+    "sand_pct": 10.823483459719366,
+    "cec_cmolkg": 4.610512890582925,
+    "nitrogen_gkg": 1.1359860754531637
+  },
+  "train_value_count": {
+    "ph": 4365,
+    "soc_gkg": 4365,
+    "clay_pct": 4365,
+    "sand_pct": 4365,
+    "cec_cmolkg": 4365,
+    "nitrogen_gkg": 4365
+  },
+  "zero_variance_features_standardized_with_std_1": [],
+  "table": "data/priors/soilgrids_pastis_surface_v1.csv",
+  "missing_patch_depth_records": 0,
+  "confidence": "1 / (1 + mean(IQR90 / train_std))"
+}
