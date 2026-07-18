@@ -15,11 +15,31 @@ class BatchLinear(nn.Module):
         super().__init__()
         self.frozen = nn.Linear(1, 1)
         self.decoder = nn.Linear(1, 1)
+        self.diagnostics = ScalarDiagnosticProvider()
         for parameter in self.frozen.parameters():
             parameter.requires_grad = False
 
     def forward(self, batch: dict) -> torch.Tensor:
-        return self.decoder(batch["features"])
+        return self.decoder(self.diagnostics(batch["features"]))
+
+
+class ScalarDiagnosticProvider(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.forward_count = 0
+        self.latest: dict[str, torch.Tensor] = {}
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        self.forward_count += 1
+        self.latest = {
+            "layer_0/strength": features.new_tensor(float(self.forward_count))
+        }
+        return features
+
+    def pop_prior_diagnostics(self) -> dict[str, torch.Tensor]:
+        diagnostics = self.latest
+        self.latest = {}
+        return diagnostics
 
 
 class CountingSGD(torch.optim.SGD):
@@ -71,6 +91,10 @@ class TrainerAccumulationTest(unittest.TestCase):
 
         self.assertEqual(global_step, 3)
         self.assertEqual(optimizer.step_count, 2)
+        self.assertEqual(
+            trainer.last_train_prior_diagnostics,
+            {"layer_0/strength": 2.0},
+        )
 
     def test_trainable_only_checkpoint_excludes_frozen_encoder(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

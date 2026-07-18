@@ -1,4 +1,4 @@
-run_suffix: ca_hpi_structured
+run_suffix: ca_hpi_structured_v1
 
 prior_injection:
   enabled: true
@@ -7,7 +7,7 @@ prior_injection:
 
   source:
     kind: phenology_table
-    path: data/priors/pastis_ext_prior_draft.csv
+    path: data/priors/pastis_ext_prior_v1.csv
     default_confidence: 1.0
     confidence_mapping:
       high: 1.0
@@ -27,3 +27,6 @@ prior_injection:
     confidence_bias_scale: 1.0
     initial_strength: 0.0
     learnable_strength: true
+
+  diagnostics:
+    enabled: true

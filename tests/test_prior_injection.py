@@ -18,7 +18,7 @@ from utils import apply_prior_injection_overlay, load_config
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-EXTERNAL_PRIOR_PATH = PROJECT_ROOT / "data" / "priors" / "pastis_ext_prior_draft.csv"
+EXTERNAL_PRIOR_PATH = PROJECT_ROOT / "data" / "priors" / "pastis_ext_prior_v1.csv"
 CA_HPI_CONFIG_PATH = (
     PROJECT_ROOT / "configs" / "prior_injection" / "ca_hpi_structured.yaml"
 )
@@ -84,6 +84,7 @@ def small_prior_config(decoder_name: str) -> dict:
                 "initial_strength": 0.2,
                 "learnable_strength": True,
             },
+            "diagnostics": {"enabled": True},
         },
     }
 
@@ -96,10 +97,10 @@ class PriorConfigurationTest(unittest.TestCase):
         self.assertEqual(combined["model"]["decoder"], "3d_aware_dpt")
         self.assertTrue(combined["prior_injection"]["enabled"])
         self.assertEqual(combined["prior_injection"]["method"], "ca_hpi")
-        self.assertTrue(combined["train"]["log_dir"].endswith("_prior_ca_hpi_structured"))
+        self.assertTrue(combined["train"]["log_dir"].endswith("_prior_ca_hpi_structured_v1"))
         self.assertTrue(
             combined["train"]["checkpoint_dir"].endswith(
-                "_prior_ca_hpi_structured"
+                "_prior_ca_hpi_structured_v1"
             )
         )
 
@@ -205,6 +206,46 @@ class StructuredPriorTest(unittest.TestCase):
 
 
 class PreDecoderPriorInjectionTest(unittest.TestCase):
+    def test_recorded_diagnostics_are_scalar_finite_and_consumed_once(self) -> None:
+        prior_encoder = PhenologyPriorTokenEncoder(
+            torch.rand(3, 4),
+            token_dim=8,
+            hidden_dim=8,
+            time_frequencies=2,
+        )
+        injector = TemporalFeaturePyramidPriorInjection(
+            vision_dim=8,
+            prior_dim=8,
+            num_layers=2,
+            attention_dim=8,
+            num_heads=2,
+            gate_hidden_dim=8,
+            dropout=0.0,
+            initial_strength=0.0,
+            learnable_strength=True,
+            record_diagnostics=True,
+        )
+        features = tuple(torch.randn(2, 3, 8, 4, 4) for _ in range(2))
+
+        enhanced = injector(features, prior_encoder(batch_size=2))
+        recorded = injector.pop_prior_diagnostics()
+
+        self.assertEqual(len(recorded), 2 * 13)
+        self.assertEqual(injector.pop_prior_diagnostics(), {})
+        for value in recorded.values():
+            self.assertEqual(value.numel(), 1)
+            self.assertTrue(torch.isfinite(value))
+        for layer_index in range(2):
+            prefix = f"layer_{layer_index}/"
+            self.assertEqual(float(recorded[prefix + "strength"]), 0.0)
+            self.assertEqual(float(recorded[prefix + "applied_residual_ratio"]), 0.0)
+            self.assertGreaterEqual(float(recorded[prefix + "gate_mean"]), 0.0)
+            self.assertLessEqual(float(recorded[prefix + "gate_mean"]), 1.0)
+            self.assertGreaterEqual(float(recorded[prefix + "attention_entropy"]), 0.0)
+            self.assertLessEqual(float(recorded[prefix + "attention_entropy"]), 1.0)
+        for original, output in zip(features, enhanced):
+            self.assertTrue(torch.equal(original, output))
+
     def test_zero_strength_is_an_exact_feature_pyramid_fallback(self) -> None:
         prior_encoder = PhenologyPriorTokenEncoder(
             torch.rand(3, 4),
@@ -257,6 +298,10 @@ class PreDecoderPriorInjectionTest(unittest.TestCase):
                 self.assertIsNotNone(model.prior_token_encoder)
                 self.assertIsNotNone(model.pre_decoder_prior_injection)
                 self.assertEqual(model.pre_decoder_prior_injection.num_layers, 4)
+                self.assertTrue(model.pre_decoder_prior_injection.record_diagnostics)
+                self.assertTrue(
+                    model.pre_decoder_prior_injection.pop_prior_diagnostics()
+                )
                 self.assertIsNone(model.temporal_phenology_prior)
                 logits.mean().backward()
                 self.assertTrue(

@@ -4,6 +4,8 @@
 
 > 当前后半阶段已固定 3D-Aware DPT 为视觉基线，核心目标转为内容感知的异构先验知识注入。请先阅读 [项目文档导航](docs/README.md) 和 [当前唯一执行规划](docs/NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)，不要从旧讲稿或旧 Global Add 手册生成后续任务。
 
+当前执行优先级是先用冻结的 structured prior v1 跑出 CA-HPI 第一组结果；FiLM、文本先验、完整反事实矩阵和第二 decoder 均延后，不阻塞 M1。
+
 当前实验固定同一个 Galileo encoder、输入协议和冻结策略，对比早期与晚期融合 decoder：
 
 ```text
@@ -145,7 +147,7 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_upernet_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案三 |
 | `configs/galileo_adapted_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案四 |
 | `configs/galileo_3d_aware_dpt.yaml` | 3D-Aware DPT 内部晚期融合配置；当前先验方法的固定视觉开发骨干 |
-| `configs/prior_injection/ca_hpi_structured.yaml` | decoder 前 CA-HPI structured phenology overlay；通过 `--prior-config` 组合 |
+| `configs/prior_injection/ca_hpi_structured.yaml` | decoder 前 CA-HPI + 冻结 structured prior v1；通过 `--prior-config` 组合 |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
@@ -161,6 +163,15 @@ conda run -n presl python -B scripts/train_cached.py \
 ```
 
 评估 checkpoint 时必须传入相同的 `--config` 与 `--prior-config`。旧 Global Add 继续使用 `--phenology-config`，两种参数禁止同时传入。
+
+当前 overlay 默认启用轻量 CA-HPI 诊断。训练会把每层、按 train/val 分开的标量写入 TensorBoard 的 `prior/...`，并额外生成 `prior_diagnostics_history.json` 和 `prior_diagnostics_history.csv`。其中：
+
+- `strength=tanh(raw_strength)` 是实际残差系数；
+- `gate_mean/std` 与高低饱和比例描述内容门控；
+- `attention_entropy` 是按有效 prior token 数归一化到 `[0,1]` 的熵，越接近 1 越均匀；
+- `candidate_residual_ratio` 是门控候选残差相对视觉特征的范数；
+- `applied_residual_ratio` 额外乘以 `abs(strength)`，才表示真正进入 decoder 的注入比例；
+- `attended_confidence` 可与 `valid_confidence_mean` 比较，判断 attention 是否偏向高置信度知识。
 
 所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 

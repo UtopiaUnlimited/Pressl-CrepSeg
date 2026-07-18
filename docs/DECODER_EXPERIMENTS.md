@@ -438,6 +438,23 @@ per_class_iou=0.73111,0.61606,0.82834,0.85413,0.73276,0.88384,0.56744,0.68865,0.
 
 这使它成为目前仓库中**已收到的最高 fold5 test mIoU 记录**：相对多层同尺度融合的 `48.005%` 高 `11.940` 个百分点。但在补齐以下信息前，只把它视为阶段性记录，不能据此完成最终模型排序或声称收益完全来自 3D decoder：配置文件、Git commit、seed、checkpoint 路径、best fold4 `val_mIoU` 与 epoch、训练/缓存目录，以及是否严格使用 `best_val_miou.pt`。
 
+### CA-HPI M1 第一结果身份（待运行）
+
+| 字段 | 固定值 |
+| --- | --- |
+| 实验 | M1：3D-Aware DPT + decoder 前 CA-HPI |
+| Base config | `configs/galileo_3d_aware_dpt.yaml` |
+| Prior overlay | `configs/prior_injection/ca_hpi_structured.yaml` |
+| Prior version | `data/priors/pastis_ext_prior_v1.csv`（R1 v1） |
+| Prior canonical SHA256 | `8BA07883D29A7112B16575C36A480C92D5DB232EE6BD8BE74ACF7C0A4BF6A0CC`（UTF-8/LF/单末尾换行） |
+| Seed / folds | seed 42；train=fold1/2/3，val=fold4，test=fold5 |
+| 训练上限 | 50 epoch；不根据 fold5 调整 |
+| checkpoint | fold4 最高 mIoU 的 `best_val_miou.pt` |
+| 首轮对照 | 上述 3D-Aware B0 `test_mIoU=0.59945`，暂作阶段性参考 |
+| 状态 | 待服务器恢复、代码同步和正式训练 |
+
+第一结果只要求填回：最佳 epoch、fold4 val 指标、fold5 一次性 test 指标、19 类 IoU/F1、诊断曲线和资源信息。FiLM、class-shuffled、多 seed 与文本先验均不阻塞本条结果。
+
 ### 空间重采样审计
 
 - 方案一最终层卷积 baseline：在 decoder 内保持 `16x16`，只在输出前上采样到 `64x64`。

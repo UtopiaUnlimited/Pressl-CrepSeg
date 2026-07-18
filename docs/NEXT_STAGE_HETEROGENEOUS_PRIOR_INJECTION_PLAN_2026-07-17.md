@@ -10,6 +10,16 @@
 
 > 本文件决定“接下来做什么”。若其他规划、讲稿或旧运行手册与本文冲突，以本文为准。文档状态见 [README.md](README.md)。
 
+## 0. 当前优先级：先得到先验体系结果
+
+剩余研究时间有限，执行优先级固定为：
+
+1. **第一优先级：** 用已经跑通的 CA-HPI 和冻结先验 v1，取得一组可与 3D-Aware 无先验结果比较的正式结果；
+2. **第二优先级：** 结果出现后，只补最能解释结果的 FiLM 或 class-shuffled 对照；
+3. **第三优先级：** 时间仍充足时才扩展 stage、文本、更多 seed 或第二 decoder。
+
+在第一组 M1 结果产生前，不继续扩充通用框架，不重做大规模文献型先验，不启动完整消融矩阵。当前 `pastis_ext_prior_v1.csv` 是首轮冻结输入，fold4/fold5 结果不得反向修改该表。
+
 ## 1. 已经冻结的方向
 
 ### 1.1 核心目标
@@ -214,19 +224,20 @@ z(c,m) = E_entity(c)
 
 ## 4. 实验设计
 
-### 4.1 第一轮只比较三件事
+### 4.1 第一结果只比较两件事
 
 所有新实验固定 3D-Aware DPT、`temporal_v2`、数据划分、loss、优化器、seed 和 checkpoint 规则：
 
 | 编号 | 方法 | 目的 |
 | --- | --- | --- |
 | B0 | 3D-Aware DPT，无先验 | 匹配协议的主基线 |
-| B1 | 3D-Aware + FiLM structured prior | 标准 metadata 调制基线 |
 | M1 | 3D-Aware + CA-HPI structured prior | proposed method |
 
-旧 Single-layer Global Add 的 P0/P1/P2 作为 `Legacy` 结果引用，不列入新的首轮训练清单。若后续论文必须做架构匹配的 Global Add 比较，再作为补充对照，而不是当前阻塞项。
+现有 B0 fold5 `mIoU=0.59945` 暂作阶段性参考；它缺少完整审计信息，因此优先从服务器找回 config/commit/checkpoint/best fold4 元数据，而不是立刻重跑。M1 使用 fold4 选择 `best_val_miou.pt` 后只评估一次 fold5，先形成第一组结果。B1 FiLM 与旧 Single-layer Global Add 均不阻塞该结果。
 
-### 4.2 M1 必须通过的反事实对照
+### 4.2 第一结果之后的科研补强
+
+只有 M1 第一结果完成后，才根据结果决定补强项。优先级是：B1 FiLM，其次一个 class-shuffled 对照；其余控制仅在时间允许时运行。
 
 | 对照 | 改变内容 | 排除的解释 |
 | --- | --- | --- |
@@ -292,12 +303,12 @@ z(c,m) = E_entity(c)
 | --- | --- | --- | --- |
 | S0 方向冻结 | 统一术语、方法、插入点和文档状态 | 本规划 + 文档索引 | 团队不再混淆旧 P1/P2 与新方法 |
 | S1 接口与单元验证 | `PriorBatch`、structured adapter、CA-HPI、shape/mask/no-op 测试 | 可插拔模块与测试 | `alpha=0` 与 B0 输出数值一致 |
-| S2 最小机制初筛 | B0、B1、M1，固定 seed 42 / fold4 | 总体和分类别 val 表、gate 诊断 | M1 有非随机且可解释信号 |
-| S3 因果验证 | C2–C7，随后 seed 43/44 | 反事实矩阵与 mean±std | 正确知识优于错误知识 |
+| S2 第一结果 | B0、M1，固定 seed 42 / fold4 | M1 val/test 与诊断；B0 阶段性对照 | 得到可汇报的先验体系结果 |
+| S3 最小补强 | 根据 M1 结果选择 B1 或 class-shuffled | 一个最关键对照 | 能解释增益或负结果来源 |
 | S4 物候建模 | R1–R4；处理 stage/confidence/unknown | 物候 token 数据与消融 | 找到知识内容的有效边界 |
 | S5 通用性验证 | 第二 decoder；可选 missing-month / low-data | 插拔成本、资源和鲁棒性报告 | 形成最终论文证据链 |
 
-实现状态（2026-07-18）：S0 已完成；S1 的 decoder 前 CA-HPI、structured phenology adapter、confidence 映射、配置 overlay 和单元测试已完成。文本 adapter、训练日志诊断和正式 S2 训练尚未开始。
+实现状态（2026-07-18）：S0、S1 已完成。decoder 前 CA-HPI、structured phenology adapter、confidence 映射、配置 overlay、训练诊断和单元测试均已实现；本地 `llm` 环境使用真实 `temporal_v2` train/val 缓存完成了 2-batch 训练—验证冒烟，四层 strength 在首次优化后均离开 0。首轮输入已冻结为 `pastis_ext_prior_v1.csv`；当前唯一阻塞结果的是代码同步和服务器正式 M1 训练，不是 FiLM、文本或更多模块。
 
 当前代码入口：
 
@@ -305,6 +316,8 @@ z(c,m) = E_entity(c)
 - [models/phenology.py](../models/phenology.py)：物候表与 confidence 的 task adapter；
 - [ca_hpi_structured.yaml](../configs/prior_injection/ca_hpi_structured.yaml)：当前 structured overlay；
 - [test_prior_injection.py](../tests/test_prior_injection.py)：回退、mask/confidence、跨 decoder 和互斥性测试。
+
+训练诊断按层、按 train/val 写入 TensorBoard `prior/...`，并保存为 `prior_diagnostics_history.json/csv`。核心字段包括 effective strength、gate mean/std、归一化 attention entropy、attention top-1、attended confidence、候选 residual ratio 和实际 applied residual ratio。完整 attention/gate 张量不会跨 batch 保留或写入 checkpoint。
 
 ## 7. 下一次工程工作的明确顺序
 
@@ -314,10 +327,13 @@ z(c,m) = E_entity(c)
 2. [x] 实现 numeric/categorical structured adapter，先不接文本模型；
 3. [x] 实现 CA-HPI，并验证 mask、confidence 和 `alpha=0` 回退；
 4. [x] 在 decoder 前公共 temporal feature pyramid 边界接入，不修改 decoder 内部；
-5. [ ] 跑服务器 2-batch 冒烟测试，确认真实缓存、训练、评估和资源链路；
-6. [ ] 实现并记录 gate/attention/residual 的训练日志；
-7. [ ] 再安排 B0/B1/M1 的完整 fold4 训练；
-8. [ ] M1 通过初筛后才运行反事实和丰富先验。
+5. [x] 在本地真实缓存跑 2-batch 冒烟，确认训练、验证、反向传播和诊断落盘；
+6. [x] 实现并记录 strength/gate/attention/residual/confidence 的训练日志；
+7. [x] 冻结 `pastis_ext_prior_v1.csv`，首轮结果前不再改曲线；
+8. [ ] 提交同步后在服务器补 2-batch 冒烟，确认服务器缓存和资源链路；
+9. [ ] 直接运行 M1 seed42，训练最多 50 epoch，由 fold4 选择 `best_val_miou.pt`；
+10. [ ] 固定 checkpoint 后评估一次 fold5，并写入实验台账；
+11. [ ] 根据第一结果决定只补 B1 FiLM 或 class-shuffled，不预先铺开全部实验。
 
 ## 8. 两条协作工作线
 

@@ -1,0 +1,20 @@
+version: r1-v1
+status: frozen_for_first_ca_hpi_result
+frozen_date: 2026-07-18
+table: data/priors/pastis_ext_prior_v1.csv
+derived_from: data/priors/pastis_ext_prior_draft.csv
+canonical_content_sha256: 8BA07883D29A7112B16575C36A480C92D5DB232EE6BD8BE74ACF7C0A4BF6A0CC
+canonicalization: UTF-8 text, LF line endings, one trailing newline
+source_registry: data/priors/pastis_france_phenology_sources.csv
+classes: 19
+calendar_bins: 12
+value_range: [0.0, 1.0]
+value_semantics: relative monthly crop visibility and phenological activity strength
+confidence_mapping:
+  high: 1.0
+  medium: 0.7
+  low: 0.4
+limitations:
+  - First-result prior; broad envelopes are not precise regional calendars.
+  - Aggregated and mixed classes intentionally use neutral curves with low confidence.
+  - Do not tune this table from fold4 or fold5 outcomes during the first result run.

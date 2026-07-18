@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import torch
@@ -7,7 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from metrics import ConfusionMatrix, macro_f1, mean_iou, pixel_accuracy
-from .plotting import save_training_history
+from .plotting import save_prior_diagnostics_history, save_training_history
 
 
 class Trainer:
@@ -88,6 +89,14 @@ class Trainer:
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.history: list[dict[str, float]] = []
+        self.prior_diagnostics_history: list[dict[str, float | int]] = []
+        self.last_train_prior_diagnostics: dict[str, float] = {}
+        self.last_val_prior_diagnostics: dict[str, float] = {}
+        self._prior_diagnostic_providers = [
+            (name, module)
+            for name, module in self.model.named_modules()
+            if callable(getattr(module, "pop_prior_diagnostics", None))
+        ]
 
         try:
             from torch.utils.tensorboard import SummaryWriter
@@ -133,6 +142,7 @@ class Trainer:
                 f"val_loss={val_loss:.5f} val_miou={val_miou:.5f} "
                 f"val_acc={val_acc:.5f} val_f1={val_f1:.5f} lr={lr:.8f}"
             )
+            self._record_prior_diagnostics(epoch)
             if self.writer is not None:
                 self.writer.add_scalar("loss/train", train_loss, epoch)
                 self.writer.add_scalar("loss/val", val_loss, epoch)
@@ -198,6 +208,7 @@ class Trainer:
         if self.writer is not None:
             self.writer.close()
         save_training_history(self.history, self.log_dir)
+        save_prior_diagnostics_history(self.prior_diagnostics_history, self.log_dir)
         return {
             "epochs_trained": last_epoch,
             "last_val_loss": last_val_loss,
@@ -230,6 +241,73 @@ class Trainer:
             return metric < self.early_stopping_best - self.early_stopping_min_delta
         return metric > self.early_stopping_best + self.early_stopping_min_delta
 
+    def _clear_prior_diagnostics(self) -> None:
+        for _, provider in self._prior_diagnostic_providers:
+            provider.pop_prior_diagnostics()
+
+    def _accumulate_prior_diagnostics(
+        self,
+        totals: dict[str, torch.Tensor],
+        counts: dict[str, int],
+    ) -> None:
+        multiple_providers = len(self._prior_diagnostic_providers) > 1
+        for provider_name, provider in self._prior_diagnostic_providers:
+            prefix = f"{provider_name}/" if multiple_providers else ""
+            diagnostics = provider.pop_prior_diagnostics()
+            for name, value in diagnostics.items():
+                if not isinstance(value, torch.Tensor) or value.numel() != 1:
+                    raise TypeError(
+                        "Prior diagnostics must be scalar tensors, "
+                        f"got {name}={type(value).__name__}."
+                    )
+                key = prefix + str(name)
+                scalar = value.detach().float().reshape(())
+                totals[key] = totals[key] + scalar if key in totals else scalar.clone()
+                counts[key] = counts.get(key, 0) + 1
+
+    @staticmethod
+    def _finalize_prior_diagnostics(
+        totals: dict[str, torch.Tensor],
+        counts: dict[str, int],
+    ) -> dict[str, float]:
+        finalized: dict[str, float] = {}
+        for name in sorted(totals):
+            value = float((totals[name] / max(1, counts[name])).cpu().item())
+            if not math.isfinite(value):
+                raise FloatingPointError(
+                    f"Non-finite prior diagnostic {name}={value}."
+                )
+            finalized[name] = value
+        return finalized
+
+    def _record_prior_diagnostics(self, epoch: int) -> None:
+        phases = (
+            ("train", self.last_train_prior_diagnostics),
+            ("val", self.last_val_prior_diagnostics),
+        )
+        row: dict[str, float | int] = {"epoch": epoch}
+        primary_suffixes = (
+            "/strength",
+            "/gate_mean",
+            "/attention_entropy",
+            "/applied_residual_ratio",
+        )
+        for phase, diagnostics in phases:
+            if not diagnostics:
+                continue
+            for name, value in diagnostics.items():
+                row[f"{phase}/{name}"] = value
+                if self.writer is not None:
+                    self.writer.add_scalar(f"prior/{phase}/{name}", value, epoch)
+            summary = " ".join(
+                f"{name}={value:.6g}"
+                for name, value in diagnostics.items()
+                if name.endswith(primary_suffixes)
+            )
+            print(f"prior_diagnostics epoch={epoch} phase={phase} {summary}")
+        if len(row) > 1:
+            self.prior_diagnostics_history.append(row)
+
     def train_epoch(
         self,
         epoch: int,
@@ -239,6 +317,9 @@ class Trainer:
         self.model.train()
         total_loss = 0.0
         batch_count = 0
+        diagnostic_totals: dict[str, torch.Tensor] = {}
+        diagnostic_counts: dict[str, int] = {}
+        self._clear_prior_diagnostics()
 
         iterator = tqdm(self.train_loader, desc=f"train {epoch}", leave=False)
         effective_batches = len(self.train_loader)
@@ -258,6 +339,10 @@ class Trainer:
             ):
                 logits = self.model(batch)
                 loss = self.criterion(logits, target)
+            self._accumulate_prior_diagnostics(
+                diagnostic_totals,
+                diagnostic_counts,
+            )
 
             group_start = (batch_count // self.gradient_accumulation_steps) * self.gradient_accumulation_steps
             group_size = min(
@@ -287,6 +372,10 @@ class Trainer:
             if self.writer is not None:
                 self.writer.add_scalar("loss/train_step", loss_value, global_step)
 
+        self.last_train_prior_diagnostics = self._finalize_prior_diagnostics(
+            diagnostic_totals,
+            diagnostic_counts,
+        )
         return total_loss / max(1, batch_count), global_step
 
     @torch.no_grad()
@@ -298,6 +387,9 @@ class Trainer:
         self.model.eval()
         total_loss = 0.0
         batch_count = 0
+        diagnostic_totals: dict[str, torch.Tensor] = {}
+        diagnostic_counts: dict[str, int] = {}
+        self._clear_prior_diagnostics()
         confusion = ConfusionMatrix(num_classes=self.num_classes, ignore_index=self.ignore_index)
 
         iterator = tqdm(self.val_loader, desc=f"val {epoch}", leave=False)
@@ -309,6 +401,10 @@ class Trainer:
 
             logits = self.model(batch)
             loss = self.criterion(logits, target)
+            self._accumulate_prior_diagnostics(
+                diagnostic_totals,
+                diagnostic_counts,
+            )
             total_loss += float(loss.item())
             batch_count += 1
             confusion.update(logits, target)
@@ -316,6 +412,10 @@ class Trainer:
         miou, _ = mean_iou(confusion.matrix)
         accuracy = pixel_accuracy(confusion.matrix)
         f1, _ = macro_f1(confusion.matrix)
+        self.last_val_prior_diagnostics = self._finalize_prior_diagnostics(
+            diagnostic_totals,
+            diagnostic_counts,
+        )
         return total_loss / max(1, batch_count), miou, accuracy, f1
 
     def save_checkpoint(

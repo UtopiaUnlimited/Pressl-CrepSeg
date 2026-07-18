@@ -45,6 +45,37 @@ def save_training_history(history: list[dict[str, float]], output_dir: str | Pat
     _render_overview(rendered).save(output_path / "training_curves.png")
 
 
+def save_prior_diagnostics_history(
+    history: list[dict[str, float | int]],
+    output_dir: str | Path,
+) -> None:
+    """Persist dynamic CA-HPI scalar diagnostics without changing base curves."""
+
+    if not history:
+        return
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    with (output_path / "prior_diagnostics_history.json").open(
+        "w", encoding="utf-8"
+    ) as handle:
+        json.dump(history, handle, ensure_ascii=False, indent=2, allow_nan=False)
+
+    metric_fields = sorted(
+        {
+            key
+            for row in history
+            for key in row
+            if key != "epoch"
+        }
+    )
+    with (output_path / "prior_diagnostics_history.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=("epoch", *metric_fields))
+        writer.writeheader()
+        writer.writerows(history)
+
+
 def _font(size: int, bold: bool = False) -> ImageFont.ImageFont:
     font_names = (
         "arialbd.ttf" if bold else "arial.ttf",

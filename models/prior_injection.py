@@ -356,6 +356,7 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
         confidence_bias_scale: float = 1.0,
         initial_strength: float = 0.0,
         learnable_strength: bool = True,
+        record_diagnostics: bool = False,
     ) -> None:
         super().__init__()
         if num_layers < 1:
@@ -365,6 +366,8 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
 
         self.vision_dim = int(vision_dim)
         self.num_layers = int(num_layers)
+        self.record_diagnostics = bool(record_diagnostics)
+        self._latest_diagnostics: dict[str, torch.Tensor] = {}
         self.fusion = ContentAwarePriorFusion(
             vision_dim=self.vision_dim,
             prior_dim=int(prior_dim),
@@ -385,6 +388,88 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
         else:
             self.register_buffer("raw_strength", raw_strength)
 
+    @staticmethod
+    def _summarize_layer(
+        diagnostics: PriorFusionDiagnostics,
+        tokens: torch.Tensor,
+        prior: PriorBatch,
+        raw_strength: torch.Tensor,
+        strength: torch.Tensor,
+    ) -> dict[str, torch.Tensor]:
+        """Reduce one layer to detached scalar diagnostics.
+
+        The full attention and gate tensors are never retained. Ratios are
+        averaged per sample so that their scale does not depend on batch size.
+        """
+
+        with torch.no_grad():
+            attention = diagnostics.attention.detach().float()
+            gate = diagnostics.gate.detach().float()
+            residual = diagnostics.residual.detach().float()
+            vision = tokens.detach().float()
+
+            entropy = -(
+                attention * attention.clamp_min(1e-8).log()
+            ).sum(dim=-1)
+            confidence = prior.confidence.detach().to(
+                device=attention.device,
+                dtype=attention.dtype,
+            )
+            effective_mask = prior.mask.to(device=attention.device) & (
+                confidence > 0.0
+            )
+            valid_count = effective_mask.sum(dim=-1).to(attention.dtype)
+            maximum_entropy = valid_count.clamp_min(2.0).log()[:, None, None]
+            normalized_entropy = torch.where(
+                (valid_count > 1.0)[:, None, None],
+                entropy / maximum_entropy,
+                torch.zeros_like(entropy),
+            )
+
+            residual_norm = torch.linalg.vector_norm(
+                residual.reshape(residual.shape[0], -1),
+                dim=1,
+            )
+            vision_norm = torch.linalg.vector_norm(
+                vision.reshape(vision.shape[0], -1),
+                dim=1,
+            ).clamp_min(1e-8)
+            candidate_residual_ratio = (residual_norm / vision_norm).mean()
+
+            confidence_mask = effective_mask.to(confidence.dtype)
+            valid_confidence_mean = (
+                (confidence * confidence_mask).sum(dim=-1)
+                / valid_count.clamp_min(1.0)
+            ).mean()
+            attended_confidence = (
+                attention * confidence[:, None, None, :]
+            ).sum(dim=-1).mean()
+
+            return {
+                "raw_strength": raw_strength.detach().float(),
+                "strength": strength.detach().float(),
+                "gate_mean": gate.mean(),
+                "gate_std": gate.std(unbiased=False),
+                "gate_low_fraction": (gate < 0.05).float().mean(),
+                "gate_high_fraction": (gate > 0.95).float().mean(),
+                "attention_entropy": normalized_entropy.mean(),
+                "attention_top1": attention.max(dim=-1).values.mean(),
+                "attended_confidence": attended_confidence,
+                "valid_confidence_mean": valid_confidence_mean,
+                "valid_prior_fraction": effective_mask.float().mean(),
+                "candidate_residual_ratio": candidate_residual_ratio,
+                "applied_residual_ratio": (
+                    strength.detach().float().abs() * candidate_residual_ratio
+                ),
+            }
+
+    def pop_prior_diagnostics(self) -> dict[str, torch.Tensor]:
+        """Return and clear the most recent detached diagnostic snapshot."""
+
+        diagnostics = self._latest_diagnostics
+        self._latest_diagnostics = {}
+        return diagnostics
+
     def forward(
         self,
         features: tuple[torch.Tensor, ...] | list[torch.Tensor],
@@ -395,6 +480,8 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
         tuple[torch.Tensor, ...], tuple[dict[str, torch.Tensor], ...]
     ]:
         features = tuple(features)
+        if self.record_diagnostics:
+            self._latest_diagnostics = {}
         if layer_indices is None:
             if len(features) != self.num_layers:
                 raise ValueError(
@@ -415,6 +502,7 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
 
         enhanced: list[torch.Tensor] = []
         summaries: list[dict[str, torch.Tensor]] = []
+        summary_layer_indices: list[int] = []
         for layer_index, feature in zip(selected_layer_indices, features):
             if feature.ndim != 5:
                 raise ValueError(
@@ -441,21 +529,24 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
             ).permute(0, 1, 4, 2, 3).contiguous()
             enhanced.append(output)
 
-            if return_diagnostics:
-                attention = diagnostics.attention.clamp_min(1e-8)
+            if return_diagnostics or self.record_diagnostics:
                 summaries.append(
-                    {
-                        "strength": strength.detach(),
-                        "gate_mean": diagnostics.gate.detach().mean(),
-                        "attention_entropy": (
-                            -(attention * attention.log()).sum(dim=-1).mean().detach()
-                        ),
-                        "residual_ratio": (
-                            diagnostics.residual.detach().norm()
-                            / tokens.detach().norm().clamp_min(1e-8)
-                        ),
-                    }
+                    self._summarize_layer(
+                        diagnostics=diagnostics,
+                        tokens=tokens,
+                        prior=prior,
+                        raw_strength=self.raw_strength[layer_index],
+                        strength=strength,
+                    )
                 )
+                summary_layer_indices.append(layer_index)
+
+        if self.record_diagnostics:
+            self._latest_diagnostics = {
+                f"layer_{layer_index}/{name}": value
+                for layer_index, summary in zip(summary_layer_indices, summaries)
+                for name, value in summary.items()
+            }
 
         outputs = tuple(enhanced)
         if return_diagnostics:
@@ -480,6 +571,9 @@ def build_temporal_prior_injection(
         raise ValueError(f"Unsupported prior injection method: {method}")
 
     fusion_cfg = prior_cfg.get("fusion", {}) or {}
+    diagnostics_cfg = prior_cfg.get("diagnostics", {}) or {}
+    if not isinstance(diagnostics_cfg, dict):
+        raise ValueError("prior_injection.diagnostics must be a mapping.")
     token_dim = int(prior_cfg.get("token_dim", 128))
     return TemporalFeaturePyramidPriorInjection(
         vision_dim=int(feature_channels),
@@ -492,4 +586,5 @@ def build_temporal_prior_injection(
         confidence_bias_scale=float(fusion_cfg.get("confidence_bias_scale", 1.0)),
         initial_strength=float(fusion_cfg.get("initial_strength", 0.0)),
         learnable_strength=bool(fusion_cfg.get("learnable_strength", True)),
+        record_diagnostics=bool(diagnostics_cfg.get("enabled", False)),
     )
