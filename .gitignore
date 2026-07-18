@@ -7,6 +7,8 @@ logs/
 checkpoints/
 outputs/
 output/
+pictures/*_test*/
+pictures/test_scheme*/
 
 __pycache__/
 *.pyc
