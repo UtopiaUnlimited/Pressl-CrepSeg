@@ -151,15 +151,16 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/prior_injection/ca_hpi_m4_geography.yaml` | M4 地理上下文单来源对照；每个 patch 生成 1 个经纬度 token |
 | `configs/prior_injection/ca_hpi_m1_m2_m3_balanced.yaml` | M1+M2+M3 的来源数量平衡匹配基线 |
 | `configs/prior_injection/ca_hpi_m1_m2_m3_m4.yaml` | M1+M2+M3+M4，并启用来源数量平衡 |
+| `configs/prior_injection/sa_spatial_film_m1_m2_m3_m4.yaml` | **当前主方法**：来源分层注意力 + decoder 前空间—通道 FiLM，使用冻结 M1/M2/M3/M4 |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
-当前 CA-HPI 缓存训练入口：
+当前主方法缓存训练入口：
 
 ```bash
 conda run -n presl python -B scripts/train_cached.py \
   --config configs/galileo_3d_aware_dpt.yaml \
-  --prior-config configs/prior_injection/ca_hpi_structured.yaml \
+  --prior-config configs/prior_injection/sa_spatial_film_m1_m2_m3_m4.yaml \
   --cache-format temporal_v2 \
   --temporal-dtype float16 \
   --device cuda
@@ -176,6 +177,7 @@ conda run -n presl python -B scripts/train_cached.py \
 - `applied_residual_ratio` 额外乘以 `abs(strength)`，才表示真正进入 decoder 的注入比例；
 - `attended_confidence` 可与 `valid_confidence_mean` 比较，判断 attention 是否偏向高置信度知识。
 - 多源平衡配置还按 overlay 中的 `name` 记录 `<source_name>/attention_mass` 与 `<source_name>/valid_token_fraction`。
+- SA-SFiLM 额外记录 `film_scale_abs_mean`、`film_scale_std` 与 `film_shift_abs_mean`；多源 `<source_name>/attention_mass` 表示视觉内容决定的最终来源权重。
 
 M4 的数据边界、通用 `patch_numeric_table` 接口及 `source_balance_bias_scale` 的定义见
 [`docs/M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md`](docs/M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md)。

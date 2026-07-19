@@ -16,6 +16,7 @@ from .prior_injection import (
     ContentAwarePriorFusion,
     PriorBatch,
     PriorTokenEncoder,
+    SourceAwareSpatialFiLMFusion,
     StructuredPriorEncoder,
     TemporalFeaturePyramidPriorInjection,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "PatchSoilPriorEncoder",
     "PriorBatch",
     "PriorTokenEncoder",
+    "SourceAwareSpatialFiLMFusion",
     "StructuredPriorEncoder",
     "TemporalFeaturePyramidPriorInjection",
     "build_cached_feature_model",

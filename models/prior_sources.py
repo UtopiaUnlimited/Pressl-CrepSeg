@@ -39,7 +39,9 @@ class CompositePriorTokenEncoder(PriorTokenEncoder):
             raise ValueError("CA-HPI prior source names must be unique.")
 
     def forward(self, batch_size: int, batch: dict | None = None) -> PriorBatch:
-        source_batches = [encoder(batch_size=batch_size, batch=batch) for encoder in self.encoders]
+        source_batches = [
+            encoder(batch_size=batch_size, batch=batch) for encoder in self.encoders
+        ]
         token_dims = {item.tokens.shape[-1] for item in source_batches}
         if len(token_dims) != 1:
             raise ValueError("All prior sources must use the same token_dim.")
@@ -64,7 +66,9 @@ def _source_mapping_list(prior_cfg: dict) -> list[dict]:
     has_source = "source" in prior_cfg and prior_cfg.get("source") is not None
     has_sources = "sources" in prior_cfg and prior_cfg.get("sources") is not None
     if has_source and has_sources:
-        raise ValueError("prior_injection may define either source or sources, not both.")
+        raise ValueError(
+            "prior_injection may define either source or sources, not both."
+        )
     if has_source:
         source = prior_cfg["source"]
         if not isinstance(source, dict):
@@ -73,7 +77,9 @@ def _source_mapping_list(prior_cfg: dict) -> list[dict]:
     if has_sources:
         sources = prior_cfg["sources"]
         if not isinstance(sources, list) or not sources:
-            raise ValueError("prior_injection.sources must be a non-empty list of mappings.")
+            raise ValueError(
+                "prior_injection.sources must be a non-empty list of mappings."
+            )
         if not all(isinstance(source, dict) for source in sources):
             raise ValueError("Every prior_injection.sources item must be a mapping.")
         return list(sources)
@@ -86,8 +92,18 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
     prior_cfg = config.get("prior_injection", {}) or {}
     if not bool(prior_cfg.get("enabled", False)):
         return None
-    if str(prior_cfg.get("method", "ca_hpi")).lower() != "ca_hpi":
-        raise ValueError("Only prior_injection.method=ca_hpi is supported.")
+    method = str(prior_cfg.get("method", "ca_hpi")).lower()
+    supported_methods = {
+        "ca_hpi",
+        "cahpi",
+        "content_aware",
+        "source_aware_spatial_film",
+        "source_aware_film",
+        "spatial_film",
+        "sa_sfilm",
+    }
+    if method not in supported_methods:
+        raise ValueError(f"Unsupported prior_injection.method: {method}")
     encoder_cfg = prior_cfg.get("encoder", {}) or {}
     if not isinstance(encoder_cfg, dict):
         raise ValueError("prior_injection.encoder must be a mapping.")
@@ -130,8 +146,12 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
                     patch_id_column=str(source_cfg.get("patch_id_column", "patch_id")),
                     month_column=str(source_cfg.get("month_column", "month")),
                     valid_column=str(source_cfg.get("valid_column", "valid")),
-                    confidence_column=str(source_cfg.get("confidence_column", "confidence")),
-                    allow_missing_patch=bool(source_cfg.get("allow_missing_patch", False)),
+                    confidence_column=str(
+                        source_cfg.get("confidence_column", "confidence")
+                    ),
+                    allow_missing_patch=bool(
+                        source_cfg.get("allow_missing_patch", False)
+                    ),
                 )
             )
         elif source_kind in {"soil_table", "soilgrids"}:
@@ -152,15 +172,25 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
                     patch_id_column=str(source_cfg.get("patch_id_column", "patch_id")),
                     depth_column=str(source_cfg.get("depth_column", "depth_cm")),
                     valid_column=str(source_cfg.get("valid_column", "valid")),
-                    confidence_column=str(source_cfg.get("confidence_column", "confidence")),
-                    allow_missing_patch=bool(source_cfg.get("allow_missing_patch", False)),
+                    confidence_column=str(
+                        source_cfg.get("confidence_column", "confidence")
+                    ),
+                    allow_missing_patch=bool(
+                        source_cfg.get("allow_missing_patch", False)
+                    ),
                 )
             )
-        elif source_kind in {"patch_numeric_table", "geography_table", "location_table"}:
+        elif source_kind in {
+            "patch_numeric_table",
+            "geography_table",
+            "location_table",
+        }:
             path = source_cfg.get("path")
             stats_path = source_cfg.get("stats_path")
             if not path or not stats_path:
-                raise ValueError("Patch numeric prior source needs path and stats_path.")
+                raise ValueError(
+                    "Patch numeric prior source needs path and stats_path."
+                )
             encoders.append(
                 PatchNumericPriorEncoder(
                     table_path=path,
@@ -172,8 +202,12 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
                     dropout=dropout,
                     patch_id_column=str(source_cfg.get("patch_id_column", "patch_id")),
                     valid_column=str(source_cfg.get("valid_column", "valid")),
-                    confidence_column=str(source_cfg.get("confidence_column", "confidence")),
-                    allow_missing_patch=bool(source_cfg.get("allow_missing_patch", False)),
+                    confidence_column=str(
+                        source_cfg.get("confidence_column", "confidence")
+                    ),
+                    allow_missing_patch=bool(
+                        source_cfg.get("allow_missing_patch", False)
+                    ),
                 )
             )
         else:

@@ -27,7 +27,9 @@ SOIL_FIELDS = (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
+def _write_csv(
+    path: Path, fieldnames: list[str], rows: list[dict[str, object]]
+) -> None:
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -45,7 +47,9 @@ def _write_stats(path: Path, features: tuple[str, ...]) -> None:
         )
 
 
-def _small_environment_config(climate_path: Path, climate_stats: Path, soil_path: Path, soil_stats: Path) -> dict:
+def _small_environment_config(
+    climate_path: Path, climate_stats: Path, soil_path: Path, soil_stats: Path
+) -> dict:
     return {
         "data": {"num_classes": 19},
         "encoder": {"hidden_layers": [3, 6, 9, 12]},
@@ -54,7 +58,11 @@ def _small_environment_config(climate_path: Path, climate_stats: Path, soil_path
             "decoder_channels": 16,
             "decoder_blocks": 1,
             "dropout": 0.0,
-            "temporal_readout": {"num_months": 12, "hidden_channels": 8, "dropout": 0.0},
+            "temporal_readout": {
+                "num_months": 12,
+                "hidden_channels": 8,
+                "dropout": 0.0,
+            },
         },
         "prior_injection": {
             "enabled": True,
@@ -170,9 +178,15 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
         self.assertEqual(tuple(prior.tokens.shape), (2, 15, 16))
         self.assertTrue(prior.mask.all())
         self.assertTrue(torch.allclose(prior.confidence[:, 11], torch.full((2,), 0.5)))
-        self.assertTrue(torch.allclose(prior.confidence[:, 12:], torch.full((2, 3), 0.8)))
-        self.assertTrue(torch.equal(prior.type_ids[:, :12], torch.zeros(2, 12, dtype=torch.long)))
-        self.assertTrue(torch.equal(prior.type_ids[:, 12:], torch.ones(2, 3, dtype=torch.long)))
+        self.assertTrue(
+            torch.allclose(prior.confidence[:, 12:], torch.full((2, 3), 0.8))
+        )
+        self.assertTrue(
+            torch.equal(prior.type_ids[:, :12], torch.zeros(2, 12, dtype=torch.long))
+        )
+        self.assertTrue(
+            torch.equal(prior.type_ids[:, 12:], torch.ones(2, 3, dtype=torch.long))
+        )
 
     def test_missing_patch_is_rejected_by_default(self) -> None:
         encoder = build_prior_token_encoder(self.config)
@@ -202,7 +216,9 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
 
         self.assertEqual(tuple(prior.tokens.shape), (2, 16, 16))
         self.assertTrue(prior.mask[:, -1].all())
-        self.assertTrue(torch.allclose(prior.confidence[:, -1], torch.tensor([0.9, 1.0])))
+        self.assertTrue(
+            torch.allclose(prior.confidence[:, -1], torch.tensor([0.9, 1.0]))
+        )
         self.assertTrue(torch.equal(prior.type_ids[:, -1], torch.full((2,), 2)))
 
     def test_cached_temporal_decoder_consumes_m2_m3_priors(self) -> None:
@@ -216,9 +232,16 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
         logits = model(batch)
         self.assertEqual(tuple(logits.shape), (2, 19, 16, 16))
         logits.mean().backward()
-        self.assertTrue(any(parameter.grad is not None for parameter in model.prior_token_encoder.parameters()))
+        self.assertTrue(
+            any(
+                parameter.grad is not None
+                for parameter in model.prior_token_encoder.parameters()
+            )
+        )
 
-    def test_preparation_freezes_tables_and_uses_train_folds_for_statistics(self) -> None:
+    def test_preparation_freezes_tables_and_uses_train_folds_for_statistics(
+        self,
+    ) -> None:
         root = Path(self.temp_dir.name)
         climate_output = root / "climate_frozen.csv"
         climate_stats = root / "climate_frozen_stats.json"
@@ -281,6 +304,7 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
         cases = (
             ("ca_hpi_m4_geography.yaml", 1, [1]),
             ("ca_hpi_m1_m2_m3_m4.yaml", 244, [228, 12, 3, 1]),
+            ("sa_spatial_film_m1_m2_m3_m4.yaml", 244, [228, 12, 3, 1]),
         )
         for overlay_name, expected_tokens, expected_type_counts in cases:
             with self.subTest(overlay=overlay_name):

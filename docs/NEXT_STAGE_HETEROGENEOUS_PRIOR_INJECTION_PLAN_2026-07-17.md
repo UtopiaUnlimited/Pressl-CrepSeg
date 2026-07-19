@@ -4,21 +4,30 @@
 
 首次整理：2026-07-17
 
-最后更新：2026-07-18
+最后更新：2026-07-19
 
 任务：基于 frozen Galileo 多时相特征的 PASTIS 作物语义分割
 
 > 本文件决定“接下来做什么”。若其他规划、讲稿或旧运行手册与本文冲突，以本文为准。文档状态见 [README.md](README.md)。
 
-## 0. 当前优先级：先得到先验体系结果
+## 0. 当前优先级：把已激活的先验转化为任务收益
 
-剩余研究时间有限，执行优先级固定为：
+CA-HPI 的 train/val 诊断已经证明先验分支会被模型使用：M1+M2+M3 比
+M1-only 更早出现非零 strength、集中 attention 和明显 residual；但现有 fold4
+曲线未显示稳定的 mIoU 增益。当前问题已经从“先验是否接入”变为“先验如何直接、
+稳定地调制视觉表征”。
 
-1. **第一优先级：** 用已经跑通的 CA-HPI 和冻结先验 v1，取得一组可与 3D-Aware 无先验结果比较的正式结果；
-2. **第二优先级：** 结果出现后，只补最能解释结果的 FiLM 或 class-shuffled 对照；
-3. **第三优先级：** 时间仍充足时才扩展 stage、文本、更多 seed 或第二 decoder。
+剩余研究时间有限，执行优先级更新为：
 
-在第一组 M1 结果产生前，不继续扩充通用框架，不重做大规模文献型先验，不启动完整消融矩阵。当前 `pastis_ext_prior_v1.csv` 是首轮冻结输入，fold4/fold5 结果不得反向修改该表。
+1. **第一优先级：** 运行 decoder 前 Source-Aware Spatial-FiLM（SA-SFiLM），
+   使用已经冻结的 M1/M2/M3/M4，不再增加新知识源；
+2. **第二优先级：** 用 source-balanced CA-HPI 作为同接口注意力基线，比较最佳
+   fold4 mIoU、来源权重和 applied residual；
+3. **第三优先级：** 主方法有正信号后才补一次 fold5、必要的 shuffled 对照或第二
+   decoder，不再铺开完整排列组合。
+
+当前所有冻结表和 train-fold 统计不得根据 fold4/fold5 结果反向修改。完整扩散预处理、
+边界辅助 decoder 和新的 M5/M6 先验均不进入当前主线。
 
 ## 1. 已经冻结的方向
 
@@ -52,7 +61,7 @@ frozen Galileo temporal_v2 features
 - 这些结果只说明旧注入方式存在很弱的可研究信号，完整数据见 [DECODER_EXPERIMENTS.md](DECODER_EXPERIMENTS.md)。
 - **下一步不是把旧 P1/P2 原样搬到 3D-Aware 上重跑。** 旧方案只作为历史基线和失败诊断，资源优先用于新的注入方法。
 
-## 2. 方法定义：CA-HPI
+## 2. 方法定义：CA-HPI 基线与 SA-SFiLM 主方法
 
 新方法暂命名为：
 
@@ -153,7 +162,38 @@ Galileo / temporal_v2
 
 当前不实现 decoder 内部 8×8 注入，不做注入位置消融，也不在输入端、decoder 内部和 logits 端叠加多套模块。
 
-### 2.5 方法的通用性边界
+### 2.5 主方法：Source-Aware Spatial-FiLM
+
+SA-SFiLM 复用同一个 `PriorBatch` 和 decoder 前插入点，但不再让所有来源只通过一次
+全局 token softmax 竞争。视觉 query 先在每个来源内部选择 token，得到
+`context_s`；共享 source gate 再根据当前视觉内容和 `context_s` 生成显式来源权重：
+
+```text
+context_s = attention(V, PriorTokens_s)
+source_weight = softmax(source_gate([LN(V), context_s]) + source_evidence)
+context = sum_s source_weight_s * context_s
+
+gamma, beta = FiLM(context)
+spatial_gate = sigmoid(MLP([LN(V), context]))
+Vout = V + tanh(alpha) * spatial_gate * (gamma * LN(V) + beta)
+```
+
+它同时保留三种能力：
+
+- M1 可以在来源内部选择类别—月份 token；
+- M2/M3/M4 不再因为 token 数少而被 M1 的 228 个 token 淹没；
+- FiLM 直接决定受影响的视觉通道，spatial gate 决定受影响的位置和月份。
+
+主配置使用 `initial_strength: 0.01` 和 `initial_gate_bias: -1.0`。它仍近似恒等
+映射，但避免旧配置的零 strength 与负 gate 双重抑制导致先验到训练后期才激活。
+TensorBoard 除旧诊断外，新增 `film_scale_abs_mean`、`film_shift_abs_mean`，并把
+各 `<source_name>/attention_mass` 定义为 source gate 的最终权重。
+
+当前主配置：
+
+- [sa_spatial_film_m1_m2_m3_m4.yaml](../configs/prior_injection/sa_spatial_film_m1_m2_m3_m4.yaml)
+
+### 2.6 方法的通用性边界
 
 CA-HPI 不包含以下任务常量：
 
@@ -165,7 +205,7 @@ CA-HPI 不包含以下任务常量：
 
 新任务只需要实现自己的 prior adapter，并提供 `[B,Np,Dp]`、mask 和 confidence。视觉侧只需把 decoder 接收的时间特征金字塔交给公共前置模块。
 
-### 2.6 拟验证的组合创新点
+### 2.7 拟验证的组合创新点
 
 CA-HPI 不是把 cross-attention 换一个名字。相对现有简单方案，项目需要验证以下组合是否真正成立：
 
@@ -308,13 +348,17 @@ z(c,m) = E_entity(c)
 | S4 物候建模 | R1–R4；处理 stage/confidence/unknown | 物候 token 数据与消融 | 找到知识内容的有效边界 |
 | S5 通用性验证 | 第二 decoder；可选 missing-month / low-data | 插拔成本、资源和鲁棒性报告 | 形成最终论文证据链 |
 
-实现状态（2026-07-18）：S0、S1 已完成。decoder 前 CA-HPI、structured phenology adapter、confidence 映射、配置 overlay、训练诊断和单元测试均已实现；本地 `llm` 环境使用真实 `temporal_v2` train/val 缓存完成了 2-batch 训练—验证冒烟，四层 strength 在首次优化后均离开 0。首轮输入已冻结为 `pastis_ext_prior_v1.csv`；当前唯一阻塞结果的是代码同步和服务器正式 M1 训练，不是 FiLM、文本或更多模块。
+实现状态（2026-07-19）：S0、S1 已完成。decoder 前 CA-HPI 已取得正式训练曲线，
+证明先验分支会激活，但现有多源组合未显示稳定 fold4 mIoU 增益。SA-SFiLM 已实现
+来源内 token 选择、显式 source gate、空间 gate、通道 FiLM、小非零初始 strength 和
+对应诊断；当前下一步是服务器 2-batch 冒烟与 seed42 正式训练。
 
 当前代码入口：
 
 - [models/prior_injection.py](../models/prior_injection.py)：`PriorBatch`、通用 adapter 边界、structured encoder、CA-HPI 和多层前置注入；
 - [models/phenology.py](../models/phenology.py)：物候表与 confidence 的 task adapter；
 - [ca_hpi_structured.yaml](../configs/prior_injection/ca_hpi_structured.yaml)：当前 structured overlay；
+- [sa_spatial_film_m1_m2_m3_m4.yaml](../configs/prior_injection/sa_spatial_film_m1_m2_m3_m4.yaml)：当前 SA-SFiLM 主配置；
 - [test_prior_injection.py](../tests/test_prior_injection.py)：回退、mask/confidence、跨 decoder 和互斥性测试。
 
 训练诊断按层、按 train/val 写入 TensorBoard `prior/...`，并保存为 `prior_diagnostics_history.json/csv`。核心字段包括 effective strength、gate mean/std、归一化 attention entropy、attention top-1、attended confidence、候选 residual ratio 和实际 applied residual ratio。完整 attention/gate 张量不会跨 batch 保留或写入 checkpoint。
@@ -330,10 +374,11 @@ z(c,m) = E_entity(c)
 5. [x] 在本地真实缓存跑 2-batch 冒烟，确认训练、验证、反向传播和诊断落盘；
 6. [x] 实现并记录 strength/gate/attention/residual/confidence 的训练日志；
 7. [x] 冻结 `pastis_ext_prior_v1.csv`，首轮结果前不再改曲线；
-8. [ ] 提交同步后在服务器补 2-batch 冒烟，确认服务器缓存和资源链路；
-9. [ ] 直接运行 M1 seed42，训练最多 50 epoch，由 fold4 选择 `best_val_miou.pt`；
-10. [ ] 固定 checkpoint 后评估一次 fold5，并写入实验台账；
-11. [ ] 根据第一结果决定只补 B1 FiLM 或 class-shuffled，不预先铺开全部实验。
+8. [x] 完成 CA-HPI M1 与多源训练诊断，确认先验激活但指标暂未形成稳定增益；
+9. [x] 实现 SA-SFiLM 与来源级/FiLM 诊断，并保留同接口 CA-HPI 对照；
+10. [ ] 在服务器完成 SA-SFiLM 2-batch 冒烟；
+11. [ ] 运行 SA-SFiLM seed42 最多 50 epoch，由 fold4 选择 `best_val_miou.pt`；
+12. [ ] 与 source-balanced CA-HPI 比较后固定 checkpoint，再评估一次 fold5并写入台账。
 
 ## 8. 两条协作工作线
 

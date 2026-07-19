@@ -42,6 +42,24 @@
 
 ---
 
+## 2.1 2026-07-19 补充：空间—通道调制路线
+
+组内补充的三篇遥感论文共同把路线从“继续扩充先验 token”推进到“让上下文直接调制
+decoder 表征”：
+
+| 论文 | 关键机制 | 本项目采用/不采用的部分 |
+| --- | --- | --- |
+| [Spatiotemporal Attention With Conditional Feature Modulation for Satellite-Based Solar Irradiance Prediction](https://doi.org/10.1109/LGRS.2025.3647285) | AC U-Net 在 bottleneck 用上下文生成 FiLM 通道缩放和平移 | 采用 decoder 前通道调制；不照搬预测任务和 U-Net |
+| [PGSUNet](https://doi.org/10.3390/app152413062) | 独立物候分支生成空间注意力，并用边界监督保护细节 | 采用视觉条件空间 gate；边界辅助头暂缓，避免改变 decoder/loss 后无法归因 |
+| [Diffusion-Driven RRN with SSARN](https://doi.org/10.3390/rs18132156) | 扩散残差、空间—光谱注意力、SSIM 稳定样本筛选 | 采用可靠性/confidence 思想；不把完整扩散归一化引入当前主线 |
+
+据此形成 Source-Aware Spatial-FiLM：每个来源先独立产生视觉条件上下文，再学习来源
+权重；融合上下文生成通道 FiLM 参数，同时生成逐视觉 token 的空间 gate。该方法仍只
+位于 Galileo 特征与 decoder 之间，保持 task adapter、backbone、cache 和 decoder
+解耦。
+
+---
+
 ## 3. 通用异构先验注入
 
 ### 3.1 FiLM：最小而清晰的条件调制基线
@@ -345,4 +363,3 @@ p_{c,r,y}(t)=p_c(a_{r,y}t+b_{r,y})+\Delta_{r,y}(t)
 3. 为后续实验预注册一个最小矩阵：无先验、参数量匹配、正确先验、错配先验、移位先验、缺失先验，并明确总体与分组指标。
 
 等这三项写清楚后，再决定首轮实现 FiLM、门控残差还是 DAFT-style 内容感知调制。
-
