@@ -148,6 +148,9 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/galileo_adapted_dpt_temporal_readout.yaml` | 使用完整 T 缓存训练带月份读出的方案四 |
 | `configs/galileo_3d_aware_dpt.yaml` | 3D-Aware DPT 内部晚期融合配置；当前先验方法的固定视觉开发骨干 |
 | `configs/prior_injection/ca_hpi_structured.yaml` | decoder 前 CA-HPI + 冻结 structured prior v1；通过 `--prior-config` 组合 |
+| `configs/prior_injection/ca_hpi_m4_geography.yaml` | M4 地理上下文单来源对照；每个 patch 生成 1 个经纬度 token |
+| `configs/prior_injection/ca_hpi_m1_m2_m3_balanced.yaml` | M1+M2+M3 的来源数量平衡匹配基线 |
+| `configs/prior_injection/ca_hpi_m1_m2_m3_m4.yaml` | M1+M2+M3+M4，并启用来源数量平衡 |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 
@@ -172,6 +175,10 @@ conda run -n presl python -B scripts/train_cached.py \
 - `candidate_residual_ratio` 是门控候选残差相对视觉特征的范数；
 - `applied_residual_ratio` 额外乘以 `abs(strength)`，才表示真正进入 decoder 的注入比例；
 - `attended_confidence` 可与 `valid_confidence_mean` 比较，判断 attention 是否偏向高置信度知识。
+- 多源平衡配置还按 overlay 中的 `name` 记录 `<source_name>/attention_mass` 与 `<source_name>/valid_token_fraction`。
+
+M4 的数据边界、通用 `patch_numeric_table` 接口及 `source_balance_bias_scale` 的定义见
+[`docs/M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md`](docs/M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md)。
 
 所有配置都固定 PASTIS 协议和 Galileo 权重；方案五额外设置 `preserve_temporal_features: true`：
 

@@ -1,0 +1,32 @@
+run_suffix: ca_hpi_m4_geography_v1
+
+prior_injection:
+  enabled: true
+  method: ca_hpi
+  token_dim: 128
+
+  sources:
+    - name: m4_geography
+      kind: patch_numeric_table
+      path: data/priors/pastis_patch_locations_v1.csv
+      stats_path: data/priors/pastis_patch_locations_v1_stats.json
+      features: [lon, lat]
+      patch_id_column: patch_id
+      allow_missing_patch: false
+
+  encoder:
+    hidden_dim: 128
+    time_frequencies: 4
+    dropout: 0.0
+
+  fusion:
+    attention_dim: 128
+    num_heads: 4
+    gate_hidden_dim: 128
+    dropout: 0.1
+    confidence_bias_scale: 1.0
+    initial_strength: 0.0
+    learnable_strength: true
+
+  diagnostics:
+    enabled: true

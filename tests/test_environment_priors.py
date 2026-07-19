@@ -11,6 +11,8 @@ import torch
 from models import build_cached_feature_model
 from models.prior_sources import build_prior_token_encoder
 from scripts.prepare_environment_prior_tables import prepare_climate, prepare_soil
+from scripts.prepare_patch_numeric_prior import prepare_patch_numeric_stats
+from utils import apply_prior_injection_overlay, load_config
 
 
 CLIMATE_FIELDS = ("t2m_c", "tp_mm", "ssrd_mj_m2", "swvl1")
@@ -22,6 +24,7 @@ SOIL_FIELDS = (
     "cec_cmolkg",
     "nitrogen_gkg",
 )
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
@@ -94,6 +97,8 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
         self.climate_stats = root / "climate_stats.json"
         self.soil_path = root / "soil.csv"
         self.soil_stats = root / "soil_stats.json"
+        self.location_path = root / "locations.csv"
+        self.location_stats = root / "location_stats.json"
         climate_rows: list[dict[str, object]] = []
         for patch_id in (10000, 10001):
             for month in range(1, 13):
@@ -139,6 +144,15 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
             soil_rows,
         )
         _write_stats(self.soil_stats, SOIL_FIELDS)
+        _write_csv(
+            self.location_path,
+            ["patch_id", "lon", "lat", "confidence"],
+            [
+                {"patch_id": 10000, "lon": 1.0, "lat": 45.0, "confidence": 1.0},
+                {"patch_id": 10001, "lon": 2.0, "lat": 46.0, "confidence": 0.9},
+            ],
+        )
+        _write_stats(self.location_stats, ("lon", "lat"))
         self.config = _small_environment_config(
             self.climate_path,
             self.climate_stats,
@@ -164,6 +178,32 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
         encoder = build_prior_token_encoder(self.config)
         with self.assertRaisesRegex(KeyError, "no rows for patch_id"):
             encoder(batch_size=1, batch={"patch_id": [99999]})
+
+    def test_generic_patch_numeric_source_adds_one_static_token(self) -> None:
+        config = _small_environment_config(
+            self.climate_path,
+            self.climate_stats,
+            self.soil_path,
+            self.soil_stats,
+        )
+        config["prior_injection"]["sources"].append(
+            {
+                "kind": "patch_numeric_table",
+                "path": str(self.location_path),
+                "stats_path": str(self.location_stats),
+                "features": ["lon", "lat"],
+            }
+        )
+
+        prior = build_prior_token_encoder(config)(
+            batch_size=2,
+            batch={"patch_id": [10001, 10000]},
+        )
+
+        self.assertEqual(tuple(prior.tokens.shape), (2, 16, 16))
+        self.assertTrue(prior.mask[:, -1].all())
+        self.assertTrue(torch.allclose(prior.confidence[:, -1], torch.tensor([0.9, 1.0])))
+        self.assertTrue(torch.equal(prior.type_ids[:, -1], torch.full((2,), 2)))
 
     def test_cached_temporal_decoder_consumes_m2_m3_priors(self) -> None:
         model = build_cached_feature_model(self.config, in_channels=8, num_layers=4)
@@ -214,6 +254,47 @@ class EnvironmentPriorEncoderTest(unittest.TestCase):
             self.assertEqual(len(list(csv.DictReader(handle))), 24)
         with soil_output.open("r", encoding="utf-8", newline="") as handle:
             self.assertEqual(len(list(csv.DictReader(handle))), 6)
+
+    def test_patch_numeric_statistics_use_train_folds_only(self) -> None:
+        output = Path(self.temp_dir.name) / "location_frozen_stats.json"
+        rows = [
+            {"patch_id": 10000, "fold": 1, "lon": 1.0, "lat": 45.0},
+            {"patch_id": 10001, "fold": 2, "lon": 3.0, "lat": 47.0},
+            {"patch_id": 10002, "fold": 4, "lon": 100.0, "lat": 100.0},
+        ]
+        source = Path(self.temp_dir.name) / "location_with_folds.csv"
+        _write_csv(source, ["patch_id", "fold", "lon", "lat"], rows)
+
+        payload = prepare_patch_numeric_stats(
+            source,
+            output,
+            features=("lon", "lat"),
+            train_folds={1, 2, 3},
+        )
+
+        self.assertEqual(payload["train_folds"], [1, 2, 3])
+        self.assertEqual(payload["mean"], {"lon": 2.0, "lat": 46.0})
+        self.assertEqual(payload["std"], {"lon": 1.0, "lat": 1.0})
+
+    def test_frozen_m4_and_combined_overlays_build_expected_token_sets(self) -> None:
+        base = load_config(PROJECT_ROOT / "configs" / "galileo_3d_aware_dpt.yaml")
+        cases = (
+            ("ca_hpi_m4_geography.yaml", 1, [1]),
+            ("ca_hpi_m1_m2_m3_m4.yaml", 244, [228, 12, 3, 1]),
+        )
+        for overlay_name, expected_tokens, expected_type_counts in cases:
+            with self.subTest(overlay=overlay_name):
+                config = apply_prior_injection_overlay(
+                    base,
+                    PROJECT_ROOT / "configs" / "prior_injection" / overlay_name,
+                )
+                prior = build_prior_token_encoder(config)(
+                    batch_size=1,
+                    batch={"patch_id": [10000]},
+                )
+                self.assertEqual(tuple(prior.tokens.shape), (1, expected_tokens, 128))
+                counts = torch.bincount(prior.type_ids[0]).tolist()
+                self.assertEqual(counts, expected_type_counts)
 
 
 if __name__ == "__main__":

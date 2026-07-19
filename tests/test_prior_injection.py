@@ -204,6 +204,32 @@ class StructuredPriorTest(unittest.TestCase):
         self.assertTrue(torch.equal(diagnostics.residual, torch.zeros_like(diagnostics.residual)))
         self.assertTrue(torch.isfinite(diagnostics.attention).all())
 
+    def test_source_balance_removes_token_count_prior(self) -> None:
+        fusion = ContentAwarePriorFusion(
+            vision_dim=4,
+            prior_dim=4,
+            attention_dim=4,
+            num_heads=2,
+            gate_hidden_dim=4,
+            dropout=0.0,
+            confidence_bias_scale=0.0,
+            source_balance_bias_scale=1.0,
+        )
+        for projection in (fusion.query_projection, fusion.key_projection):
+            torch.nn.init.zeros_(projection.weight)
+            torch.nn.init.zeros_(projection.bias)
+        prior = PriorBatch(
+            tokens=torch.zeros(1, 4, 4),
+            mask=torch.ones(1, 4, dtype=torch.bool),
+            confidence=torch.ones(1, 4),
+            type_ids=torch.tensor([[0, 0, 0, 1]], dtype=torch.long),
+        )
+
+        attention = fusion(torch.zeros(1, 1, 4), prior).attention.mean(dim=(1, 2))
+
+        self.assertAlmostEqual(float(attention[0, :3].sum()), 0.5, places=6)
+        self.assertAlmostEqual(float(attention[0, 3]), 0.5, places=6)
+
 
 class PreDecoderPriorInjectionTest(unittest.TestCase):
     def test_recorded_diagnostics_are_scalar_finite_and_consumed_once(self) -> None:
@@ -274,6 +300,37 @@ class PreDecoderPriorInjectionTest(unittest.TestCase):
         sum(output.square().mean() for output in enhanced).backward()
         self.assertIsNotNone(injector.raw_strength.grad)
         self.assertGreater(float(injector.raw_strength.grad.abs().sum()), 0.0)
+
+    def test_multisource_diagnostics_report_attention_mass_by_source(self) -> None:
+        injector = TemporalFeaturePyramidPriorInjection(
+            vision_dim=4,
+            prior_dim=4,
+            num_layers=1,
+            attention_dim=4,
+            num_heads=2,
+            gate_hidden_dim=4,
+            dropout=0.0,
+            source_balance_bias_scale=1.0,
+            record_diagnostics=True,
+        )
+        prior = PriorBatch(
+            tokens=torch.randn(1, 3, 4),
+            mask=torch.ones(1, 3, dtype=torch.bool),
+            confidence=torch.ones(1, 3),
+            type_ids=torch.tensor([[0, 0, 1]], dtype=torch.long),
+            source_names=("source_0", "source_1"),
+        )
+
+        injector((torch.randn(1, 2, 4, 2, 2),), prior)
+        diagnostics = injector.pop_prior_diagnostics()
+
+        masses = [
+            diagnostics["layer_0/source_0/attention_mass"],
+            diagnostics["layer_0/source_1/attention_mass"],
+        ]
+        self.assertAlmostEqual(float(sum(masses)), 1.0, places=6)
+        self.assertIn("layer_0/source_0/valid_token_fraction", diagnostics)
+        self.assertIn("layer_0/source_1/valid_token_fraction", diagnostics)
 
     def test_same_pre_decoder_module_runs_before_two_decoder_families(self) -> None:
         for decoder_name in (

@@ -5,7 +5,11 @@ from .cached import (
     cached_decoder_uses_temporal_features,
 )
 from .model import GalileoDPTSegmentation, build_model
-from .environment_priors import PatchClimatePriorEncoder, PatchSoilPriorEncoder
+from .environment_priors import (
+    PatchClimatePriorEncoder,
+    PatchNumericPriorEncoder,
+    PatchSoilPriorEncoder,
+)
 from .phenology import PhenologyPriorTokenEncoder
 from .prior_sources import CompositePriorTokenEncoder, build_prior_token_encoder
 from .prior_injection import (
@@ -23,6 +27,7 @@ __all__ = [
     "CompositePriorTokenEncoder",
     "PhenologyPriorTokenEncoder",
     "PatchClimatePriorEncoder",
+    "PatchNumericPriorEncoder",
     "PatchSoilPriorEncoder",
     "PriorBatch",
     "PriorTokenEncoder",

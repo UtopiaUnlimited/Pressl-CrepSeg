@@ -7,9 +7,11 @@ from torch import nn
 
 from .environment_priors import (
     CLIMATE_FEATURES,
+    GEOGRAPHY_FEATURES,
     SOIL_DEPTHS,
     SOIL_FEATURES,
     PatchClimatePriorEncoder,
+    PatchNumericPriorEncoder,
     PatchSoilPriorEncoder,
 )
 from .phenology import build_phenology_token_encoder_from_source
@@ -19,11 +21,22 @@ from .prior_injection import PriorBatch, PriorTokenEncoder
 class CompositePriorTokenEncoder(PriorTokenEncoder):
     """Concatenate independently encoded prior sources into one CA-HPI set."""
 
-    def __init__(self, encoders: Sequence[PriorTokenEncoder]) -> None:
+    def __init__(
+        self,
+        encoders: Sequence[PriorTokenEncoder],
+        source_names: Sequence[str] | None = None,
+    ) -> None:
         super().__init__()
         if not encoders:
             raise ValueError("Composite prior encoder needs at least one source.")
         self.encoders = nn.ModuleList(encoders)
+        if source_names is None:
+            source_names = [f"source_{index}" for index in range(len(encoders))]
+        if len(source_names) != len(encoders):
+            raise ValueError("source_names must align with prior encoders.")
+        self.source_names = tuple(str(name) for name in source_names)
+        if len(set(self.source_names)) != len(self.source_names):
+            raise ValueError("CA-HPI prior source names must be unique.")
 
     def forward(self, batch_size: int, batch: dict | None = None) -> PriorBatch:
         source_batches = [encoder(batch_size=batch_size, batch=batch) for encoder in self.encoders]
@@ -43,6 +56,7 @@ class CompositePriorTokenEncoder(PriorTokenEncoder):
             mask=torch.cat([item.mask for item in source_batches], dim=1),
             confidence=torch.cat([item.confidence for item in source_batches], dim=1),
             type_ids=torch.cat(type_ids, dim=1),
+            source_names=self.source_names,
         )
 
 
@@ -84,8 +98,10 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
     num_classes = int(config["data"]["num_classes"])
 
     encoders: list[PriorTokenEncoder] = []
-    for source_cfg in _source_mapping_list(prior_cfg):
+    source_names: list[str] = []
+    for source_index, source_cfg in enumerate(_source_mapping_list(prior_cfg)):
         source_kind = str(source_cfg.get("kind", "phenology_table")).lower()
+        source_names.append(str(source_cfg.get("name", f"source_{source_index}")))
         if source_kind in {"phenology_table", "class_month_table"}:
             encoders.append(
                 build_phenology_token_encoder_from_source(
@@ -140,6 +156,26 @@ def build_prior_token_encoder(config: dict) -> PriorTokenEncoder | None:
                     allow_missing_patch=bool(source_cfg.get("allow_missing_patch", False)),
                 )
             )
+        elif source_kind in {"patch_numeric_table", "geography_table", "location_table"}:
+            path = source_cfg.get("path")
+            stats_path = source_cfg.get("stats_path")
+            if not path or not stats_path:
+                raise ValueError("Patch numeric prior source needs path and stats_path.")
+            encoders.append(
+                PatchNumericPriorEncoder(
+                    table_path=path,
+                    stats_path=stats_path,
+                    features=source_cfg.get("features", GEOGRAPHY_FEATURES),
+                    token_dim=token_dim,
+                    hidden_dim=hidden_dim,
+                    time_frequencies=time_frequencies,
+                    dropout=dropout,
+                    patch_id_column=str(source_cfg.get("patch_id_column", "patch_id")),
+                    valid_column=str(source_cfg.get("valid_column", "valid")),
+                    confidence_column=str(source_cfg.get("confidence_column", "confidence")),
+                    allow_missing_patch=bool(source_cfg.get("allow_missing_patch", False)),
+                )
+            )
         else:
             raise ValueError(f"Unsupported CA-HPI prior source kind: {source_kind}")
-    return CompositePriorTokenEncoder(encoders)
+    return CompositePriorTokenEncoder(encoders, source_names=source_names)

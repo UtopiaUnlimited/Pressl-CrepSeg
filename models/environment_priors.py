@@ -21,6 +21,7 @@ SOIL_FEATURES = (
     "nitrogen_gkg",
 )
 SOIL_DEPTHS = ("0-5", "5-15", "15-30")
+GEOGRAPHY_FEATURES = ("lon", "lat")
 
 
 def _read_csv_rows(path: str | Path) -> list[dict[str, str]]:
@@ -219,6 +220,99 @@ class _PatchTablePriorEncoder(PriorTokenEncoder):
         if self.time_values is not None:
             kwargs["time_values"] = self.time_values.index_select(0, rows)
         return self.encoder(**kwargs)
+
+
+class PatchNumericPriorEncoder(_PatchTablePriorEncoder):
+    """Encode one static numeric context token for each patch.
+
+    This is the generic adapter for patch-keyed metadata that is available at
+    inference time, such as geographic coordinates, topography, or other
+    frozen environmental summaries.  Feature normalization must be supplied
+    by a statistics file fitted on the training folds only.
+    """
+
+    def __init__(
+        self,
+        table_path: str | Path,
+        stats_path: str | Path,
+        features: Sequence[str],
+        token_dim: int = 128,
+        hidden_dim: int = 128,
+        time_frequencies: int = 4,
+        dropout: float = 0.0,
+        patch_id_column: str = "patch_id",
+        valid_column: str = "valid",
+        confidence_column: str = "confidence",
+        allow_missing_patch: bool = False,
+    ) -> None:
+        features = tuple(str(feature) for feature in features)
+        if not features:
+            raise ValueError("Patch numeric prior needs at least one feature.")
+        rows = _read_csv_rows(table_path)
+        _require_columns(rows, [patch_id_column, *features], table_path)
+        means, stds = _load_standardization(stats_path, features)
+        has_valid = valid_column in rows[0]
+        has_confidence = confidence_column in rows[0]
+
+        grouped: dict[int, tuple[list[float], bool, float]] = {}
+        for row_number, row in enumerate(rows, start=2):
+            patch_id = _parse_patch_id(row[patch_id_column], table_path, row_number)
+            if patch_id in grouped:
+                raise ValueError(f"Duplicate patch_id in {table_path}: {patch_id}")
+            valid = (
+                _parse_bool(row[valid_column], valid_column, table_path, row_number)
+                if has_valid
+                else True
+            )
+            confidence = (
+                _parse_float(row[confidence_column], confidence_column, table_path, row_number)
+                if has_confidence
+                else 1.0
+            )
+            if not 0.0 <= confidence <= 1.0:
+                raise ValueError(
+                    f"Patch numeric confidence must be in [0,1] in "
+                    f"{table_path} row {row_number}."
+                )
+            if valid:
+                values = [
+                    _parse_float(row[feature], feature, table_path, row_number)
+                    for feature in features
+                ]
+            else:
+                values = [0.0] * len(features)
+                confidence = 0.0
+            grouped[patch_id] = (values, valid, confidence)
+
+        patch_ids = sorted(grouped)
+        values = torch.zeros((len(patch_ids), 1, len(features)), dtype=torch.float32)
+        mask = torch.zeros((len(patch_ids), 1), dtype=torch.bool)
+        confidence = torch.zeros((len(patch_ids), 1), dtype=torch.float32)
+        for patch_index, patch_id in enumerate(patch_ids):
+            raw_values, valid, row_confidence = grouped[patch_id]
+            values[patch_index, 0] = torch.tensor(raw_values)
+            mask[patch_index, 0] = valid
+            confidence[patch_index, 0] = row_confidence
+        values = (values - means.view(1, 1, -1)) / stds.view(1, 1, -1)
+        values = torch.where(mask.unsqueeze(-1), values, torch.zeros_like(values))
+        type_ids = torch.zeros((len(patch_ids), 1), dtype=torch.long)
+        super().__init__(
+            patch_ids=patch_ids,
+            numeric_values=values,
+            token_mask=mask,
+            token_confidence=confidence,
+            type_ids=type_ids,
+            structured_encoder=StructuredPriorEncoder(
+                numeric_dim=len(features),
+                token_dim=int(token_dim),
+                hidden_dim=int(hidden_dim),
+                num_types=1,
+                time_frequencies=int(time_frequencies),
+                dropout=float(dropout),
+            ),
+            allow_missing_patch=allow_missing_patch,
+        )
+        self.features = features
 
 
 class PatchClimatePriorEncoder(_PatchTablePriorEncoder):

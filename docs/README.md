@@ -20,6 +20,7 @@
 | [DECODER_EXPERIMENTS.md](DECODER_EXPERIMENTS.md) | 正式实验台账；保存总体、逐类结果和审计状态 | 新结果只追加到这里，不从讲稿反推数据 |
 | [RELATED_WORK_HETEROGENEOUS_PRIOR_INJECTION_2026-07-17.md](RELATED_WORK_HETEROGENEOUS_PRIOR_INJECTION_2026-07-17.md) | 当前方法的论文依据与相关工作矩阵 | 用于方案论证和正式引用核对 |
 | [M2_M3_CLIMATE_SOIL_PRIOR_CATALOG.md](M2_M3_CLIMATE_SOIL_PRIOR_CATALOG.md) | M2 气象与 M3 土壤先验的资料、字段、接入和泄漏边界 | 冻结训练表、CA-HPI 接口与可直接运行的实验命令 |
+| [M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md](M4_GEOGRAPHIC_PRIOR_AND_SOURCE_BALANCING.md) | M4 地理上下文、通用静态数值 adapter 与多源注意力平衡 | M4 数据边界、受控配置和诊断解释 |
 | [服务器使用指南.md](../服务器使用指南.md) | 当前服务器操作说明 | 只用于人工指导；Codex 不自动连接服务器 |
 
 ## REFERENCE：仍有用，但不决定路线

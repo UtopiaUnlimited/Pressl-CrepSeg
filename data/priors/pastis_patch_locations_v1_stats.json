@@ -1,0 +1,28 @@
+{
+  "source": "PASTIS metadata.geojson centroid coordinates",
+  "feature_names": [
+    "lon",
+    "lat"
+  ],
+  "train_folds": [
+    1,
+    2,
+    3
+  ],
+  "mean": {
+    "lon": 4.30242711983505,
+    "lat": 46.7719596092165
+  },
+  "std": {
+    "lon": 2.78960051853288,
+    "lat": 1.95804117335552
+  },
+  "train_value_count": {
+    "lon": 1455,
+    "lat": 1455
+  },
+  "zero_variance_features_standardized_with_std_1": [],
+  "table": "data/priors/pastis_patch_locations_v1.csv",
+  "coordinate_reference_system": "EPSG:4326",
+  "derivation": "centroid coordinates exported from PASTIS metadata.geojson; normalization fitted on folds 1/2/3 only"
+}

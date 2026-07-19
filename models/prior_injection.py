@@ -22,6 +22,7 @@ class PriorBatch:
     type_ids: torch.Tensor
     entity_ids: torch.Tensor | None = None
     time_values: torch.Tensor | None = None
+    source_names: tuple[str, ...] | None = None
 
     def __post_init__(self) -> None:
         if self.tokens.ndim != 3:
@@ -47,6 +48,8 @@ class PriorBatch:
             raise TypeError("prior confidence must be floating point.")
         if self.type_ids.dtype != torch.long:
             raise TypeError("prior type_ids must use torch.long.")
+        if self.source_names is not None and not self.source_names:
+            raise ValueError("prior source_names must be non-empty when provided.")
         if self.entity_ids is not None:
             if tuple(self.entity_ids.shape) != expected:
                 raise ValueError(
@@ -232,6 +235,7 @@ class ContentAwarePriorFusion(nn.Module):
         gate_hidden_dim: int,
         dropout: float = 0.0,
         confidence_bias_scale: float = 1.0,
+        source_balance_bias_scale: float = 0.0,
     ) -> None:
         super().__init__()
         if min(vision_dim, prior_dim, attention_dim, num_heads, gate_hidden_dim) < 1:
@@ -240,6 +244,11 @@ class ContentAwarePriorFusion(nn.Module):
             raise ValueError("attention_dim must be divisible by num_heads.")
         if not math.isfinite(float(confidence_bias_scale)):
             raise ValueError("confidence_bias_scale must be finite.")
+        if (
+            not math.isfinite(float(source_balance_bias_scale))
+            or float(source_balance_bias_scale) < 0.0
+        ):
+            raise ValueError("source_balance_bias_scale must be finite and non-negative.")
 
         self.vision_dim = int(vision_dim)
         self.prior_dim = int(prior_dim)
@@ -247,6 +256,7 @@ class ContentAwarePriorFusion(nn.Module):
         self.num_heads = int(num_heads)
         self.head_dim = self.attention_dim // self.num_heads
         self.confidence_bias_scale = float(confidence_bias_scale)
+        self.source_balance_bias_scale = float(source_balance_bias_scale)
 
         self.vision_norm = nn.LayerNorm(self.vision_dim)
         self.prior_norm = nn.LayerNorm(self.prior_dim)
@@ -314,6 +324,24 @@ class ContentAwarePriorFusion(nn.Module):
         effective_mask = prior.mask.to(device=scores.device) & (confidence > 0.0)
         confidence_bias = torch.log(confidence.clamp_min(1e-6))
         scores = scores + self.confidence_bias_scale * confidence_bias[:, None, None, :]
+        if self.source_balance_bias_scale > 0.0:
+            type_ids = prior.type_ids.to(device=scores.device)
+            source_counts = torch.zeros(
+                (batch, num_prior),
+                device=scores.device,
+                dtype=scores.dtype,
+            )
+            source_counts.scatter_add_(
+                1,
+                type_ids,
+                effective_mask.to(dtype=scores.dtype),
+            )
+            token_source_counts = source_counts.gather(1, type_ids).clamp_min(1.0)
+            source_balance_bias = -torch.log(token_source_counts)
+            scores = scores + (
+                self.source_balance_bias_scale
+                * source_balance_bias[:, None, None, :]
+            )
         scores = scores.masked_fill(
             ~effective_mask[:, None, None, :],
             torch.finfo(scores.dtype).min,
@@ -354,6 +382,7 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
         gate_hidden_dim: int,
         dropout: float = 0.0,
         confidence_bias_scale: float = 1.0,
+        source_balance_bias_scale: float = 0.0,
         initial_strength: float = 0.0,
         learnable_strength: bool = True,
         record_diagnostics: bool = False,
@@ -376,6 +405,7 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
             gate_hidden_dim=int(gate_hidden_dim),
             dropout=float(dropout),
             confidence_bias_scale=float(confidence_bias_scale),
+            source_balance_bias_scale=float(source_balance_bias_scale),
         )
         self.layer_embedding = nn.Parameter(
             torch.empty(self.num_layers, self.vision_dim)
@@ -445,7 +475,7 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
                 attention * confidence[:, None, None, :]
             ).sum(dim=-1).mean()
 
-            return {
+            summary = {
                 "raw_strength": raw_strength.detach().float(),
                 "strength": strength.detach().float(),
                 "gate_mean": gate.mean(),
@@ -462,6 +492,23 @@ class TemporalFeaturePyramidPriorInjection(nn.Module):
                     strength.detach().float().abs() * candidate_residual_ratio
                 ),
             }
+            if prior.source_names is not None and len(prior.source_names) > 1:
+                type_ids = prior.type_ids.detach().to(device=attention.device)
+                total_valid = valid_count.sum().clamp_min(1.0)
+                for source_id, source_name in enumerate(prior.source_names):
+                    source_mask = effective_mask & (type_ids == source_id)
+                    source_attention_mass = (
+                        attention
+                        * source_mask[:, None, None, :].to(attention.dtype)
+                    ).sum(dim=-1).mean()
+                    diagnostic_name = str(source_name).replace("/", "_")
+                    summary[f"{diagnostic_name}/attention_mass"] = (
+                        source_attention_mass
+                    )
+                    summary[f"{diagnostic_name}/valid_token_fraction"] = (
+                        source_mask.sum().to(attention.dtype) / total_valid
+                    )
+            return summary
 
     def pop_prior_diagnostics(self) -> dict[str, torch.Tensor]:
         """Return and clear the most recent detached diagnostic snapshot."""
@@ -584,6 +631,9 @@ def build_temporal_prior_injection(
         gate_hidden_dim=int(fusion_cfg.get("gate_hidden_dim", 128)),
         dropout=float(fusion_cfg.get("dropout", 0.0)),
         confidence_bias_scale=float(fusion_cfg.get("confidence_bias_scale", 1.0)),
+        source_balance_bias_scale=float(
+            fusion_cfg.get("source_balance_bias_scale", 0.0)
+        ),
         initial_strength=float(fusion_cfg.get("initial_strength", 0.0)),
         learnable_strength=bool(fusion_cfg.get("learnable_strength", True)),
         record_diagnostics=bool(diagnostics_cfg.get("enabled", False)),
