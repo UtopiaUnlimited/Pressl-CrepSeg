@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#F4F8FF"/><stop offset="1" stop-color="#EAF7FF"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity=".12"/></filter></defs>
+  <rect width="1600" height="700" rx="28" fill="url(#bg)"/>
+  <g font-family="Microsoft YaHei, Arial, sans-serif" fill="#0F172A">
+    <rect x="55" y="95" width="420" height="280" rx="22" fill="#fff" stroke="#C7D7EF" stroke-width="3" filter="url(#shadow)"/>
+    <rect x="78" y="120" width="110" height="38" rx="19" fill="#2563EB"/><text x="133" y="146" fill="#fff" font-size="22" font-weight="700" text-anchor="middle">Galileo</text>
+    <text x="90" y="210" font-size="30" font-weight="700">多层、多时间 token</text>
+    <text x="90" y="257" font-size="22" fill="#475569">空间语义 · 月份上下文 · 通道组</text>
+    <g stroke="#60A5FA" stroke-width="4" fill="none"><path d="M110 310h270"/><path d="M110 330h220"/><path d="M110 350h160"/></g>
+    <path d="M500 235 H660" stroke="#60A5FA" stroke-width="7" marker-end="url(#arrow)"/>
+    <rect x="700" y="95" width="420" height="280" rx="22" fill="#fff" stroke="#C7D7EF" stroke-width="3" filter="url(#shadow)"/>
+    <rect x="724" y="120" width="130" height="38" rx="19" fill="#0EA5E9"/><text x="789" y="146" fill="#fff" font-size="22" font-weight="700" text-anchor="middle">PASTIS</text>
+    <text x="735" y="210" font-size="30" font-weight="700">19 类像素图</text>
+    <text x="735" y="257" font-size="22" fill="#475569">地块边界 · 64×64 · dense prediction</text>
+    <g fill="#DBEAFE" stroke="#60A5FA" stroke-width="2"><rect x="755" y="292" width="55" height="45"/><rect x="818" y="292" width="55" height="45"/><rect x="881" y="292" width="55" height="45"/><rect x="944" y="292" width="55" height="45"/><rect x="1007" y="292" width="55" height="45"/></g>
+    <path d="M1145 235 H1285" stroke="#60A5FA" stroke-width="7" marker-end="url(#arrow)"/>
+    <g filter="url(#shadow)"><rect x="1315" y="70" width="220" height="100" rx="18" fill="#fff" stroke="#93C5FD" stroke-width="3"/><rect x="1315" y="205" width="220" height="100" rx="18" fill="#fff" stroke="#67E8F9" stroke-width="3"/><rect x="1315" y="340" width="220" height="100" rx="18" fill="#fff" stroke="#A7F3D0" stroke-width="3"/></g>
+    <text x="1425" y="112" font-size="25" font-weight="700" text-anchor="middle">空间如何恢复？</text><text x="1425" y="148" font-size="19" fill="#475569" text-anchor="middle">token → 像素</text>
+    <text x="1425" y="247" font-size="25" font-weight="700" text-anchor="middle">时间何时融合？</text><text x="1425" y="283" font-size="19" fill="#475569" text-anchor="middle">月份身份是否保留</text>
+    <text x="1425" y="382" font-size="25" font-weight="700" text-anchor="middle">知识如何注入？</text><text x="1425" y="418" font-size="19" fill="#475569" text-anchor="middle">异构先验 → 视觉</text>
+    <text x="800" y="545" font-size="29" font-weight="700" fill="#1D4ED8" text-anchor="middle">冻结表征包含信息，但下游读取方式决定它能否成为可靠地图</text>
+  </g>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#60A5FA"/></marker></defs>
+</svg>

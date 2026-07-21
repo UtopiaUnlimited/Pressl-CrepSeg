@@ -1,0 +1,336 @@
+{
+  "workspace_version": 1,
+  "deck_title": "时序遥感耕地分割：从时间融合到通用先验注入",
+  "deck_slug": "deck-workspace",
+  "build": {
+    "style_preset": "arctic-minimal",
+    "font_pair": null,
+    "palette_key": null,
+    "output_pptx": "build/deck-workspace.pptx",
+    "qa_dir": "build/qa",
+    "qa_report": "build/qa/report.json"
+  },
+  "layout_rules": {
+    "alignment_first": true,
+    "zero_overlap_required": true,
+    "title_subtitle_stack_dynamic": true,
+    "footer_safe_region_required": true,
+    "cards_use_measured_text_fit": true
+  },
+  "preset_tokens": {
+    "name": "arctic-minimal",
+    "palette": {
+      "bg_primary": "EFF6FF",
+      "bg_dark": "0F172A",
+      "surface": "FFFFFF",
+      "text_primary": "0F172A",
+      "text_muted": "334155",
+      "accent_primary": "0284C7",
+      "accent_secondary": "0891B2",
+      "line": "BFDBFE"
+    },
+    "typography": {
+      "title_max": 42,
+      "title_min": 30,
+      "section_max": 28,
+      "section_min": 22,
+      "body_max": 22,
+      "body_min": 15,
+      "caption_max": 12,
+      "caption_min": 10
+    },
+    "layout": {
+      "margin_x": 0.7,
+      "top_safe": 0.95,
+      "bottom_safe": 0.32,
+      "gutter": 0.28,
+      "rhythm": 0.22,
+      "rail_height": 0.08,
+      "radius_style": "rectangle",
+      "edge_tolerance": 0.05,
+      "gutter_tolerance": 0.05,
+      "max_density": 0.8,
+      "max_empty_ratio": 0.58
+    },
+    "allowed_layout_families": [
+      "hero-opener",
+      "card-grid",
+      "split-panel",
+      "timeline",
+      "comparison",
+      "closing-summary"
+    ]
+  },
+  "style_reference": {
+    "catalog_version": "style_reference_catalog_v1",
+    "reference_id": "ref-minimal-technical-brief",
+    "reference_name": "Minimal Technical Brief",
+    "source_status": "synthetic_original_publish_safe",
+    "style_dna": "Cool sparse technical pages: generous whitespace, precise labels, and a single visual anchor.",
+    "style_metric_profile": {
+      "density_level": "low sparse technical brief",
+      "whitespace_ratio_target": 0.46,
+      "body_words_per_content_slide": [
+        14,
+        30
+      ],
+      "max_primary_objects": 1,
+      "visual_hierarchy": "single anchor, micro label stack, and one decision line",
+      "evidence_object_mix": {
+        "chart": 0.24,
+        "table": 0.14,
+        "figure": 0.28,
+        "prose": 0.34
+      },
+      "source_burden": "low; cite only what is needed for the anchor decision",
+      "footer_posture": "standard minimal source note or compact source slide",
+      "artifact_bias": [
+        "single figure",
+        "minimal chart",
+        "short decision line"
+      ],
+      "readability_bias": [
+        "large whitespace",
+        "few labels",
+        "no dashboard crowding"
+      ],
+      "metric_profile_version": "style_reference_metric_profile_v1",
+      "style_preset": "arctic-minimal",
+      "metric_signature": "fca2c3343debcf59f2527b464d7e7aa2d3fcfa6f7e6946410a6c7b17da714ea0"
+    },
+    "layout_playbook_version": "style_reference_layout_playbook_v1",
+    "preferred_variants": [
+      "title",
+      "image-sidebar",
+      "stats",
+      "chart",
+      "comparison-2col",
+      "standard",
+      "table"
+    ],
+    "starter_outline_version": "style_reference_starter_outline_v1"
+  },
+  "style_atom_context": {
+    "schema_version": "normal_workflow_atom_context_v1",
+    "route_id": "atom_composition",
+    "status": "seeded_optional",
+    "strict_json_instruction": "Use strict JSON only. Return no markdown, comments, or prose.",
+    "target_family": "arctic-minimal",
+    "selection_basis": "style_reference_mix_plan.primary",
+    "slide_count": 8,
+    "topic_terms": [
+      "deepresearch",
+      "hpi",
+      "sfilm",
+      "但加入项目自己的时序遥感",
+      "先验注入",
+      "制作项目结项汇报",
+      "十九类指标拆成多页表格",
+      "结果页不用柱状图",
+      "视觉语言",
+      "进度汇报模板的浅蓝科研风",
+      "需要完整科研背景"
+    ],
+    "preferred_variants": [
+      "title",
+      "section",
+      "flow",
+      "chart",
+      "table",
+      "comparison-2col",
+      "scientific-figure"
+    ],
+    "narrative_arc": [
+      "title",
+      "context",
+      "architecture",
+      "spec",
+      "tradeoff",
+      "conclusion"
+    ],
+    "deck_style_delta": {
+      "chart_treatment": "sparse-wide",
+      "table_treatment": "journal-grid",
+      "header_mode": "bar",
+      "footer_mode": "source-line",
+      "visual_density": "low",
+      "decorative_signals": [
+        "wide-margin-quiet-page",
+        "thin-frame-around-canvas",
+        "thin-rule-under-title"
+      ],
+      "arc_beats": [
+        "title",
+        "context",
+        "architecture",
+        "spec",
+        "tradeoff",
+        "conclusion"
+      ],
+      "style_seed_families": [
+        "arctic-minimal"
+      ],
+      "composition_mode": "deterministic-fallback"
+    },
+    "design_brief_delta": {
+      "palette_signals": [
+        "cool-gray"
+      ],
+      "typography_signals": [
+        "quiet-technical-labels"
+      ],
+      "layout_signals": [
+        "architecture-frame",
+        "sparse-technical-grid"
+      ],
+      "rhythm_signature": "thin-rules-quiet-grid",
+      "style_atom_composition": {
+        "schema_version": "style_atom_composition_v1",
+        "target_family": "arctic-minimal",
+        "source_families": [
+          "arctic-minimal"
+        ],
+        "composition_mode": "deterministic-fallback",
+        "topic_terms": [
+          "deepresearch",
+          "hpi",
+          "sfilm",
+          "但加入项目自己的时序遥感",
+          "先验注入",
+          "制作项目结项汇报",
+          "十九类指标拆成多页表格",
+          "结果页不用柱状图",
+          "视觉语言",
+          "进度汇报模板的浅蓝科研风",
+          "需要完整科研背景"
+        ],
+        "palette": "palette:cool-gray",
+        "typography": "typography:quiet-technical-labels",
+        "layout_motifs": [
+          "layout_motif:architecture-frame",
+          "layout_motif:sparse-technical-grid"
+        ],
+        "chart_treatment": "chart_treatment:sparse-wide",
+        "table_treatment": "table_treatment:journal-grid",
+        "header_treatment": "header_treatment:bar",
+        "footer_treatment": "footer_treatment:source-line",
+        "decorative_motifs": [
+          "decorative_motif:wide-margin-quiet-page",
+          "decorative_motif:thin-frame-around-canvas",
+          "decorative_motif:thin-rule-under-title"
+        ],
+        "density": "density:low",
+        "arc_beats": [
+          "arc_beat:title",
+          "arc_beat:context",
+          "arc_beat:architecture",
+          "arc_beat:spec",
+          "arc_beat:tradeoff",
+          "arc_beat:conclusion"
+        ],
+        "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+        "preferred_variants": [
+          "title",
+          "section",
+          "flow",
+          "chart",
+          "table",
+          "comparison-2col",
+          "scientific-figure"
+        ],
+        "artifact_density": 0.7
+      }
+    },
+    "style_atom_composition": {
+      "schema_version": "style_atom_composition_v1",
+      "target_family": "arctic-minimal",
+      "source_families": [
+        "arctic-minimal"
+      ],
+      "composition_mode": "deterministic-fallback",
+      "topic_terms": [
+        "deepresearch",
+        "hpi",
+        "sfilm",
+        "但加入项目自己的时序遥感",
+        "先验注入",
+        "制作项目结项汇报",
+        "十九类指标拆成多页表格",
+        "结果页不用柱状图",
+        "视觉语言",
+        "进度汇报模板的浅蓝科研风",
+        "需要完整科研背景"
+      ],
+      "palette": "palette:cool-gray",
+      "typography": "typography:quiet-technical-labels",
+      "layout_motifs": [
+        "layout_motif:architecture-frame",
+        "layout_motif:sparse-technical-grid"
+      ],
+      "chart_treatment": "chart_treatment:sparse-wide",
+      "table_treatment": "table_treatment:journal-grid",
+      "header_treatment": "header_treatment:bar",
+      "footer_treatment": "footer_treatment:source-line",
+      "decorative_motifs": [
+        "decorative_motif:wide-margin-quiet-page",
+        "decorative_motif:thin-frame-around-canvas",
+        "decorative_motif:thin-rule-under-title"
+      ],
+      "density": "density:low",
+      "arc_beats": [
+        "arc_beat:title",
+        "arc_beat:context",
+        "arc_beat:architecture",
+        "arc_beat:spec",
+        "arc_beat:tradeoff",
+        "arc_beat:conclusion"
+      ],
+      "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+      "preferred_variants": [
+        "title",
+        "section",
+        "flow",
+        "chart",
+        "table",
+        "comparison-2col",
+        "scientific-figure"
+      ],
+      "artifact_density": 0.7
+    },
+    "normal_workflow_contract": {
+      "decision_rule": "Treat this as a first-class optional route. Accept it when the atom choices fit the topic, refine it by returning the strict JSON atom shape, or skip it with a recorded reason.",
+      "persist_when_used": [
+        "design_contract.json:choice_resolution.atom_composition",
+        "design_contract.json:style_system.style_atom_composition",
+        "design_brief.json:style_atom_composition",
+        "design_brief.json:style_system.style_atom_preferred_variants",
+        "design_brief.json:style_system.style_atom_narrative_arc",
+        "outline.json:deck_style supported fields from deck_style_delta",
+        "content_plan.json:narrative_arc or slide_plan variants where topic-fit"
+      ],
+      "do_not_force": [
+        "Do not use every preferred variant just because it appears in the atom packet.",
+        "Do not override explicit user style, brand, source, or accessibility constraints.",
+        "Do not copy external slide geometry; atoms are descriptor-only grammar signals."
+      ]
+    },
+    "prompt_packet_summary": {
+      "schema_version": null,
+      "target_family": null,
+      "related_families": null,
+      "candidate_type_count": 0
+    }
+  },
+  "reference": {
+    "reference_pptx": "D:\\HuaweiMoveData\\Users\\ycy\\Desktop\\DeepResearch进度汇报_v2_术语白话版.pptx",
+    "slide_count": 16,
+    "slide_size_inches": {
+      "width": 13.333,
+      "height": 7.5
+    },
+    "font_families": [
+      "Arial",
+      "Trebuchet MS"
+    ]
+  }
+}

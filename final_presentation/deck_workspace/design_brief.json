@@ -1,0 +1,3312 @@
+{
+  "topic": "时序遥感耕地分割：从时间融合到通用先验注入",
+  "content_maturity": "serious/work",
+  "audience_posture": "coworkers/operators",
+  "emotional_register": "trustworthy",
+  "format_promise": "A clean, editable PowerPoint deck with one dominant idea per slide, disciplined alignment, and enough visual rhythm to avoid generic card grids.",
+  "anti_format": [
+    "repeated title plus three cards on every slide",
+    "body text placed by feel instead of grid constants",
+    "decorative shapes without a reading job",
+    "shrinking text below readability floors to solve density"
+  ],
+  "canvas_and_grid": {
+    "aspect": "16:9",
+    "margin_x_in": 0.5,
+    "footer_reserve_in": 0.32,
+    "header_policy": "measured title/subtitle stack; body starts at returned contentTop",
+    "column_policy": "derive columns from margin and gutter constants, not magic numbers"
+  },
+  "visual_system": {
+    "style_preset": "arctic-minimal",
+    "dominant_color": "0F172A",
+    "accent_primary": "0284C7",
+    "accent_secondary": "0891B2",
+    "palette_role_map": {
+      "background": "dominant or neutral field",
+      "accent": "navigation, KPI emphasis, rails, and labels",
+      "muted": "captions and provenance"
+    }
+  },
+  "style_system": {
+    "style_preset": "arctic-minimal",
+    "style_seed": "deck-workspace-arctic-minimal",
+    "preset_treatment_profile": {
+      "profile_version": "deck_preset_treatment_profiles_v1",
+      "style_preset": "arctic-minimal",
+      "family": "minimal-report",
+      "background_system": "cool light field",
+      "heading_accent_combo": "minimal heading with plain, split, or title rule accents",
+      "style_reference": {
+        "reference_id": "ref-minimal-technical-brief",
+        "reference_name": "Minimal Technical Brief",
+        "source_status": "synthetic_original_publish_safe",
+        "style_dna": "Cool sparse technical pages: generous whitespace, precise labels, and a single visual anchor.",
+        "signature_moves": [
+          "single-anchor slide composition",
+          "plain title plus one exact qualifier",
+          "small decision strip rather than heavy callout box"
+        ],
+        "prompt_keywords": [
+          "minimal",
+          "technical brief",
+          "postmortem",
+          "system",
+          "clean",
+          "architecture"
+        ],
+        "content_treatments": {
+          "title": "Light sparse opener with one object/scope label and large quiet title.",
+          "comparison": "Two-column comparison with low-chrome divider and concise bullets.",
+          "chart": "Minimal chart with labels outside the plot and no decorative frame.",
+          "table": "Short table with open rows and strong whitespace.",
+          "figure": "One large figure or diagram with tiny caption and clear breathing room.",
+          "dashboard": "Two or three status facts in a quiet strip; no dense metric wall.",
+          "decision": "Small bottom decision line plus owner/date.",
+          "references": "Standard footer; use refs only when source burden exists."
+        },
+        "signature_slide_family": [
+          {
+            "role": "open",
+            "variant": "title",
+            "layout_note": "quiet title with scope label"
+          },
+          {
+            "role": "context",
+            "variant": "image-sidebar",
+            "layout_note": "single anchor figure with text column"
+          },
+          {
+            "role": "evidence",
+            "variant": "chart",
+            "layout_note": "minimal chart, sparse labels"
+          },
+          {
+            "role": "dashboard",
+            "variant": "stats",
+            "layout_note": "quiet status facts strip"
+          },
+          {
+            "role": "comparison",
+            "variant": "comparison-2col",
+            "layout_note": "low-chrome A/B comparison"
+          },
+          {
+            "role": "decision",
+            "variant": "standard",
+            "layout_note": "small decision line at bottom"
+          },
+          {
+            "role": "refs",
+            "variant": "table",
+            "layout_note": "short references only if needed"
+          }
+        ],
+        "avoid": [
+          "many accent systems",
+          "dense tables",
+          "dashboard walls"
+        ],
+        "catalog_version": "style_reference_catalog_v1",
+        "style_preset": "arctic-minimal",
+        "publish_safety": {
+          "status": "publish_safe",
+          "basis": "original synthetic reference description; no proprietary slide geometry, branding, or data copied"
+        },
+        "style_source_intake": {
+          "route_id": "source-route-arctic-minimal",
+          "source_ids": [
+            "nasa_images_media_guidance",
+            "govuk_design_system_ogl",
+            "uswds_public_design_system",
+            "section508_accessible_presentations"
+          ],
+          "derivation_mode": "synthetic_reconstruction",
+          "use_cases": [
+            "sparse technical brief structure",
+            "one-anchor evidence slides",
+            "readability and contrast constraints"
+          ],
+          "required_synthetic_content": [
+            "single figure or chart anchor",
+            "compact decision line",
+            "short source or references table"
+          ],
+          "content_treatment_scope": [
+            "title",
+            "comparison",
+            "chart",
+            "table",
+            "figure",
+            "dashboard",
+            "decision",
+            "references"
+          ],
+          "manifest_version": "style_reference_source_manifest_v1",
+          "source_checked_date": "2026-06-20",
+          "sources": [
+            {
+              "source_id": "nasa_images_media_guidance",
+              "source_name": "NASA Images and Media Guidance",
+              "source_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+              "source_status": "public_domain_with_restrictions",
+              "license_summary": "NASA content is generally not subject to U.S. copyright, but identifiers, endorsement, third-party materials, people or likenesses, and AI attribution restrictions can apply.",
+              "source_verification": {
+                "checked_date": "2026-06-20",
+                "checked_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+                "evidence_summary": "Live NASA media guidance supports metadata-only or synthetic inspiration: NASA media are generally usable for educational or informational purposes, but NASA identifiers are protected, third-party materials may be copyrighted, commercial use must avoid endorsement, identifiable people may require permission, and AI outputs should not be attributed to NASA.",
+                "evidence_scope": [
+                  "rights posture",
+                  "protected identifiers",
+                  "third-party material restrictions",
+                  "endorsement and AI attribution restrictions"
+                ]
+              },
+              "attribution_policy": "When direct NASA material is used in a deck, cite the source URL and avoid endorsement language. For this skill repo, prefer metadata-only notes or synthetic reconstructions.",
+              "storage_policy": "Do not bundle NASA source assets in the skill repo.",
+              "allowed_extractions": [
+                "figure-first scientific layout vocabulary",
+                "mission or technical dashboard rhythm",
+                "caption and source posture",
+                "palette or contrast observations without identifiers"
+              ],
+              "forbidden_materials": [
+                "NASA identifiers or logos",
+                "third-party media",
+                "people or likenesses without rights",
+                "implied NASA endorsement",
+                "verbatim slide geometry"
+              ],
+              "generic_style_observations": [
+                "technical imagery works best when the figure owns the slide and labels stay small, factual, and source-backed",
+                "mission-style dashboards should use state, threshold, and next-action readouts rather than decorative chrome",
+                "scientific captions need enough room to explain context, limitations, and data provenance"
+              ],
+              "generic_slide_patterns": [
+                "large figure left or center with caption/source strip and interpretation sidecar",
+                "status console with one active route, two thresholds, and a next-action footer",
+                "map/field/technical panel followed by policy or engineering implication table"
+              ],
+              "design_constraints": [
+                "remove NASA identifiers and distinctive mission marks",
+                "replace direct media with generated or user-provided assets unless a deck-specific license chain is recorded"
+              ]
+            },
+            {
+              "source_id": "govuk_design_system_ogl",
+              "source_name": "GOV.UK Design System",
+              "source_url": "https://design-system.service.gov.uk/",
+              "source_status": "open_government_guidance",
+              "license_summary": "GOV.UK Design System guidance is suitable as Open Government Licence-style design inspiration, with government identifiers and third-party assets excluded from this repo.",
+              "source_verification": {
+                "checked_date": "2026-06-20",
+                "checked_url": "https://design-system.service.gov.uk/",
+                "evidence_summary": "Live GOV.UK Design System documentation exposes public-service patterns for typography, spacing, components, forms, summaries, and task-oriented content. Treat it as generic guidance for clear editorial/policy structures and not as a source of bundled screenshots or official marks.",
+                "evidence_scope": [
+                  "public-service patterns",
+                  "typography and spacing hierarchy",
+                  "task-oriented page structure",
+                  "government-mark restrictions"
+                ]
+              },
+              "attribution_policy": "When deck-specific content uses GOV.UK guidance directly, cite the guidance URL. This skill repo keeps only generic descriptors and synthetic examples.",
+              "storage_policy": "Do not store GOV.UK screenshots, official marks, or copied component geometry in the skill repo.",
+              "allowed_extractions": [
+                "plain-language heading hierarchy",
+                "summary-list and decision-list structure",
+                "open whitespace with strong alignment",
+                "policy memo and public-service content rhythm"
+              ],
+              "forbidden_materials": [
+                "GOV.UK marks or identifiers",
+                "copied page or component screenshots",
+                "verbatim example content",
+                "third-party assets without rights",
+                "claims of government endorsement"
+              ],
+              "generic_style_observations": [
+                "editorial and policy decks should use brutally clear headings, spare rules, and few decorative containers",
+                "summary-list structure is useful for evidence, caveat, owner, and date fields",
+                "forms and task pages translate into slide structures with one question, one answer, and one next action"
+              ],
+              "generic_slide_patterns": [
+                "policy summary slide with finding, evidence, caveat, and owner as aligned rows",
+                "minimal editorial page with one large statement and one compact source/readout block",
+                "case-study page with service moment, friction, intervention, and measured signal"
+              ],
+              "design_constraints": [
+                "remove GOV.UK crown, wordmarks, and exact page styling",
+                "translate component ideas into original slide layouts with generic labels and content"
+              ]
+            },
+            {
+              "source_id": "uswds_public_design_system",
+              "source_name": "U.S. Web Design System",
+              "source_url": "https://designsystem.digital.gov/",
+              "source_status": "public_domain_design_system",
+              "license_summary": "USWDS is a U.S. government design system; treat government-authored design guidance as public-domain/CC0-style inspiration while checking third-party fonts, icons, examples, and project-specific assets separately.",
+              "source_verification": {
+                "checked_date": "2026-06-20",
+                "checked_url": "https://designsystem.digital.gov/",
+                "evidence_summary": "Live USWDS documentation provides public-sector design-system guidance for accessible components, layout, tokens, identifiers, and design principles. Use this as a public-domain design-system reference for generic layout constraints and navigation/data patterns, not as a bundled asset source.",
+                "evidence_scope": [
+                  "public-sector design-system guidance",
+                  "layout and token structure",
+                  "component hierarchy",
+                  "accessibility posture"
+                ]
+              },
+              "attribution_policy": "Cite USWDS or the relevant government source when a deck explicitly uses its guidance. This repo stores only descriptors and synthetic reconstructions.",
+              "storage_policy": "Store URLs, descriptors, and generated examples only; do not bundle USWDS screenshots or third-party assets.",
+              "allowed_extractions": [
+                "public-sector information hierarchy",
+                "accessible component and token vocabulary",
+                "form/table/status pattern descriptions",
+                "policy and service-page structure without identifiers"
+              ],
+              "forbidden_materials": [
+                "agency logos or official seals",
+                "copied component screenshots",
+                "third-party fonts or assets without their own license chain",
+                "implied government endorsement",
+                "verbatim design-system page geometry"
+              ],
+              "generic_style_observations": [
+                "policy and public-service decks read better with direct headings, visible status labels, and restrained civic color use",
+                "operational pages should privilege task state, owner, and next step over decorative storytelling",
+                "data tables need plain headers, consistent tokenized states, and enough row height for repeated use"
+              ],
+              "generic_slide_patterns": [
+                "policy decision slide with status label, short rationale, owner, and deadline",
+                "service dashboard with task state tiles above an exception table",
+                "public brief page with direct title, one evidence object, and a source/accessibility footer"
+              ],
+              "design_constraints": [
+                "remove U.S. government identifiers and agency-specific marks unless the user supplies rights/context",
+                "convert component inspiration into original slide geometry and editable PowerPoint shapes"
+              ]
+            },
+            {
+              "source_id": "section508_accessible_presentations",
+              "source_name": "Section508.gov Create Accessible Presentations",
+              "source_url": "https://www.section508.gov/create/presentations/",
+              "source_status": "public_guidance_reference",
+              "license_summary": "Accessibility guidance for presentation structure, reading order, contrast, slide titles, tables, and media alternatives. Treat as design and QA guidance, not a visual template asset.",
+              "source_verification": {
+                "checked_date": "2026-06-20",
+                "checked_url": "https://www.section508.gov/create/presentations/",
+                "evidence_summary": "Live Section508.gov presentation guidance points to PowerPoint authoring/testing resources for accessible presentations. Treat this as constraints for structure, reading order, template hygiene, alternative text, and QA rather than as a visual template source.",
+                "evidence_scope": [
+                  "PowerPoint accessibility guidance",
+                  "authoring and testing resources",
+                  "template hygiene",
+                  "alternative text and related resources"
+                ]
+              },
+              "attribution_policy": "Reference Section508.gov in notes when deck-specific accessibility choices are derived from the guidance.",
+              "storage_policy": "Store only guidance descriptors and QA constraints.",
+              "allowed_extractions": [
+                "readability and accessibility constraints",
+                "table and chart accessibility checks",
+                "slide title and reading-order rules",
+                "template hygiene guidance"
+              ],
+              "forbidden_materials": [
+                "claiming Section508 endorsement",
+                "using guidance as a copied visual template",
+                "dropping accessibility constraints during synthetic reconstruction"
+              ],
+              "generic_style_observations": [
+                "every slide needs an explicit title, predictable reading order, and enough contrast before style polish matters",
+                "tables and charts should use direct labels, short legends, and redundant semantic cues instead of color-only meaning",
+                "decorative variation should never break the repeated structure that makes a deck scannable and testable"
+              ],
+              "generic_slide_patterns": [
+                "descriptive title, one evidence object, concise takeaway, and source line",
+                "chart with direct labels and adjacent data note rather than a tiny legend",
+                "table with real headers, no merged-cell dependency, and concise row labels"
+              ],
+              "design_constraints": [
+                "treat accessibility guidance as a hard QA constraint",
+                "do not use inaccessible screenshots of tables or charts when editable text is possible"
+              ]
+            }
+          ],
+          "publish_safety": {
+            "status": "publish_safe_descriptor",
+            "basis": "source manifest stores only URLs, license notes, verification evidence, allowed extraction modes, and synthetic reconstruction requirements",
+            "repo_storage_rule": "Store source URLs, license notes, extracted descriptors, and generated synthetic examples. Do not store third-party template PPTX files, screenshots, logos, private data, or distinctive copied geometry."
+          }
+        },
+        "structural_motif_library": {
+          "background_structure": "cool one-anchor technical brief with large whitespace and small decision line",
+          "layout_motifs": [
+            "single anchor field",
+            "micro label stack",
+            "sparse comparison divider",
+            "bottom decision line"
+          ],
+          "content_object_rules": [
+            "select one visual or argument anchor per slide",
+            "use tiny qualifiers and owner/date lines instead of heavy callout boxes",
+            "avoid dense dashboards unless the prompt explicitly needs multiple live metrics"
+          ],
+          "motif_library_version": "style_reference_structural_motif_library_v1",
+          "style_preset": "arctic-minimal",
+          "motif_signature": "cool one-anchor technical brief with large whitespace and small decision line::single anchor field|micro label stack|sparse comparison divider|bottom decision line::select one visual or argument anchor per slide|use tiny qualifiers and owner/date lines instead of heavy callout boxes|avoid dense dashboards unless the prompt explicitly needs multiple live metrics"
+        },
+        "style_metric_profile": {
+          "density_level": "low sparse technical brief",
+          "whitespace_ratio_target": 0.46,
+          "body_words_per_content_slide": [
+            14,
+            30
+          ],
+          "max_primary_objects": 1,
+          "visual_hierarchy": "single anchor, micro label stack, and one decision line",
+          "evidence_object_mix": {
+            "chart": 0.24,
+            "table": 0.14,
+            "figure": 0.28,
+            "prose": 0.34
+          },
+          "source_burden": "low; cite only what is needed for the anchor decision",
+          "footer_posture": "standard minimal source note or compact source slide",
+          "artifact_bias": [
+            "single figure",
+            "minimal chart",
+            "short decision line"
+          ],
+          "readability_bias": [
+            "large whitespace",
+            "few labels",
+            "no dashboard crowding"
+          ],
+          "metric_profile_version": "style_reference_metric_profile_v1",
+          "style_preset": "arctic-minimal",
+          "metric_signature": "fca2c3343debcf59f2527b464d7e7aa2d3fcfa6f7e6946410a6c7b17da714ea0"
+        },
+        "example_storyboard": {
+          "topic": "Edge cache postmortem brief",
+          "title": "Edge Cache Postmortem",
+          "subtitle": "Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.",
+          "chart": {
+            "title": "P95 latency during recovery",
+            "labels": [
+              "T0",
+              "T1",
+              "T2",
+              "T3"
+            ],
+            "values": [
+              420,
+              310,
+              190,
+              140
+            ],
+            "note": "Minimal chart leaves space around the proof object."
+          },
+          "dashboard_facts": [
+            {
+              "value": "140ms",
+              "label": "Recovered P95",
+              "detail": "T3"
+            },
+            {
+              "value": "1",
+              "label": "Primary anchor",
+              "detail": "per slide"
+            },
+            {
+              "value": "0",
+              "label": "Extra frames",
+              "detail": "proof stays quiet"
+            }
+          ],
+          "kpi": {
+            "value": "140ms",
+            "label": "recovered P95",
+            "context": "Use quiet proof, not a metric wall."
+          },
+          "table": {
+            "headers": [
+              "Cause",
+              "Evidence",
+              "Fix"
+            ],
+            "rows": [
+              [
+                "TTL drift",
+                "cache miss",
+                "Pin config"
+              ],
+              [
+                "Warmup gap",
+                "cold route",
+                "Preload"
+              ],
+              [
+                "Alert lag",
+                "late page",
+                "Tighten SLO"
+              ]
+            ]
+          },
+          "figure": {
+            "sections": [
+              {
+                "title": "Anchor",
+                "body": [
+                  "One diagram owns the slide.",
+                  "Notes stay concise."
+                ]
+              },
+              {
+                "title": "Decision",
+                "body": [
+                  "Pin config and preload route."
+                ]
+              }
+            ],
+            "caption": "Synthetic edge-cache diagram.",
+            "interpretation": "Recovery came from preload plus TTL pinning."
+          },
+          "comparison": {
+            "left_title": "Before incident",
+            "left_body": [
+              "TTL drift unobserved",
+              "Cold route hidden"
+            ],
+            "right_title": "After fix",
+            "right_body": [
+              "Pinned config",
+              "Preload path"
+            ],
+            "verdict": "Keep the postmortem sparse and exact."
+          },
+          "decision": {
+            "headers": [
+              "Fix",
+              "Proof",
+              "Owner"
+            ],
+            "rows": [
+              [
+                "Pin TTL",
+                "Miss rate down",
+                "Infra"
+              ],
+              [
+                "Preload route",
+                "P95 140ms",
+                "Edge"
+              ],
+              [
+                "Alert SLO",
+                "Earlier page",
+                "SRE"
+              ]
+            ]
+          },
+          "timeline": [
+            {
+              "label": "T0",
+              "title": "Miss",
+              "body": "Latency spike"
+            },
+            {
+              "label": "T1",
+              "title": "Warm",
+              "body": "Partial recover"
+            },
+            {
+              "label": "T2",
+              "title": "Pin",
+              "body": "TTL fixed"
+            },
+            {
+              "label": "T3",
+              "title": "Verify",
+              "body": "P95 stable"
+            }
+          ],
+          "quadrants": [
+            {
+              "title": "High proof",
+              "body": "Latency chart."
+            },
+            {
+              "title": "High action",
+              "body": "Pin TTL."
+            },
+            {
+              "title": "Low noise",
+              "body": "One anchor."
+            },
+            {
+              "title": "Low burden",
+              "body": "Preload route."
+            }
+          ],
+          "source_notes": [
+            "Synthetic incident notes",
+            "No production logs"
+          ],
+          "storyboard_version": "style_reference_example_storyboard_v1",
+          "style_preset": "arctic-minimal",
+          "publish_safety": {
+            "status": "synthetic_original_publish_safe",
+            "basis": "generic synthetic storyboard; no real organization, patient, customer, or public-source data"
+          }
+        },
+        "layout_playbook": {
+          "playbook_version": "style_reference_layout_playbook_v1",
+          "style_preset": "arctic-minimal",
+          "reference_id": "ref-minimal-technical-brief",
+          "preferred_variants": [
+            "title",
+            "image-sidebar",
+            "stats",
+            "chart",
+            "comparison-2col",
+            "standard",
+            "table"
+          ],
+          "treatment_variant_map": {
+            "title": [
+              "title"
+            ],
+            "comparison": [
+              "comparison-2col",
+              "split",
+              "matrix"
+            ],
+            "chart": [
+              "chart"
+            ],
+            "table": [
+              "table",
+              "lab-run-results"
+            ],
+            "figure": [
+              "image-sidebar"
+            ],
+            "dashboard": [
+              "stats",
+              "chart"
+            ],
+            "decision": [
+              "standard"
+            ],
+            "references": [
+              "standard",
+              "table"
+            ]
+          },
+          "treatment_archetypes": {
+            "title": {
+              "archetype_id": "sparse-object-label-opener",
+              "title_layout": "light-atlas",
+              "structure": "one exact object/scope label, large quiet title, and minimal decision line",
+              "required_fields": [
+                "object",
+                "scope qualifier",
+                "decision line"
+              ],
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "sparse-object-label-opener::one exact object/scope label, large quiet title, and minimal decision line::object|scope qualifier|decision line::light-atlas::::::::",
+              "semantic_signature": "21db707063509150e9ee9fe32160a5979d0de4001a1ca84eb292b51193391cdb"
+            },
+            "comparison": {
+              "archetype_id": "minimal-technical-brief-comparison-frame",
+              "structure": "Two-column comparison with low-chrome divider and concise bullets.",
+              "object_pattern": "paired states with comparable fields and a visible verdict",
+              "required_fields": [
+                "left state",
+                "right state",
+                "criterion",
+                "verdict"
+              ],
+              "primary_variants": [
+                "comparison-2col",
+                "split",
+                "matrix"
+              ],
+              "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+              "treatment_key": "comparison",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Two-column comparison with low-chrome divider and concise bullets.",
+              "semantic_signature": "7593035b35755bdc9541dd231b7aedf9e0fdbd427f10ab8b5c2ccaeb2eb1afc6"
+            },
+            "chart": {
+              "archetype_id": "minimal-technical-brief-chart-readout",
+              "structure": "Minimal chart with labels outside the plot and no decorative frame.",
+              "object_pattern": "chart object plus direct readout, caveat, and source/data-cut cue",
+              "required_fields": [
+                "chart question",
+                "labels",
+                "values",
+                "readout",
+                "source"
+              ],
+              "primary_variants": [
+                "chart"
+              ],
+              "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+              "treatment_key": "chart",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal chart with labels outside the plot and no decorative frame.",
+              "semantic_signature": "0af2a0614884de10027016e51184513ae56d83ca4c2e5ee8cfe6190410342da1"
+            },
+            "table": {
+              "archetype_id": "minimal-technical-brief-table-ledger",
+              "structure": "Short table with open rows and strong whitespace.",
+              "object_pattern": "editable table with semantic row/column purpose and phrase-length cells",
+              "required_fields": [
+                "entity row",
+                "status or metric",
+                "owner/action",
+                "provenance"
+              ],
+              "primary_variants": [
+                "table",
+                "lab-run-results"
+              ],
+              "content_goal": "Short table with open rows and strong whitespace.",
+              "treatment_key": "table",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::table|lab-run-results::Short table with open rows and strong whitespace.",
+              "semantic_signature": "93b4e20a3760d0769d68335498438725182f19cbb8bc15740836b41adca56942"
+            },
+            "figure": {
+              "archetype_id": "minimal-technical-brief-figure-proof-object",
+              "structure": "One large figure or diagram with tiny caption and clear breathing room.",
+              "object_pattern": "figure, image, or diagram owns the slide with caption and interpretation",
+              "required_fields": [
+                "proof object",
+                "caption",
+                "interpretation",
+                "caveat"
+              ],
+              "primary_variants": [
+                "image-sidebar"
+              ],
+              "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+              "treatment_key": "figure",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::proof object|caption|interpretation|caveat::::::figure, image, or diagram owns the slide with caption and interpretation::image-sidebar::One large figure or diagram with tiny caption and clear breathing room.",
+              "semantic_signature": "b4979033248d7d84139fddeea858ad812ded7630c46755924f3494fa9c81d3de"
+            },
+            "dashboard": {
+              "archetype_id": "minimal-technical-brief-dashboard-state-board",
+              "structure": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "object_pattern": "multi-metric state board with primary signal, context, and owner/implication",
+              "required_fields": [
+                "primary metric",
+                "supporting metric",
+                "state threshold",
+                "owner or implication"
+              ],
+              "primary_variants": [
+                "stats",
+                "chart"
+              ],
+              "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "treatment_key": "dashboard",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::stats|chart::Two or three status facts in a quiet strip; no dense metric wall.",
+              "semantic_signature": "8d9bbfe366c312fac8ef6046cb80184bd5d6992b6ea1c8c8ff7ec3864f208129"
+            },
+            "decision": {
+              "archetype_id": "minimal-technical-brief-decision-record",
+              "structure": "Small bottom decision line plus owner/date.",
+              "object_pattern": "actionable decision record with trigger, owner, timing, and caveat",
+              "required_fields": [
+                "action",
+                "evidence trigger",
+                "owner",
+                "timing or caveat"
+              ],
+              "primary_variants": [
+                "standard"
+              ],
+              "content_goal": "Small bottom decision line plus owner/date.",
+              "treatment_key": "decision",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard::Small bottom decision line plus owner/date.",
+              "semantic_signature": "e9fcd561524c7dced4571c1af27c3e069c523334459af9c6aa0eaa60e1cb3681"
+            },
+            "references": {
+              "archetype_id": "minimal-needed-only-source-line",
+              "footer_mode": "standard",
+              "structure": "omit refs unless needed; use one short footer line or a compact source slide",
+              "required_fields": [
+                "source label",
+                "decision link"
+              ],
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-needed-only-source-line::omit refs unless needed; use one short footer line or a compact source slide::source label|decision link::::standard::::::",
+              "semantic_signature": "aafaf5c0f81eaa71960f01ba12680dafb8108c92f6aef08b64851385cbd593cc"
+            }
+          },
+          "slide_archetypes": [
+            {
+              "role": "open",
+              "variant": "title",
+              "treatment_key": "title",
+              "layout_note": "quiet title with scope label"
+            },
+            {
+              "role": "context",
+              "variant": "image-sidebar",
+              "treatment_key": "figure",
+              "layout_note": "single anchor figure with text column"
+            },
+            {
+              "role": "evidence",
+              "variant": "chart",
+              "treatment_key": "chart",
+              "layout_note": "minimal chart, sparse labels"
+            },
+            {
+              "role": "dashboard",
+              "variant": "stats",
+              "treatment_key": "dashboard",
+              "layout_note": "quiet status facts strip"
+            },
+            {
+              "role": "comparison",
+              "variant": "comparison-2col",
+              "treatment_key": "comparison",
+              "layout_note": "low-chrome A/B comparison"
+            },
+            {
+              "role": "decision",
+              "variant": "standard",
+              "treatment_key": "decision",
+              "layout_note": "small decision line at bottom"
+            },
+            {
+              "role": "refs",
+              "variant": "table",
+              "treatment_key": "references",
+              "layout_note": "short references only if needed"
+            }
+          ],
+          "opening_sequence": [
+            {
+              "step": 1,
+              "role": "open",
+              "variant": "title",
+              "treatment_key": "title",
+              "layout_note": "quiet title with scope label"
+            },
+            {
+              "step": 2,
+              "role": "context",
+              "variant": "image-sidebar",
+              "treatment_key": "figure",
+              "layout_note": "single anchor figure with text column"
+            },
+            {
+              "step": 3,
+              "role": "evidence",
+              "variant": "chart",
+              "treatment_key": "chart",
+              "layout_note": "minimal chart, sparse labels"
+            },
+            {
+              "step": 4,
+              "role": "dashboard",
+              "variant": "stats",
+              "treatment_key": "dashboard",
+              "layout_note": "quiet status facts strip"
+            },
+            {
+              "step": 5,
+              "role": "comparison",
+              "variant": "comparison-2col",
+              "treatment_key": "comparison",
+              "layout_note": "low-chrome A/B comparison"
+            },
+            {
+              "step": 6,
+              "role": "decision",
+              "variant": "standard",
+              "treatment_key": "decision",
+              "layout_note": "small decision line at bottom"
+            }
+          ],
+          "content_rules": [
+            "Choose one anchor per slide and leave deliberate whitespace around it.",
+            "Use minimal charts and small decision lines rather than dense dashboards.",
+            "Keep labels precise and avoid simultaneous accent systems.",
+            "Choose slide variants from this playbook before falling back to generic cards.",
+            "Every evidence slide needs a chart, table, figure, flow, stats, or structured comparison anchor."
+          ],
+          "avoid_variants": [
+            "cards-3",
+            "kpi-hero",
+            "lab-run-results"
+          ],
+          "gallery_showcase_variants": [
+            "image-sidebar",
+            "chart",
+            "comparison-2col",
+            "table",
+            "stats"
+          ],
+          "proof_anchor_policy": "Select the strongest supported visual/evidence variant for the content; use prose-only slides only for synthesis or decisions.",
+          "source_footer_policy": "Standard footer; use refs only when source burden exists.",
+          "authoring_instruction": "Use this playbook in structure_blueprint.slide_sequence and outline_authoring_handoff.variant_mix_plan so the preset changes slide structure, not only chrome."
+        },
+        "content_recipe_library": {
+          "library_version": "style_reference_content_recipe_library_v1",
+          "style_preset": "arctic-minimal",
+          "reference_id": "ref-minimal-technical-brief",
+          "purpose": "Preset-specific content-slot recipes for translating real prompts, data, charts, tables, figures, and decisions into supported outline variants.",
+          "recipes": {
+            "title": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "title",
+              "primary_variants": [
+                "title"
+              ],
+              "content_goal": "Light sparse opener with one object/scope label and large quiet title.",
+              "evidence_anchor": "Light sparse opener with one object/scope label and large quiet title.",
+              "required_slots": [
+                "working title",
+                "scope/context label",
+                "audience or use context",
+                "one credibility chip"
+              ],
+              "data_roles": [
+                "topic",
+                "scope",
+                "date/period",
+                "audience"
+              ],
+              "storyboard_example": {
+                "title": "Edge Cache Postmortem",
+                "subtitle": "Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.",
+                "topic": "Edge cache postmortem brief"
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Title must name the deck object, not a generic category.",
+                "Subtitle should lock scope or use context."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "sparse-object-label-opener",
+                "title_layout": "light-atlas",
+                "structure": "one exact object/scope label, large quiet title, and minimal decision line",
+                "required_fields": [
+                  "object",
+                  "scope qualifier",
+                  "decision line"
+                ],
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "sparse-object-label-opener::one exact object/scope label, large quiet title, and minimal decision line::object|scope qualifier|decision line::light-atlas::::::::",
+                "semantic_signature": "21db707063509150e9ee9fe32160a5979d0de4001a1ca84eb292b51193391cdb"
+              },
+              "recipe_signature": "title::sparse-object-label-opener::Light sparse opener with one object/scope label and large quiet title.::title::working title|scope/context label|audience or use context|one credibility chip::Edge Cache Postmortem::Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.::Edge cache postmortem brief"
+            },
+            "comparison": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "comparison",
+              "primary_variants": [
+                "comparison-2col",
+                "split",
+                "matrix"
+              ],
+              "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+              "evidence_anchor": "Two-column comparison with low-chrome divider and concise bullets.",
+              "required_slots": [
+                "left state",
+                "right state",
+                "decision criterion",
+                "verdict"
+              ],
+              "data_roles": [
+                "baseline",
+                "target/comparator",
+                "difference driver",
+                "decision rule"
+              ],
+              "storyboard_example": {
+                "left_title": "Before incident",
+                "right_title": "After fix",
+                "verdict": "Keep the postmortem sparse and exact."
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Both sides need comparable fields.",
+                "Verdict must be visible on the slide."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-comparison-frame",
+                "structure": "Two-column comparison with low-chrome divider and concise bullets.",
+                "object_pattern": "paired states with comparable fields and a visible verdict",
+                "required_fields": [
+                  "left state",
+                  "right state",
+                  "criterion",
+                  "verdict"
+                ],
+                "primary_variants": [
+                  "comparison-2col",
+                  "split",
+                  "matrix"
+                ],
+                "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+                "treatment_key": "comparison",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Two-column comparison with low-chrome divider and concise bullets.",
+                "semantic_signature": "7593035b35755bdc9541dd231b7aedf9e0fdbd427f10ab8b5c2ccaeb2eb1afc6"
+              },
+              "recipe_signature": "comparison::minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Before incident::After fix::Keep the postmortem sparse and exact."
+            },
+            "chart": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "chart",
+              "primary_variants": [
+                "chart"
+              ],
+              "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+              "evidence_anchor": "Minimal chart with labels outside the plot and no decorative frame.",
+              "required_slots": [
+                "chart question",
+                "category/time labels",
+                "value series",
+                "readout/caveat",
+                "source id"
+              ],
+              "data_roles": [
+                "x/category field",
+                "numeric value field",
+                "target/threshold when available",
+                "source cut/version"
+              ],
+              "storyboard_example": {
+                "title": "P95 latency during recovery",
+                "labels": [
+                  "T0",
+                  "T1",
+                  "T2",
+                  "T3"
+                ],
+                "note": "Minimal chart leaves space around the proof object."
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Axis labels must satisfy chart_label_min_pt.",
+                "Chart needs a written readout, not only bars/lines."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-chart-readout",
+                "structure": "Minimal chart with labels outside the plot and no decorative frame.",
+                "object_pattern": "chart object plus direct readout, caveat, and source/data-cut cue",
+                "required_fields": [
+                  "chart question",
+                  "labels",
+                  "values",
+                  "readout",
+                  "source"
+                ],
+                "primary_variants": [
+                  "chart"
+                ],
+                "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+                "treatment_key": "chart",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal chart with labels outside the plot and no decorative frame.",
+                "semantic_signature": "0af2a0614884de10027016e51184513ae56d83ca4c2e5ee8cfe6190410342da1"
+              },
+              "recipe_signature": "chart::minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart::chart question|category/time labels|value series|readout/caveat|source id::P95 latency during recovery::T0|T1|T2::Minimal chart leaves space around the proof object."
+            },
+            "table": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "table",
+              "primary_variants": [
+                "table",
+                "lab-run-results"
+              ],
+              "content_goal": "Short table with open rows and strong whitespace.",
+              "evidence_anchor": "Short table with open rows and strong whitespace.",
+              "required_slots": [
+                "row entity",
+                "status/signal field",
+                "action/owner field",
+                "short source/provenance"
+              ],
+              "data_roles": [
+                "entity",
+                "metric/state",
+                "owner/action",
+                "method/source"
+              ],
+              "storyboard_example": {
+                "headers": [
+                  "Cause",
+                  "Evidence",
+                  "Fix"
+                ],
+                "example_rows": [
+                  [
+                    "TTL drift",
+                    "cache miss",
+                    "Pin config"
+                  ],
+                  [
+                    "Warmup gap",
+                    "cold route",
+                    "Preload"
+                  ]
+                ]
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Cells stay phrase-length.",
+                "Split or summarize if table text would fall below body-size floor."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-table-ledger",
+                "structure": "Short table with open rows and strong whitespace.",
+                "object_pattern": "editable table with semantic row/column purpose and phrase-length cells",
+                "required_fields": [
+                  "entity row",
+                  "status or metric",
+                  "owner/action",
+                  "provenance"
+                ],
+                "primary_variants": [
+                  "table",
+                  "lab-run-results"
+                ],
+                "content_goal": "Short table with open rows and strong whitespace.",
+                "treatment_key": "table",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::table|lab-run-results::Short table with open rows and strong whitespace.",
+                "semantic_signature": "93b4e20a3760d0769d68335498438725182f19cbb8bc15740836b41adca56942"
+              },
+              "recipe_signature": "table::minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::table|lab-run-results::row entity|status/signal field|action/owner field|short source/provenance::Cause|Evidence|Fix::['TTL drift', 'cache miss', 'Pin config']|['Warmup gap', 'cold route', 'Preload']"
+            },
+            "figure": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "figure",
+              "primary_variants": [
+                "image-sidebar"
+              ],
+              "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+              "evidence_anchor": "One large figure or diagram with tiny caption and clear breathing room.",
+              "required_slots": [
+                "proof object",
+                "caption",
+                "interpretation",
+                "caveat or next action"
+              ],
+              "data_roles": [
+                "figure path or generated output id",
+                "caption source",
+                "interpretation",
+                "quality/crop rule"
+              ],
+              "storyboard_example": {
+                "caption": "Synthetic edge-cache diagram.",
+                "section_titles": [
+                  "Anchor",
+                  "Decision"
+                ],
+                "interpretation": "Recovery came from preload plus TTL pinning."
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Figure must be source-backed or synthetic/starter-labeled.",
+                "Caption and interpretation must remain readable."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-figure-proof-object",
+                "structure": "One large figure or diagram with tiny caption and clear breathing room.",
+                "object_pattern": "figure, image, or diagram owns the slide with caption and interpretation",
+                "required_fields": [
+                  "proof object",
+                  "caption",
+                  "interpretation",
+                  "caveat"
+                ],
+                "primary_variants": [
+                  "image-sidebar"
+                ],
+                "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+                "treatment_key": "figure",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::proof object|caption|interpretation|caveat::::::figure, image, or diagram owns the slide with caption and interpretation::image-sidebar::One large figure or diagram with tiny caption and clear breathing room.",
+                "semantic_signature": "b4979033248d7d84139fddeea858ad812ded7630c46755924f3494fa9c81d3de"
+              },
+              "recipe_signature": "figure::minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::image-sidebar::proof object|caption|interpretation|caveat or next action::Synthetic edge-cache diagram.::Anchor|Decision::Recovery came from preload plus TTL pinning."
+            },
+            "dashboard": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "dashboard",
+              "primary_variants": [
+                "stats",
+                "chart"
+              ],
+              "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "evidence_anchor": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "required_slots": [
+                "primary metric",
+                "supporting metric",
+                "state/threshold",
+                "owner or implication"
+              ],
+              "data_roles": [
+                "primary KPI",
+                "secondary KPI",
+                "state/threshold",
+                "owner/action"
+              ],
+              "storyboard_example": {
+                "facts": [
+                  {
+                    "value": "140ms",
+                    "label": "Recovered P95",
+                    "detail": "T3"
+                  },
+                  {
+                    "value": "1",
+                    "label": "Primary anchor",
+                    "detail": "per slide"
+                  },
+                  {
+                    "value": "0",
+                    "label": "Extra frames",
+                    "detail": "proof stays quiet"
+                  }
+                ],
+                "kpi": {
+                  "value": "140ms",
+                  "label": "recovered P95",
+                  "context": "Use quiet proof, not a metric wall."
+                }
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Use dashboard only when multiple metrics earn one slide.",
+                "Every metric needs a label and context."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-dashboard-state-board",
+                "structure": "Two or three status facts in a quiet strip; no dense metric wall.",
+                "object_pattern": "multi-metric state board with primary signal, context, and owner/implication",
+                "required_fields": [
+                  "primary metric",
+                  "supporting metric",
+                  "state threshold",
+                  "owner or implication"
+                ],
+                "primary_variants": [
+                  "stats",
+                  "chart"
+                ],
+                "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+                "treatment_key": "dashboard",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::stats|chart::Two or three status facts in a quiet strip; no dense metric wall.",
+                "semantic_signature": "8d9bbfe366c312fac8ef6046cb80184bd5d6992b6ea1c8c8ff7ec3864f208129"
+              },
+              "recipe_signature": "dashboard::minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::stats|chart::primary metric|supporting metric|state/threshold|owner or implication::{'value': '140ms', 'label': 'Recovered P95', 'detail': 'T3'}|{'value': '1', 'label': 'Primary anchor', 'detail': 'per slide'}|{'value': '0', 'label': 'Extra frames', 'detail': 'proof stays quiet'}::{'value': '140ms', 'label': 'recovered P95', 'context': 'Use quiet proof, not a metric wall.'}"
+            },
+            "decision": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "decision",
+              "primary_variants": [
+                "standard"
+              ],
+              "content_goal": "Small bottom decision line plus owner/date.",
+              "evidence_anchor": "Small bottom decision line plus owner/date.",
+              "required_slots": [
+                "decision/action",
+                "evidence trigger",
+                "owner",
+                "caveat/date"
+              ],
+              "data_roles": [
+                "action",
+                "evidence/trigger",
+                "owner",
+                "timing/risk"
+              ],
+              "storyboard_example": {
+                "headers": [
+                  "Fix",
+                  "Proof",
+                  "Owner"
+                ],
+                "example_rows": [
+                  [
+                    "Pin TTL",
+                    "Miss rate down",
+                    "Infra"
+                  ],
+                  [
+                    "Preload route",
+                    "P95 140ms",
+                    "Edge"
+                  ]
+                ]
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Decision slide must make the action inspectable.",
+                "Avoid generic next-step prose without owner or trigger."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-technical-brief-decision-record",
+                "structure": "Small bottom decision line plus owner/date.",
+                "object_pattern": "actionable decision record with trigger, owner, timing, and caveat",
+                "required_fields": [
+                  "action",
+                  "evidence trigger",
+                  "owner",
+                  "timing or caveat"
+                ],
+                "primary_variants": [
+                  "standard"
+                ],
+                "content_goal": "Small bottom decision line plus owner/date.",
+                "treatment_key": "decision",
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard::Small bottom decision line plus owner/date.",
+                "semantic_signature": "e9fcd561524c7dced4571c1af27c3e069c523334459af9c6aa0eaa60e1cb3681"
+              },
+              "recipe_signature": "decision::minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::standard::decision/action|evidence trigger|owner|caveat/date::Fix|Proof|Owner::['Pin TTL', 'Miss rate down', 'Infra']|['Preload route', 'P95 140ms', 'Edge']"
+            },
+            "references": {
+              "recipe_version": "style_reference_content_recipe_library_v1",
+              "style_preset": "arctic-minimal",
+              "reference_id": "ref-minimal-technical-brief",
+              "treatment_key": "references",
+              "primary_variants": [
+                "standard",
+                "table"
+              ],
+              "content_goal": "Standard footer; use refs only when source burden exists.",
+              "evidence_anchor": "Standard footer; use refs only when source burden exists.",
+              "required_slots": [
+                "source id",
+                "short source label",
+                "claim or artifact linked",
+                "full citation when needed"
+              ],
+              "data_roles": [
+                "source id",
+                "source title",
+                "claim/slide id",
+                "URL/DOI/path"
+              ],
+              "storyboard_example": {
+                "source_notes": [
+                  "Synthetic incident notes",
+                  "No production logs"
+                ]
+              },
+              "source_posture": "Standard footer; use refs only when source burden exists.",
+              "authoring_checks": [
+                "Short IDs belong in footers.",
+                "Move long citations to editable references tables."
+              ],
+              "treatment_archetype": {
+                "archetype_id": "minimal-needed-only-source-line",
+                "footer_mode": "standard",
+                "structure": "omit refs unless needed; use one short footer line or a compact source slide",
+                "required_fields": [
+                  "source label",
+                  "decision link"
+                ],
+                "style_preset": "arctic-minimal",
+                "archetype_signature": "minimal-needed-only-source-line::omit refs unless needed; use one short footer line or a compact source slide::source label|decision link::::standard::::::",
+                "semantic_signature": "aafaf5c0f81eaa71960f01ba12680dafb8108c92f6aef08b64851385cbd593cc"
+              },
+              "recipe_signature": "references::minimal-needed-only-source-line::Standard footer; use refs only when source burden exists.::standard|table::source id|short source label|claim or artifact linked|full citation when needed::Synthetic incident notes|No production logs"
+            }
+          },
+          "recipe_signatures": {
+            "title": "title::sparse-object-label-opener::Light sparse opener with one object/scope label and large quiet title.::title::working title|scope/context label|audience or use context|one credibility chip::Edge Cache Postmortem::Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.::Edge cache postmortem brief",
+            "comparison": "comparison::minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Before incident::After fix::Keep the postmortem sparse and exact.",
+            "chart": "chart::minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart::chart question|category/time labels|value series|readout/caveat|source id::P95 latency during recovery::T0|T1|T2::Minimal chart leaves space around the proof object.",
+            "table": "table::minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::table|lab-run-results::row entity|status/signal field|action/owner field|short source/provenance::Cause|Evidence|Fix::['TTL drift', 'cache miss', 'Pin config']|['Warmup gap', 'cold route', 'Preload']",
+            "figure": "figure::minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::image-sidebar::proof object|caption|interpretation|caveat or next action::Synthetic edge-cache diagram.::Anchor|Decision::Recovery came from preload plus TTL pinning.",
+            "dashboard": "dashboard::minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::stats|chart::primary metric|supporting metric|state/threshold|owner or implication::{'value': '140ms', 'label': 'Recovered P95', 'detail': 'T3'}|{'value': '1', 'label': 'Primary anchor', 'detail': 'per slide'}|{'value': '0', 'label': 'Extra frames', 'detail': 'proof stays quiet'}::{'value': '140ms', 'label': 'recovered P95', 'context': 'Use quiet proof, not a metric wall.'}",
+            "decision": "decision::minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::standard::decision/action|evidence trigger|owner|caveat/date::Fix|Proof|Owner::['Pin TTL', 'Miss rate down', 'Infra']|['Preload route', 'P95 140ms', 'Edge']",
+            "references": "references::minimal-needed-only-source-line::Standard footer; use refs only when source burden exists.::standard|table::source id|short source label|claim or artifact linked|full citation when needed::Synthetic incident notes|No production logs"
+          },
+          "authoring_contract": [
+            "Select a recipe by treatment_key before writing each content slide.",
+            "Bind every required slot to a source field, generated artifact, citation, or explicit assumption.",
+            "Use primary_variants first; fall back only when the evidence payload cannot support them.",
+            "Record the chosen treatment_key on each outline slide so build-time playbook resolution stays auditable."
+          ]
+        }
+      },
+      "style_mix_matrix": {
+        "header_variant_pool": [
+          "plain",
+          "split-rule",
+          "title-rule",
+          "left-accent"
+        ],
+        "title_layout_pool": [
+          "light-atlas",
+          "masthead",
+          "split-hero"
+        ],
+        "section_motif_pool": [
+          "rail-dots",
+          "plain",
+          "none"
+        ],
+        "timeline_mode_pool": [
+          "rail-cards",
+          "staggered",
+          "open-events",
+          "bands",
+          "chapter-spread"
+        ],
+        "matrix_mode_pool": [
+          "open-quadrants",
+          "cards"
+        ],
+        "stats_mode_pool": [
+          "tiles",
+          "feature-left",
+          "policy-bands"
+        ],
+        "cards_mode_pool": [
+          "feature-left",
+          "staggered-row"
+        ],
+        "chart_treatment_pool": [
+          "sparse-wide",
+          "minimal",
+          "standard"
+        ],
+        "table_treatment_pool": [
+          "journal-grid",
+          "compact-ledger",
+          "standard"
+        ],
+        "summary_callout_mode_pool": [
+          "default",
+          "lab-box"
+        ],
+        "figure_table_treatment_pool": [
+          "figure-first",
+          "image-sidebar",
+          "table-first"
+        ],
+        "footer_pool": [
+          "standard",
+          "source-line"
+        ],
+        "mix_rule": "Resolve restrained renderer treatments from the stable style_seed; override explicitly when the evidence shape requires it.",
+        "do_not_mix": [
+          "Do not combine decorative section motifs with dense scientific figure slides unless they support navigation.",
+          "Do not use none footer mode for source-heavy research or lab decks."
+        ]
+      },
+      "renderer_treatment_fields": [
+        "title_layout",
+        "footer_mode",
+        "chart_treatment",
+        "table_treatment",
+        "figure_table_treatment",
+        "stats_mode",
+        "matrix_mode",
+        "summary_callout_mode"
+      ],
+      "renderer_treatment_defaults": {
+        "title_layout": "light-atlas",
+        "footer_mode": "standard",
+        "chart_treatment": "sparse-wide",
+        "table_treatment": "journal-grid",
+        "figure_table_treatment": "figure-first",
+        "stats_mode": "tiles",
+        "matrix_mode": "open-quadrants",
+        "summary_callout_mode": "default"
+      },
+      "renderer_treatment_signature": "title_layout:light-atlas|footer_mode:standard|chart_treatment:sparse-wide|table_treatment:journal-grid|figure_table_treatment:figure-first|stats_mode:tiles|matrix_mode:open-quadrants|summary_callout_mode:default",
+      "best_for": [
+        "clean explainers",
+        "technical summaries",
+        "low-noise analysis"
+      ],
+      "avoid": [
+        "many simultaneous accent systems"
+      ]
+    },
+    "style_reference": {
+      "reference_id": "ref-minimal-technical-brief",
+      "reference_name": "Minimal Technical Brief",
+      "source_status": "synthetic_original_publish_safe",
+      "style_dna": "Cool sparse technical pages: generous whitespace, precise labels, and a single visual anchor.",
+      "signature_moves": [
+        "single-anchor slide composition",
+        "plain title plus one exact qualifier",
+        "small decision strip rather than heavy callout box"
+      ],
+      "prompt_keywords": [
+        "minimal",
+        "technical brief",
+        "postmortem",
+        "system",
+        "clean",
+        "architecture"
+      ],
+      "content_treatments": {
+        "title": "Light sparse opener with one object/scope label and large quiet title.",
+        "comparison": "Two-column comparison with low-chrome divider and concise bullets.",
+        "chart": "Minimal chart with labels outside the plot and no decorative frame.",
+        "table": "Short table with open rows and strong whitespace.",
+        "figure": "One large figure or diagram with tiny caption and clear breathing room.",
+        "dashboard": "Two or three status facts in a quiet strip; no dense metric wall.",
+        "decision": "Small bottom decision line plus owner/date.",
+        "references": "Standard footer; use refs only when source burden exists."
+      },
+      "signature_slide_family": [
+        {
+          "role": "open",
+          "variant": "title",
+          "layout_note": "quiet title with scope label"
+        },
+        {
+          "role": "context",
+          "variant": "image-sidebar",
+          "layout_note": "single anchor figure with text column"
+        },
+        {
+          "role": "evidence",
+          "variant": "chart",
+          "layout_note": "minimal chart, sparse labels"
+        },
+        {
+          "role": "dashboard",
+          "variant": "stats",
+          "layout_note": "quiet status facts strip"
+        },
+        {
+          "role": "comparison",
+          "variant": "comparison-2col",
+          "layout_note": "low-chrome A/B comparison"
+        },
+        {
+          "role": "decision",
+          "variant": "standard",
+          "layout_note": "small decision line at bottom"
+        },
+        {
+          "role": "refs",
+          "variant": "table",
+          "layout_note": "short references only if needed"
+        }
+      ],
+      "avoid": [
+        "many accent systems",
+        "dense tables",
+        "dashboard walls"
+      ],
+      "catalog_version": "style_reference_catalog_v1",
+      "style_preset": "arctic-minimal",
+      "publish_safety": {
+        "status": "publish_safe",
+        "basis": "original synthetic reference description; no proprietary slide geometry, branding, or data copied"
+      },
+      "style_source_intake": {
+        "route_id": "source-route-arctic-minimal",
+        "source_ids": [
+          "nasa_images_media_guidance",
+          "govuk_design_system_ogl",
+          "uswds_public_design_system",
+          "section508_accessible_presentations"
+        ],
+        "derivation_mode": "synthetic_reconstruction",
+        "use_cases": [
+          "sparse technical brief structure",
+          "one-anchor evidence slides",
+          "readability and contrast constraints"
+        ],
+        "required_synthetic_content": [
+          "single figure or chart anchor",
+          "compact decision line",
+          "short source or references table"
+        ],
+        "content_treatment_scope": [
+          "title",
+          "comparison",
+          "chart",
+          "table",
+          "figure",
+          "dashboard",
+          "decision",
+          "references"
+        ],
+        "manifest_version": "style_reference_source_manifest_v1",
+        "source_checked_date": "2026-06-20",
+        "sources": [
+          {
+            "source_id": "nasa_images_media_guidance",
+            "source_name": "NASA Images and Media Guidance",
+            "source_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+            "source_status": "public_domain_with_restrictions",
+            "license_summary": "NASA content is generally not subject to U.S. copyright, but identifiers, endorsement, third-party materials, people or likenesses, and AI attribution restrictions can apply.",
+            "source_verification": {
+              "checked_date": "2026-06-20",
+              "checked_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+              "evidence_summary": "Live NASA media guidance supports metadata-only or synthetic inspiration: NASA media are generally usable for educational or informational purposes, but NASA identifiers are protected, third-party materials may be copyrighted, commercial use must avoid endorsement, identifiable people may require permission, and AI outputs should not be attributed to NASA.",
+              "evidence_scope": [
+                "rights posture",
+                "protected identifiers",
+                "third-party material restrictions",
+                "endorsement and AI attribution restrictions"
+              ]
+            },
+            "attribution_policy": "When direct NASA material is used in a deck, cite the source URL and avoid endorsement language. For this skill repo, prefer metadata-only notes or synthetic reconstructions.",
+            "storage_policy": "Do not bundle NASA source assets in the skill repo.",
+            "allowed_extractions": [
+              "figure-first scientific layout vocabulary",
+              "mission or technical dashboard rhythm",
+              "caption and source posture",
+              "palette or contrast observations without identifiers"
+            ],
+            "forbidden_materials": [
+              "NASA identifiers or logos",
+              "third-party media",
+              "people or likenesses without rights",
+              "implied NASA endorsement",
+              "verbatim slide geometry"
+            ],
+            "generic_style_observations": [
+              "technical imagery works best when the figure owns the slide and labels stay small, factual, and source-backed",
+              "mission-style dashboards should use state, threshold, and next-action readouts rather than decorative chrome",
+              "scientific captions need enough room to explain context, limitations, and data provenance"
+            ],
+            "generic_slide_patterns": [
+              "large figure left or center with caption/source strip and interpretation sidecar",
+              "status console with one active route, two thresholds, and a next-action footer",
+              "map/field/technical panel followed by policy or engineering implication table"
+            ],
+            "design_constraints": [
+              "remove NASA identifiers and distinctive mission marks",
+              "replace direct media with generated or user-provided assets unless a deck-specific license chain is recorded"
+            ]
+          },
+          {
+            "source_id": "govuk_design_system_ogl",
+            "source_name": "GOV.UK Design System",
+            "source_url": "https://design-system.service.gov.uk/",
+            "source_status": "open_government_guidance",
+            "license_summary": "GOV.UK Design System guidance is suitable as Open Government Licence-style design inspiration, with government identifiers and third-party assets excluded from this repo.",
+            "source_verification": {
+              "checked_date": "2026-06-20",
+              "checked_url": "https://design-system.service.gov.uk/",
+              "evidence_summary": "Live GOV.UK Design System documentation exposes public-service patterns for typography, spacing, components, forms, summaries, and task-oriented content. Treat it as generic guidance for clear editorial/policy structures and not as a source of bundled screenshots or official marks.",
+              "evidence_scope": [
+                "public-service patterns",
+                "typography and spacing hierarchy",
+                "task-oriented page structure",
+                "government-mark restrictions"
+              ]
+            },
+            "attribution_policy": "When deck-specific content uses GOV.UK guidance directly, cite the guidance URL. This skill repo keeps only generic descriptors and synthetic examples.",
+            "storage_policy": "Do not store GOV.UK screenshots, official marks, or copied component geometry in the skill repo.",
+            "allowed_extractions": [
+              "plain-language heading hierarchy",
+              "summary-list and decision-list structure",
+              "open whitespace with strong alignment",
+              "policy memo and public-service content rhythm"
+            ],
+            "forbidden_materials": [
+              "GOV.UK marks or identifiers",
+              "copied page or component screenshots",
+              "verbatim example content",
+              "third-party assets without rights",
+              "claims of government endorsement"
+            ],
+            "generic_style_observations": [
+              "editorial and policy decks should use brutally clear headings, spare rules, and few decorative containers",
+              "summary-list structure is useful for evidence, caveat, owner, and date fields",
+              "forms and task pages translate into slide structures with one question, one answer, and one next action"
+            ],
+            "generic_slide_patterns": [
+              "policy summary slide with finding, evidence, caveat, and owner as aligned rows",
+              "minimal editorial page with one large statement and one compact source/readout block",
+              "case-study page with service moment, friction, intervention, and measured signal"
+            ],
+            "design_constraints": [
+              "remove GOV.UK crown, wordmarks, and exact page styling",
+              "translate component ideas into original slide layouts with generic labels and content"
+            ]
+          },
+          {
+            "source_id": "uswds_public_design_system",
+            "source_name": "U.S. Web Design System",
+            "source_url": "https://designsystem.digital.gov/",
+            "source_status": "public_domain_design_system",
+            "license_summary": "USWDS is a U.S. government design system; treat government-authored design guidance as public-domain/CC0-style inspiration while checking third-party fonts, icons, examples, and project-specific assets separately.",
+            "source_verification": {
+              "checked_date": "2026-06-20",
+              "checked_url": "https://designsystem.digital.gov/",
+              "evidence_summary": "Live USWDS documentation provides public-sector design-system guidance for accessible components, layout, tokens, identifiers, and design principles. Use this as a public-domain design-system reference for generic layout constraints and navigation/data patterns, not as a bundled asset source.",
+              "evidence_scope": [
+                "public-sector design-system guidance",
+                "layout and token structure",
+                "component hierarchy",
+                "accessibility posture"
+              ]
+            },
+            "attribution_policy": "Cite USWDS or the relevant government source when a deck explicitly uses its guidance. This repo stores only descriptors and synthetic reconstructions.",
+            "storage_policy": "Store URLs, descriptors, and generated examples only; do not bundle USWDS screenshots or third-party assets.",
+            "allowed_extractions": [
+              "public-sector information hierarchy",
+              "accessible component and token vocabulary",
+              "form/table/status pattern descriptions",
+              "policy and service-page structure without identifiers"
+            ],
+            "forbidden_materials": [
+              "agency logos or official seals",
+              "copied component screenshots",
+              "third-party fonts or assets without their own license chain",
+              "implied government endorsement",
+              "verbatim design-system page geometry"
+            ],
+            "generic_style_observations": [
+              "policy and public-service decks read better with direct headings, visible status labels, and restrained civic color use",
+              "operational pages should privilege task state, owner, and next step over decorative storytelling",
+              "data tables need plain headers, consistent tokenized states, and enough row height for repeated use"
+            ],
+            "generic_slide_patterns": [
+              "policy decision slide with status label, short rationale, owner, and deadline",
+              "service dashboard with task state tiles above an exception table",
+              "public brief page with direct title, one evidence object, and a source/accessibility footer"
+            ],
+            "design_constraints": [
+              "remove U.S. government identifiers and agency-specific marks unless the user supplies rights/context",
+              "convert component inspiration into original slide geometry and editable PowerPoint shapes"
+            ]
+          },
+          {
+            "source_id": "section508_accessible_presentations",
+            "source_name": "Section508.gov Create Accessible Presentations",
+            "source_url": "https://www.section508.gov/create/presentations/",
+            "source_status": "public_guidance_reference",
+            "license_summary": "Accessibility guidance for presentation structure, reading order, contrast, slide titles, tables, and media alternatives. Treat as design and QA guidance, not a visual template asset.",
+            "source_verification": {
+              "checked_date": "2026-06-20",
+              "checked_url": "https://www.section508.gov/create/presentations/",
+              "evidence_summary": "Live Section508.gov presentation guidance points to PowerPoint authoring/testing resources for accessible presentations. Treat this as constraints for structure, reading order, template hygiene, alternative text, and QA rather than as a visual template source.",
+              "evidence_scope": [
+                "PowerPoint accessibility guidance",
+                "authoring and testing resources",
+                "template hygiene",
+                "alternative text and related resources"
+              ]
+            },
+            "attribution_policy": "Reference Section508.gov in notes when deck-specific accessibility choices are derived from the guidance.",
+            "storage_policy": "Store only guidance descriptors and QA constraints.",
+            "allowed_extractions": [
+              "readability and accessibility constraints",
+              "table and chart accessibility checks",
+              "slide title and reading-order rules",
+              "template hygiene guidance"
+            ],
+            "forbidden_materials": [
+              "claiming Section508 endorsement",
+              "using guidance as a copied visual template",
+              "dropping accessibility constraints during synthetic reconstruction"
+            ],
+            "generic_style_observations": [
+              "every slide needs an explicit title, predictable reading order, and enough contrast before style polish matters",
+              "tables and charts should use direct labels, short legends, and redundant semantic cues instead of color-only meaning",
+              "decorative variation should never break the repeated structure that makes a deck scannable and testable"
+            ],
+            "generic_slide_patterns": [
+              "descriptive title, one evidence object, concise takeaway, and source line",
+              "chart with direct labels and adjacent data note rather than a tiny legend",
+              "table with real headers, no merged-cell dependency, and concise row labels"
+            ],
+            "design_constraints": [
+              "treat accessibility guidance as a hard QA constraint",
+              "do not use inaccessible screenshots of tables or charts when editable text is possible"
+            ]
+          }
+        ],
+        "publish_safety": {
+          "status": "publish_safe_descriptor",
+          "basis": "source manifest stores only URLs, license notes, verification evidence, allowed extraction modes, and synthetic reconstruction requirements",
+          "repo_storage_rule": "Store source URLs, license notes, extracted descriptors, and generated synthetic examples. Do not store third-party template PPTX files, screenshots, logos, private data, or distinctive copied geometry."
+        }
+      },
+      "structural_motif_library": {
+        "background_structure": "cool one-anchor technical brief with large whitespace and small decision line",
+        "layout_motifs": [
+          "single anchor field",
+          "micro label stack",
+          "sparse comparison divider",
+          "bottom decision line"
+        ],
+        "content_object_rules": [
+          "select one visual or argument anchor per slide",
+          "use tiny qualifiers and owner/date lines instead of heavy callout boxes",
+          "avoid dense dashboards unless the prompt explicitly needs multiple live metrics"
+        ],
+        "motif_library_version": "style_reference_structural_motif_library_v1",
+        "style_preset": "arctic-minimal",
+        "motif_signature": "cool one-anchor technical brief with large whitespace and small decision line::single anchor field|micro label stack|sparse comparison divider|bottom decision line::select one visual or argument anchor per slide|use tiny qualifiers and owner/date lines instead of heavy callout boxes|avoid dense dashboards unless the prompt explicitly needs multiple live metrics"
+      },
+      "style_metric_profile": {
+        "density_level": "low sparse technical brief",
+        "whitespace_ratio_target": 0.46,
+        "body_words_per_content_slide": [
+          14,
+          30
+        ],
+        "max_primary_objects": 1,
+        "visual_hierarchy": "single anchor, micro label stack, and one decision line",
+        "evidence_object_mix": {
+          "chart": 0.24,
+          "table": 0.14,
+          "figure": 0.28,
+          "prose": 0.34
+        },
+        "source_burden": "low; cite only what is needed for the anchor decision",
+        "footer_posture": "standard minimal source note or compact source slide",
+        "artifact_bias": [
+          "single figure",
+          "minimal chart",
+          "short decision line"
+        ],
+        "readability_bias": [
+          "large whitespace",
+          "few labels",
+          "no dashboard crowding"
+        ],
+        "metric_profile_version": "style_reference_metric_profile_v1",
+        "style_preset": "arctic-minimal",
+        "metric_signature": "fca2c3343debcf59f2527b464d7e7aa2d3fcfa6f7e6946410a6c7b17da714ea0"
+      },
+      "example_storyboard": {
+        "topic": "Edge cache postmortem brief",
+        "title": "Edge Cache Postmortem",
+        "subtitle": "Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.",
+        "chart": {
+          "title": "P95 latency during recovery",
+          "labels": [
+            "T0",
+            "T1",
+            "T2",
+            "T3"
+          ],
+          "values": [
+            420,
+            310,
+            190,
+            140
+          ],
+          "note": "Minimal chart leaves space around the proof object."
+        },
+        "dashboard_facts": [
+          {
+            "value": "140ms",
+            "label": "Recovered P95",
+            "detail": "T3"
+          },
+          {
+            "value": "1",
+            "label": "Primary anchor",
+            "detail": "per slide"
+          },
+          {
+            "value": "0",
+            "label": "Extra frames",
+            "detail": "proof stays quiet"
+          }
+        ],
+        "kpi": {
+          "value": "140ms",
+          "label": "recovered P95",
+          "context": "Use quiet proof, not a metric wall."
+        },
+        "table": {
+          "headers": [
+            "Cause",
+            "Evidence",
+            "Fix"
+          ],
+          "rows": [
+            [
+              "TTL drift",
+              "cache miss",
+              "Pin config"
+            ],
+            [
+              "Warmup gap",
+              "cold route",
+              "Preload"
+            ],
+            [
+              "Alert lag",
+              "late page",
+              "Tighten SLO"
+            ]
+          ]
+        },
+        "figure": {
+          "sections": [
+            {
+              "title": "Anchor",
+              "body": [
+                "One diagram owns the slide.",
+                "Notes stay concise."
+              ]
+            },
+            {
+              "title": "Decision",
+              "body": [
+                "Pin config and preload route."
+              ]
+            }
+          ],
+          "caption": "Synthetic edge-cache diagram.",
+          "interpretation": "Recovery came from preload plus TTL pinning."
+        },
+        "comparison": {
+          "left_title": "Before incident",
+          "left_body": [
+            "TTL drift unobserved",
+            "Cold route hidden"
+          ],
+          "right_title": "After fix",
+          "right_body": [
+            "Pinned config",
+            "Preload path"
+          ],
+          "verdict": "Keep the postmortem sparse and exact."
+        },
+        "decision": {
+          "headers": [
+            "Fix",
+            "Proof",
+            "Owner"
+          ],
+          "rows": [
+            [
+              "Pin TTL",
+              "Miss rate down",
+              "Infra"
+            ],
+            [
+              "Preload route",
+              "P95 140ms",
+              "Edge"
+            ],
+            [
+              "Alert SLO",
+              "Earlier page",
+              "SRE"
+            ]
+          ]
+        },
+        "timeline": [
+          {
+            "label": "T0",
+            "title": "Miss",
+            "body": "Latency spike"
+          },
+          {
+            "label": "T1",
+            "title": "Warm",
+            "body": "Partial recover"
+          },
+          {
+            "label": "T2",
+            "title": "Pin",
+            "body": "TTL fixed"
+          },
+          {
+            "label": "T3",
+            "title": "Verify",
+            "body": "P95 stable"
+          }
+        ],
+        "quadrants": [
+          {
+            "title": "High proof",
+            "body": "Latency chart."
+          },
+          {
+            "title": "High action",
+            "body": "Pin TTL."
+          },
+          {
+            "title": "Low noise",
+            "body": "One anchor."
+          },
+          {
+            "title": "Low burden",
+            "body": "Preload route."
+          }
+        ],
+        "source_notes": [
+          "Synthetic incident notes",
+          "No production logs"
+        ],
+        "storyboard_version": "style_reference_example_storyboard_v1",
+        "style_preset": "arctic-minimal",
+        "publish_safety": {
+          "status": "synthetic_original_publish_safe",
+          "basis": "generic synthetic storyboard; no real organization, patient, customer, or public-source data"
+        }
+      },
+      "layout_playbook": {
+        "playbook_version": "style_reference_layout_playbook_v1",
+        "style_preset": "arctic-minimal",
+        "reference_id": "ref-minimal-technical-brief",
+        "preferred_variants": [
+          "title",
+          "image-sidebar",
+          "stats",
+          "chart",
+          "comparison-2col",
+          "standard",
+          "table"
+        ],
+        "treatment_variant_map": {
+          "title": [
+            "title"
+          ],
+          "comparison": [
+            "comparison-2col",
+            "split",
+            "matrix"
+          ],
+          "chart": [
+            "chart"
+          ],
+          "table": [
+            "table",
+            "lab-run-results"
+          ],
+          "figure": [
+            "image-sidebar"
+          ],
+          "dashboard": [
+            "stats",
+            "chart"
+          ],
+          "decision": [
+            "standard"
+          ],
+          "references": [
+            "standard",
+            "table"
+          ]
+        },
+        "treatment_archetypes": {
+          "title": {
+            "archetype_id": "sparse-object-label-opener",
+            "title_layout": "light-atlas",
+            "structure": "one exact object/scope label, large quiet title, and minimal decision line",
+            "required_fields": [
+              "object",
+              "scope qualifier",
+              "decision line"
+            ],
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "sparse-object-label-opener::one exact object/scope label, large quiet title, and minimal decision line::object|scope qualifier|decision line::light-atlas::::::::",
+            "semantic_signature": "21db707063509150e9ee9fe32160a5979d0de4001a1ca84eb292b51193391cdb"
+          },
+          "comparison": {
+            "archetype_id": "minimal-technical-brief-comparison-frame",
+            "structure": "Two-column comparison with low-chrome divider and concise bullets.",
+            "object_pattern": "paired states with comparable fields and a visible verdict",
+            "required_fields": [
+              "left state",
+              "right state",
+              "criterion",
+              "verdict"
+            ],
+            "primary_variants": [
+              "comparison-2col",
+              "split",
+              "matrix"
+            ],
+            "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+            "treatment_key": "comparison",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Two-column comparison with low-chrome divider and concise bullets.",
+            "semantic_signature": "7593035b35755bdc9541dd231b7aedf9e0fdbd427f10ab8b5c2ccaeb2eb1afc6"
+          },
+          "chart": {
+            "archetype_id": "minimal-technical-brief-chart-readout",
+            "structure": "Minimal chart with labels outside the plot and no decorative frame.",
+            "object_pattern": "chart object plus direct readout, caveat, and source/data-cut cue",
+            "required_fields": [
+              "chart question",
+              "labels",
+              "values",
+              "readout",
+              "source"
+            ],
+            "primary_variants": [
+              "chart"
+            ],
+            "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+            "treatment_key": "chart",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal chart with labels outside the plot and no decorative frame.",
+            "semantic_signature": "0af2a0614884de10027016e51184513ae56d83ca4c2e5ee8cfe6190410342da1"
+          },
+          "table": {
+            "archetype_id": "minimal-technical-brief-table-ledger",
+            "structure": "Short table with open rows and strong whitespace.",
+            "object_pattern": "editable table with semantic row/column purpose and phrase-length cells",
+            "required_fields": [
+              "entity row",
+              "status or metric",
+              "owner/action",
+              "provenance"
+            ],
+            "primary_variants": [
+              "table",
+              "lab-run-results"
+            ],
+            "content_goal": "Short table with open rows and strong whitespace.",
+            "treatment_key": "table",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::table|lab-run-results::Short table with open rows and strong whitespace.",
+            "semantic_signature": "93b4e20a3760d0769d68335498438725182f19cbb8bc15740836b41adca56942"
+          },
+          "figure": {
+            "archetype_id": "minimal-technical-brief-figure-proof-object",
+            "structure": "One large figure or diagram with tiny caption and clear breathing room.",
+            "object_pattern": "figure, image, or diagram owns the slide with caption and interpretation",
+            "required_fields": [
+              "proof object",
+              "caption",
+              "interpretation",
+              "caveat"
+            ],
+            "primary_variants": [
+              "image-sidebar"
+            ],
+            "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+            "treatment_key": "figure",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::proof object|caption|interpretation|caveat::::::figure, image, or diagram owns the slide with caption and interpretation::image-sidebar::One large figure or diagram with tiny caption and clear breathing room.",
+            "semantic_signature": "b4979033248d7d84139fddeea858ad812ded7630c46755924f3494fa9c81d3de"
+          },
+          "dashboard": {
+            "archetype_id": "minimal-technical-brief-dashboard-state-board",
+            "structure": "Two or three status facts in a quiet strip; no dense metric wall.",
+            "object_pattern": "multi-metric state board with primary signal, context, and owner/implication",
+            "required_fields": [
+              "primary metric",
+              "supporting metric",
+              "state threshold",
+              "owner or implication"
+            ],
+            "primary_variants": [
+              "stats",
+              "chart"
+            ],
+            "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+            "treatment_key": "dashboard",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::stats|chart::Two or three status facts in a quiet strip; no dense metric wall.",
+            "semantic_signature": "8d9bbfe366c312fac8ef6046cb80184bd5d6992b6ea1c8c8ff7ec3864f208129"
+          },
+          "decision": {
+            "archetype_id": "minimal-technical-brief-decision-record",
+            "structure": "Small bottom decision line plus owner/date.",
+            "object_pattern": "actionable decision record with trigger, owner, timing, and caveat",
+            "required_fields": [
+              "action",
+              "evidence trigger",
+              "owner",
+              "timing or caveat"
+            ],
+            "primary_variants": [
+              "standard"
+            ],
+            "content_goal": "Small bottom decision line plus owner/date.",
+            "treatment_key": "decision",
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard::Small bottom decision line plus owner/date.",
+            "semantic_signature": "e9fcd561524c7dced4571c1af27c3e069c523334459af9c6aa0eaa60e1cb3681"
+          },
+          "references": {
+            "archetype_id": "minimal-needed-only-source-line",
+            "footer_mode": "standard",
+            "structure": "omit refs unless needed; use one short footer line or a compact source slide",
+            "required_fields": [
+              "source label",
+              "decision link"
+            ],
+            "style_preset": "arctic-minimal",
+            "archetype_signature": "minimal-needed-only-source-line::omit refs unless needed; use one short footer line or a compact source slide::source label|decision link::::standard::::::",
+            "semantic_signature": "aafaf5c0f81eaa71960f01ba12680dafb8108c92f6aef08b64851385cbd593cc"
+          }
+        },
+        "slide_archetypes": [
+          {
+            "role": "open",
+            "variant": "title",
+            "treatment_key": "title",
+            "layout_note": "quiet title with scope label"
+          },
+          {
+            "role": "context",
+            "variant": "image-sidebar",
+            "treatment_key": "figure",
+            "layout_note": "single anchor figure with text column"
+          },
+          {
+            "role": "evidence",
+            "variant": "chart",
+            "treatment_key": "chart",
+            "layout_note": "minimal chart, sparse labels"
+          },
+          {
+            "role": "dashboard",
+            "variant": "stats",
+            "treatment_key": "dashboard",
+            "layout_note": "quiet status facts strip"
+          },
+          {
+            "role": "comparison",
+            "variant": "comparison-2col",
+            "treatment_key": "comparison",
+            "layout_note": "low-chrome A/B comparison"
+          },
+          {
+            "role": "decision",
+            "variant": "standard",
+            "treatment_key": "decision",
+            "layout_note": "small decision line at bottom"
+          },
+          {
+            "role": "refs",
+            "variant": "table",
+            "treatment_key": "references",
+            "layout_note": "short references only if needed"
+          }
+        ],
+        "opening_sequence": [
+          {
+            "step": 1,
+            "role": "open",
+            "variant": "title",
+            "treatment_key": "title",
+            "layout_note": "quiet title with scope label"
+          },
+          {
+            "step": 2,
+            "role": "context",
+            "variant": "image-sidebar",
+            "treatment_key": "figure",
+            "layout_note": "single anchor figure with text column"
+          },
+          {
+            "step": 3,
+            "role": "evidence",
+            "variant": "chart",
+            "treatment_key": "chart",
+            "layout_note": "minimal chart, sparse labels"
+          },
+          {
+            "step": 4,
+            "role": "dashboard",
+            "variant": "stats",
+            "treatment_key": "dashboard",
+            "layout_note": "quiet status facts strip"
+          },
+          {
+            "step": 5,
+            "role": "comparison",
+            "variant": "comparison-2col",
+            "treatment_key": "comparison",
+            "layout_note": "low-chrome A/B comparison"
+          },
+          {
+            "step": 6,
+            "role": "decision",
+            "variant": "standard",
+            "treatment_key": "decision",
+            "layout_note": "small decision line at bottom"
+          }
+        ],
+        "content_rules": [
+          "Choose one anchor per slide and leave deliberate whitespace around it.",
+          "Use minimal charts and small decision lines rather than dense dashboards.",
+          "Keep labels precise and avoid simultaneous accent systems.",
+          "Choose slide variants from this playbook before falling back to generic cards.",
+          "Every evidence slide needs a chart, table, figure, flow, stats, or structured comparison anchor."
+        ],
+        "avoid_variants": [
+          "cards-3",
+          "kpi-hero",
+          "lab-run-results"
+        ],
+        "gallery_showcase_variants": [
+          "image-sidebar",
+          "chart",
+          "comparison-2col",
+          "table",
+          "stats"
+        ],
+        "proof_anchor_policy": "Select the strongest supported visual/evidence variant for the content; use prose-only slides only for synthesis or decisions.",
+        "source_footer_policy": "Standard footer; use refs only when source burden exists.",
+        "authoring_instruction": "Use this playbook in structure_blueprint.slide_sequence and outline_authoring_handoff.variant_mix_plan so the preset changes slide structure, not only chrome."
+      },
+      "content_recipe_library": {
+        "library_version": "style_reference_content_recipe_library_v1",
+        "style_preset": "arctic-minimal",
+        "reference_id": "ref-minimal-technical-brief",
+        "purpose": "Preset-specific content-slot recipes for translating real prompts, data, charts, tables, figures, and decisions into supported outline variants.",
+        "recipes": {
+          "title": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "title",
+            "primary_variants": [
+              "title"
+            ],
+            "content_goal": "Light sparse opener with one object/scope label and large quiet title.",
+            "evidence_anchor": "Light sparse opener with one object/scope label and large quiet title.",
+            "required_slots": [
+              "working title",
+              "scope/context label",
+              "audience or use context",
+              "one credibility chip"
+            ],
+            "data_roles": [
+              "topic",
+              "scope",
+              "date/period",
+              "audience"
+            ],
+            "storyboard_example": {
+              "title": "Edge Cache Postmortem",
+              "subtitle": "Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.",
+              "topic": "Edge cache postmortem brief"
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Title must name the deck object, not a generic category.",
+              "Subtitle should lock scope or use context."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "sparse-object-label-opener",
+              "title_layout": "light-atlas",
+              "structure": "one exact object/scope label, large quiet title, and minimal decision line",
+              "required_fields": [
+                "object",
+                "scope qualifier",
+                "decision line"
+              ],
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "sparse-object-label-opener::one exact object/scope label, large quiet title, and minimal decision line::object|scope qualifier|decision line::light-atlas::::::::",
+              "semantic_signature": "21db707063509150e9ee9fe32160a5979d0de4001a1ca84eb292b51193391cdb"
+            },
+            "recipe_signature": "title::sparse-object-label-opener::Light sparse opener with one object/scope label and large quiet title.::title::working title|scope/context label|audience or use context|one credibility chip::Edge Cache Postmortem::Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.::Edge cache postmortem brief"
+          },
+          "comparison": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "comparison",
+            "primary_variants": [
+              "comparison-2col",
+              "split",
+              "matrix"
+            ],
+            "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+            "evidence_anchor": "Two-column comparison with low-chrome divider and concise bullets.",
+            "required_slots": [
+              "left state",
+              "right state",
+              "decision criterion",
+              "verdict"
+            ],
+            "data_roles": [
+              "baseline",
+              "target/comparator",
+              "difference driver",
+              "decision rule"
+            ],
+            "storyboard_example": {
+              "left_title": "Before incident",
+              "right_title": "After fix",
+              "verdict": "Keep the postmortem sparse and exact."
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Both sides need comparable fields.",
+              "Verdict must be visible on the slide."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-comparison-frame",
+              "structure": "Two-column comparison with low-chrome divider and concise bullets.",
+              "object_pattern": "paired states with comparable fields and a visible verdict",
+              "required_fields": [
+                "left state",
+                "right state",
+                "criterion",
+                "verdict"
+              ],
+              "primary_variants": [
+                "comparison-2col",
+                "split",
+                "matrix"
+              ],
+              "content_goal": "Two-column comparison with low-chrome divider and concise bullets.",
+              "treatment_key": "comparison",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::left state|right state|criterion|verdict::::::paired states with comparable fields and a visible verdict::comparison-2col|split|matrix::Two-column comparison with low-chrome divider and concise bullets.",
+              "semantic_signature": "7593035b35755bdc9541dd231b7aedf9e0fdbd427f10ab8b5c2ccaeb2eb1afc6"
+            },
+            "recipe_signature": "comparison::minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Before incident::After fix::Keep the postmortem sparse and exact."
+          },
+          "chart": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "chart",
+            "primary_variants": [
+              "chart"
+            ],
+            "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+            "evidence_anchor": "Minimal chart with labels outside the plot and no decorative frame.",
+            "required_slots": [
+              "chart question",
+              "category/time labels",
+              "value series",
+              "readout/caveat",
+              "source id"
+            ],
+            "data_roles": [
+              "x/category field",
+              "numeric value field",
+              "target/threshold when available",
+              "source cut/version"
+            ],
+            "storyboard_example": {
+              "title": "P95 latency during recovery",
+              "labels": [
+                "T0",
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "note": "Minimal chart leaves space around the proof object."
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Axis labels must satisfy chart_label_min_pt.",
+              "Chart needs a written readout, not only bars/lines."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-chart-readout",
+              "structure": "Minimal chart with labels outside the plot and no decorative frame.",
+              "object_pattern": "chart object plus direct readout, caveat, and source/data-cut cue",
+              "required_fields": [
+                "chart question",
+                "labels",
+                "values",
+                "readout",
+                "source"
+              ],
+              "primary_variants": [
+                "chart"
+              ],
+              "content_goal": "Minimal chart with labels outside the plot and no decorative frame.",
+              "treatment_key": "chart",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart question|labels|values|readout|source::::::chart object plus direct readout, caveat, and source/data-cut cue::chart::Minimal chart with labels outside the plot and no decorative frame.",
+              "semantic_signature": "0af2a0614884de10027016e51184513ae56d83ca4c2e5ee8cfe6190410342da1"
+            },
+            "recipe_signature": "chart::minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart::chart question|category/time labels|value series|readout/caveat|source id::P95 latency during recovery::T0|T1|T2::Minimal chart leaves space around the proof object."
+          },
+          "table": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "table",
+            "primary_variants": [
+              "table",
+              "lab-run-results"
+            ],
+            "content_goal": "Short table with open rows and strong whitespace.",
+            "evidence_anchor": "Short table with open rows and strong whitespace.",
+            "required_slots": [
+              "row entity",
+              "status/signal field",
+              "action/owner field",
+              "short source/provenance"
+            ],
+            "data_roles": [
+              "entity",
+              "metric/state",
+              "owner/action",
+              "method/source"
+            ],
+            "storyboard_example": {
+              "headers": [
+                "Cause",
+                "Evidence",
+                "Fix"
+              ],
+              "example_rows": [
+                [
+                  "TTL drift",
+                  "cache miss",
+                  "Pin config"
+                ],
+                [
+                  "Warmup gap",
+                  "cold route",
+                  "Preload"
+                ]
+              ]
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Cells stay phrase-length.",
+              "Split or summarize if table text would fall below body-size floor."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-table-ledger",
+              "structure": "Short table with open rows and strong whitespace.",
+              "object_pattern": "editable table with semantic row/column purpose and phrase-length cells",
+              "required_fields": [
+                "entity row",
+                "status or metric",
+                "owner/action",
+                "provenance"
+              ],
+              "primary_variants": [
+                "table",
+                "lab-run-results"
+              ],
+              "content_goal": "Short table with open rows and strong whitespace.",
+              "treatment_key": "table",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::entity row|status or metric|owner/action|provenance::::::editable table with semantic row/column purpose and phrase-length cells::table|lab-run-results::Short table with open rows and strong whitespace.",
+              "semantic_signature": "93b4e20a3760d0769d68335498438725182f19cbb8bc15740836b41adca56942"
+            },
+            "recipe_signature": "table::minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::table|lab-run-results::row entity|status/signal field|action/owner field|short source/provenance::Cause|Evidence|Fix::['TTL drift', 'cache miss', 'Pin config']|['Warmup gap', 'cold route', 'Preload']"
+          },
+          "figure": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "figure",
+            "primary_variants": [
+              "image-sidebar"
+            ],
+            "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+            "evidence_anchor": "One large figure or diagram with tiny caption and clear breathing room.",
+            "required_slots": [
+              "proof object",
+              "caption",
+              "interpretation",
+              "caveat or next action"
+            ],
+            "data_roles": [
+              "figure path or generated output id",
+              "caption source",
+              "interpretation",
+              "quality/crop rule"
+            ],
+            "storyboard_example": {
+              "caption": "Synthetic edge-cache diagram.",
+              "section_titles": [
+                "Anchor",
+                "Decision"
+              ],
+              "interpretation": "Recovery came from preload plus TTL pinning."
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Figure must be source-backed or synthetic/starter-labeled.",
+              "Caption and interpretation must remain readable."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-figure-proof-object",
+              "structure": "One large figure or diagram with tiny caption and clear breathing room.",
+              "object_pattern": "figure, image, or diagram owns the slide with caption and interpretation",
+              "required_fields": [
+                "proof object",
+                "caption",
+                "interpretation",
+                "caveat"
+              ],
+              "primary_variants": [
+                "image-sidebar"
+              ],
+              "content_goal": "One large figure or diagram with tiny caption and clear breathing room.",
+              "treatment_key": "figure",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::proof object|caption|interpretation|caveat::::::figure, image, or diagram owns the slide with caption and interpretation::image-sidebar::One large figure or diagram with tiny caption and clear breathing room.",
+              "semantic_signature": "b4979033248d7d84139fddeea858ad812ded7630c46755924f3494fa9c81d3de"
+            },
+            "recipe_signature": "figure::minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::image-sidebar::proof object|caption|interpretation|caveat or next action::Synthetic edge-cache diagram.::Anchor|Decision::Recovery came from preload plus TTL pinning."
+          },
+          "dashboard": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "dashboard",
+            "primary_variants": [
+              "stats",
+              "chart"
+            ],
+            "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+            "evidence_anchor": "Two or three status facts in a quiet strip; no dense metric wall.",
+            "required_slots": [
+              "primary metric",
+              "supporting metric",
+              "state/threshold",
+              "owner or implication"
+            ],
+            "data_roles": [
+              "primary KPI",
+              "secondary KPI",
+              "state/threshold",
+              "owner/action"
+            ],
+            "storyboard_example": {
+              "facts": [
+                {
+                  "value": "140ms",
+                  "label": "Recovered P95",
+                  "detail": "T3"
+                },
+                {
+                  "value": "1",
+                  "label": "Primary anchor",
+                  "detail": "per slide"
+                },
+                {
+                  "value": "0",
+                  "label": "Extra frames",
+                  "detail": "proof stays quiet"
+                }
+              ],
+              "kpi": {
+                "value": "140ms",
+                "label": "recovered P95",
+                "context": "Use quiet proof, not a metric wall."
+              }
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Use dashboard only when multiple metrics earn one slide.",
+              "Every metric needs a label and context."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-dashboard-state-board",
+              "structure": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "object_pattern": "multi-metric state board with primary signal, context, and owner/implication",
+              "required_fields": [
+                "primary metric",
+                "supporting metric",
+                "state threshold",
+                "owner or implication"
+              ],
+              "primary_variants": [
+                "stats",
+                "chart"
+              ],
+              "content_goal": "Two or three status facts in a quiet strip; no dense metric wall.",
+              "treatment_key": "dashboard",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::primary metric|supporting metric|state threshold|owner or implication::::::multi-metric state board with primary signal, context, and owner/implication::stats|chart::Two or three status facts in a quiet strip; no dense metric wall.",
+              "semantic_signature": "8d9bbfe366c312fac8ef6046cb80184bd5d6992b6ea1c8c8ff7ec3864f208129"
+            },
+            "recipe_signature": "dashboard::minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::stats|chart::primary metric|supporting metric|state/threshold|owner or implication::{'value': '140ms', 'label': 'Recovered P95', 'detail': 'T3'}|{'value': '1', 'label': 'Primary anchor', 'detail': 'per slide'}|{'value': '0', 'label': 'Extra frames', 'detail': 'proof stays quiet'}::{'value': '140ms', 'label': 'recovered P95', 'context': 'Use quiet proof, not a metric wall.'}"
+          },
+          "decision": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "decision",
+            "primary_variants": [
+              "standard"
+            ],
+            "content_goal": "Small bottom decision line plus owner/date.",
+            "evidence_anchor": "Small bottom decision line plus owner/date.",
+            "required_slots": [
+              "decision/action",
+              "evidence trigger",
+              "owner",
+              "caveat/date"
+            ],
+            "data_roles": [
+              "action",
+              "evidence/trigger",
+              "owner",
+              "timing/risk"
+            ],
+            "storyboard_example": {
+              "headers": [
+                "Fix",
+                "Proof",
+                "Owner"
+              ],
+              "example_rows": [
+                [
+                  "Pin TTL",
+                  "Miss rate down",
+                  "Infra"
+                ],
+                [
+                  "Preload route",
+                  "P95 140ms",
+                  "Edge"
+                ]
+              ]
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Decision slide must make the action inspectable.",
+              "Avoid generic next-step prose without owner or trigger."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-technical-brief-decision-record",
+              "structure": "Small bottom decision line plus owner/date.",
+              "object_pattern": "actionable decision record with trigger, owner, timing, and caveat",
+              "required_fields": [
+                "action",
+                "evidence trigger",
+                "owner",
+                "timing or caveat"
+              ],
+              "primary_variants": [
+                "standard"
+              ],
+              "content_goal": "Small bottom decision line plus owner/date.",
+              "treatment_key": "decision",
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::action|evidence trigger|owner|timing or caveat::::::actionable decision record with trigger, owner, timing, and caveat::standard::Small bottom decision line plus owner/date.",
+              "semantic_signature": "e9fcd561524c7dced4571c1af27c3e069c523334459af9c6aa0eaa60e1cb3681"
+            },
+            "recipe_signature": "decision::minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::standard::decision/action|evidence trigger|owner|caveat/date::Fix|Proof|Owner::['Pin TTL', 'Miss rate down', 'Infra']|['Preload route', 'P95 140ms', 'Edge']"
+          },
+          "references": {
+            "recipe_version": "style_reference_content_recipe_library_v1",
+            "style_preset": "arctic-minimal",
+            "reference_id": "ref-minimal-technical-brief",
+            "treatment_key": "references",
+            "primary_variants": [
+              "standard",
+              "table"
+            ],
+            "content_goal": "Standard footer; use refs only when source burden exists.",
+            "evidence_anchor": "Standard footer; use refs only when source burden exists.",
+            "required_slots": [
+              "source id",
+              "short source label",
+              "claim or artifact linked",
+              "full citation when needed"
+            ],
+            "data_roles": [
+              "source id",
+              "source title",
+              "claim/slide id",
+              "URL/DOI/path"
+            ],
+            "storyboard_example": {
+              "source_notes": [
+                "Synthetic incident notes",
+                "No production logs"
+              ]
+            },
+            "source_posture": "Standard footer; use refs only when source burden exists.",
+            "authoring_checks": [
+              "Short IDs belong in footers.",
+              "Move long citations to editable references tables."
+            ],
+            "treatment_archetype": {
+              "archetype_id": "minimal-needed-only-source-line",
+              "footer_mode": "standard",
+              "structure": "omit refs unless needed; use one short footer line or a compact source slide",
+              "required_fields": [
+                "source label",
+                "decision link"
+              ],
+              "style_preset": "arctic-minimal",
+              "archetype_signature": "minimal-needed-only-source-line::omit refs unless needed; use one short footer line or a compact source slide::source label|decision link::::standard::::::",
+              "semantic_signature": "aafaf5c0f81eaa71960f01ba12680dafb8108c92f6aef08b64851385cbd593cc"
+            },
+            "recipe_signature": "references::minimal-needed-only-source-line::Standard footer; use refs only when source burden exists.::standard|table::source id|short source label|claim or artifact linked|full citation when needed::Synthetic incident notes|No production logs"
+          }
+        },
+        "recipe_signatures": {
+          "title": "title::sparse-object-label-opener::Light sparse opener with one object/scope label and large quiet title.::title::working title|scope/context label|audience or use context|one credibility chip::Edge Cache Postmortem::Synthetic minimal technical brief: one anchor per page, latency chart, and small decision line.::Edge cache postmortem brief",
+          "comparison": "comparison::minimal-technical-brief-comparison-frame::Two-column comparison with low-chrome divider and concise bullets.::comparison-2col|split|matrix::left state|right state|decision criterion|verdict::Before incident::After fix::Keep the postmortem sparse and exact.",
+          "chart": "chart::minimal-technical-brief-chart-readout::Minimal chart with labels outside the plot and no decorative frame.::chart::chart question|category/time labels|value series|readout/caveat|source id::P95 latency during recovery::T0|T1|T2::Minimal chart leaves space around the proof object.",
+          "table": "table::minimal-technical-brief-table-ledger::Short table with open rows and strong whitespace.::table|lab-run-results::row entity|status/signal field|action/owner field|short source/provenance::Cause|Evidence|Fix::['TTL drift', 'cache miss', 'Pin config']|['Warmup gap', 'cold route', 'Preload']",
+          "figure": "figure::minimal-technical-brief-figure-proof-object::One large figure or diagram with tiny caption and clear breathing room.::image-sidebar::proof object|caption|interpretation|caveat or next action::Synthetic edge-cache diagram.::Anchor|Decision::Recovery came from preload plus TTL pinning.",
+          "dashboard": "dashboard::minimal-technical-brief-dashboard-state-board::Two or three status facts in a quiet strip; no dense metric wall.::stats|chart::primary metric|supporting metric|state/threshold|owner or implication::{'value': '140ms', 'label': 'Recovered P95', 'detail': 'T3'}|{'value': '1', 'label': 'Primary anchor', 'detail': 'per slide'}|{'value': '0', 'label': 'Extra frames', 'detail': 'proof stays quiet'}::{'value': '140ms', 'label': 'recovered P95', 'context': 'Use quiet proof, not a metric wall.'}",
+          "decision": "decision::minimal-technical-brief-decision-record::Small bottom decision line plus owner/date.::standard::decision/action|evidence trigger|owner|caveat/date::Fix|Proof|Owner::['Pin TTL', 'Miss rate down', 'Infra']|['Preload route', 'P95 140ms', 'Edge']",
+          "references": "references::minimal-needed-only-source-line::Standard footer; use refs only when source burden exists.::standard|table::source id|short source label|claim or artifact linked|full citation when needed::Synthetic incident notes|No production logs"
+        },
+        "authoring_contract": [
+          "Select a recipe by treatment_key before writing each content slide.",
+          "Bind every required slot to a source field, generated artifact, citation, or explicit assumption.",
+          "Use primary_variants first; fall back only when the evidence payload cannot support them.",
+          "Record the chosen treatment_key on each outline slide so build-time playbook resolution stays auditable."
+        ]
+      }
+    },
+    "style_atom_context": {
+      "schema_version": "normal_workflow_atom_context_v1",
+      "route_id": "atom_composition",
+      "status": "seeded_optional",
+      "strict_json_instruction": "Use strict JSON only. Return no markdown, comments, or prose.",
+      "target_family": "arctic-minimal",
+      "selection_basis": "style_reference_mix_plan.primary",
+      "slide_count": 8,
+      "topic_terms": [
+        "deepresearch",
+        "hpi",
+        "sfilm",
+        "但加入项目自己的时序遥感",
+        "先验注入",
+        "制作项目结项汇报",
+        "十九类指标拆成多页表格",
+        "结果页不用柱状图",
+        "视觉语言",
+        "进度汇报模板的浅蓝科研风",
+        "需要完整科研背景"
+      ],
+      "preferred_variants": [
+        "title",
+        "section",
+        "flow",
+        "chart",
+        "table",
+        "comparison-2col",
+        "scientific-figure"
+      ],
+      "narrative_arc": [
+        "title",
+        "context",
+        "architecture",
+        "spec",
+        "tradeoff",
+        "conclusion"
+      ],
+      "deck_style_delta": {
+        "chart_treatment": "sparse-wide",
+        "table_treatment": "journal-grid",
+        "header_mode": "bar",
+        "footer_mode": "source-line",
+        "visual_density": "low",
+        "decorative_signals": [
+          "wide-margin-quiet-page",
+          "thin-frame-around-canvas",
+          "thin-rule-under-title"
+        ],
+        "arc_beats": [
+          "title",
+          "context",
+          "architecture",
+          "spec",
+          "tradeoff",
+          "conclusion"
+        ],
+        "style_seed_families": [
+          "arctic-minimal"
+        ],
+        "composition_mode": "deterministic-fallback"
+      },
+      "design_brief_delta": {
+        "palette_signals": [
+          "cool-gray"
+        ],
+        "typography_signals": [
+          "quiet-technical-labels"
+        ],
+        "layout_signals": [
+          "architecture-frame",
+          "sparse-technical-grid"
+        ],
+        "rhythm_signature": "thin-rules-quiet-grid",
+        "style_atom_composition": {
+          "schema_version": "style_atom_composition_v1",
+          "target_family": "arctic-minimal",
+          "source_families": [
+            "arctic-minimal"
+          ],
+          "composition_mode": "deterministic-fallback",
+          "topic_terms": [
+            "deepresearch",
+            "hpi",
+            "sfilm",
+            "但加入项目自己的时序遥感",
+            "先验注入",
+            "制作项目结项汇报",
+            "十九类指标拆成多页表格",
+            "结果页不用柱状图",
+            "视觉语言",
+            "进度汇报模板的浅蓝科研风",
+            "需要完整科研背景"
+          ],
+          "palette": "palette:cool-gray",
+          "typography": "typography:quiet-technical-labels",
+          "layout_motifs": [
+            "layout_motif:architecture-frame",
+            "layout_motif:sparse-technical-grid"
+          ],
+          "chart_treatment": "chart_treatment:sparse-wide",
+          "table_treatment": "table_treatment:journal-grid",
+          "header_treatment": "header_treatment:bar",
+          "footer_treatment": "footer_treatment:source-line",
+          "decorative_motifs": [
+            "decorative_motif:wide-margin-quiet-page",
+            "decorative_motif:thin-frame-around-canvas",
+            "decorative_motif:thin-rule-under-title"
+          ],
+          "density": "density:low",
+          "arc_beats": [
+            "arc_beat:title",
+            "arc_beat:context",
+            "arc_beat:architecture",
+            "arc_beat:spec",
+            "arc_beat:tradeoff",
+            "arc_beat:conclusion"
+          ],
+          "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+          "preferred_variants": [
+            "title",
+            "section",
+            "flow",
+            "chart",
+            "table",
+            "comparison-2col",
+            "scientific-figure"
+          ],
+          "artifact_density": 0.7
+        }
+      },
+      "style_atom_composition": {
+        "schema_version": "style_atom_composition_v1",
+        "target_family": "arctic-minimal",
+        "source_families": [
+          "arctic-minimal"
+        ],
+        "composition_mode": "deterministic-fallback",
+        "topic_terms": [
+          "deepresearch",
+          "hpi",
+          "sfilm",
+          "但加入项目自己的时序遥感",
+          "先验注入",
+          "制作项目结项汇报",
+          "十九类指标拆成多页表格",
+          "结果页不用柱状图",
+          "视觉语言",
+          "进度汇报模板的浅蓝科研风",
+          "需要完整科研背景"
+        ],
+        "palette": "palette:cool-gray",
+        "typography": "typography:quiet-technical-labels",
+        "layout_motifs": [
+          "layout_motif:architecture-frame",
+          "layout_motif:sparse-technical-grid"
+        ],
+        "chart_treatment": "chart_treatment:sparse-wide",
+        "table_treatment": "table_treatment:journal-grid",
+        "header_treatment": "header_treatment:bar",
+        "footer_treatment": "footer_treatment:source-line",
+        "decorative_motifs": [
+          "decorative_motif:wide-margin-quiet-page",
+          "decorative_motif:thin-frame-around-canvas",
+          "decorative_motif:thin-rule-under-title"
+        ],
+        "density": "density:low",
+        "arc_beats": [
+          "arc_beat:title",
+          "arc_beat:context",
+          "arc_beat:architecture",
+          "arc_beat:spec",
+          "arc_beat:tradeoff",
+          "arc_beat:conclusion"
+        ],
+        "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+        "preferred_variants": [
+          "title",
+          "section",
+          "flow",
+          "chart",
+          "table",
+          "comparison-2col",
+          "scientific-figure"
+        ],
+        "artifact_density": 0.7
+      },
+      "normal_workflow_contract": {
+        "decision_rule": "Treat this as a first-class optional route. Accept it when the atom choices fit the topic, refine it by returning the strict JSON atom shape, or skip it with a recorded reason.",
+        "persist_when_used": [
+          "design_contract.json:choice_resolution.atom_composition",
+          "design_contract.json:style_system.style_atom_composition",
+          "design_brief.json:style_atom_composition",
+          "design_brief.json:style_system.style_atom_preferred_variants",
+          "design_brief.json:style_system.style_atom_narrative_arc",
+          "outline.json:deck_style supported fields from deck_style_delta",
+          "content_plan.json:narrative_arc or slide_plan variants where topic-fit"
+        ],
+        "do_not_force": [
+          "Do not use every preferred variant just because it appears in the atom packet.",
+          "Do not override explicit user style, brand, source, or accessibility constraints.",
+          "Do not copy external slide geometry; atoms are descriptor-only grammar signals."
+        ]
+      },
+      "prompt_packet_summary": {
+        "schema_version": null,
+        "target_family": null,
+        "related_families": null,
+        "candidate_type_count": 0
+      }
+    },
+    "style_atom_composition": {
+      "schema_version": "style_atom_composition_v1",
+      "target_family": "arctic-minimal",
+      "source_families": [
+        "arctic-minimal"
+      ],
+      "composition_mode": "deterministic-fallback",
+      "topic_terms": [
+        "deepresearch",
+        "hpi",
+        "sfilm",
+        "但加入项目自己的时序遥感",
+        "先验注入",
+        "制作项目结项汇报",
+        "十九类指标拆成多页表格",
+        "结果页不用柱状图",
+        "视觉语言",
+        "进度汇报模板的浅蓝科研风",
+        "需要完整科研背景"
+      ],
+      "palette": "palette:cool-gray",
+      "typography": "typography:quiet-technical-labels",
+      "layout_motifs": [
+        "layout_motif:architecture-frame",
+        "layout_motif:sparse-technical-grid"
+      ],
+      "chart_treatment": "chart_treatment:sparse-wide",
+      "table_treatment": "table_treatment:journal-grid",
+      "header_treatment": "header_treatment:bar",
+      "footer_treatment": "footer_treatment:source-line",
+      "decorative_motifs": [
+        "decorative_motif:wide-margin-quiet-page",
+        "decorative_motif:thin-frame-around-canvas",
+        "decorative_motif:thin-rule-under-title"
+      ],
+      "density": "density:low",
+      "arc_beats": [
+        "arc_beat:title",
+        "arc_beat:context",
+        "arc_beat:architecture",
+        "arc_beat:spec",
+        "arc_beat:tradeoff",
+        "arc_beat:conclusion"
+      ],
+      "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+      "preferred_variants": [
+        "title",
+        "section",
+        "flow",
+        "chart",
+        "table",
+        "comparison-2col",
+        "scientific-figure"
+      ],
+      "artifact_density": 0.7
+    },
+    "style_atom_preferred_variants": [
+      "title",
+      "section",
+      "flow",
+      "chart",
+      "table",
+      "comparison-2col",
+      "scientific-figure"
+    ],
+    "style_atom_narrative_arc": [
+      "title",
+      "context",
+      "architecture",
+      "spec",
+      "tradeoff",
+      "conclusion"
+    ],
+    "style_mix_matrix": {
+      "header_variant_pool": [
+        "plain",
+        "split-rule",
+        "title-rule",
+        "left-accent"
+      ],
+      "title_layout_pool": [
+        "light-atlas",
+        "masthead",
+        "split-hero"
+      ],
+      "section_motif_pool": [
+        "rail-dots",
+        "plain",
+        "none"
+      ],
+      "timeline_mode_pool": [
+        "rail-cards",
+        "staggered",
+        "open-events",
+        "bands",
+        "chapter-spread"
+      ],
+      "matrix_mode_pool": [
+        "open-quadrants",
+        "cards"
+      ],
+      "stats_mode_pool": [
+        "tiles",
+        "feature-left",
+        "policy-bands"
+      ],
+      "cards_mode_pool": [
+        "feature-left",
+        "staggered-row"
+      ],
+      "chart_treatment_pool": [
+        "sparse-wide",
+        "minimal",
+        "standard"
+      ],
+      "table_treatment_pool": [
+        "journal-grid",
+        "compact-ledger",
+        "standard"
+      ],
+      "summary_callout_mode_pool": [
+        "default",
+        "lab-box"
+      ],
+      "figure_table_treatment_pool": [
+        "figure-first",
+        "image-sidebar",
+        "table-first"
+      ],
+      "footer_pool": [
+        "standard",
+        "source-line"
+      ],
+      "mix_rule": "Resolve restrained renderer treatments from the stable style_seed; override explicitly when the evidence shape requires it.",
+      "do_not_mix": [
+        "Do not combine decorative section motifs with dense scientific figure slides unless they support navigation.",
+        "Do not use none footer mode for source-heavy research or lab decks."
+      ]
+    }
+  },
+  "style_atom_composition": {
+    "schema_version": "style_atom_composition_v1",
+    "target_family": "arctic-minimal",
+    "source_families": [
+      "arctic-minimal"
+    ],
+    "composition_mode": "deterministic-fallback",
+    "topic_terms": [
+      "deepresearch",
+      "hpi",
+      "sfilm",
+      "但加入项目自己的时序遥感",
+      "先验注入",
+      "制作项目结项汇报",
+      "十九类指标拆成多页表格",
+      "结果页不用柱状图",
+      "视觉语言",
+      "进度汇报模板的浅蓝科研风",
+      "需要完整科研背景"
+    ],
+    "palette": "palette:cool-gray",
+    "typography": "typography:quiet-technical-labels",
+    "layout_motifs": [
+      "layout_motif:architecture-frame",
+      "layout_motif:sparse-technical-grid"
+    ],
+    "chart_treatment": "chart_treatment:sparse-wide",
+    "table_treatment": "table_treatment:journal-grid",
+    "header_treatment": "header_treatment:bar",
+    "footer_treatment": "footer_treatment:source-line",
+    "decorative_motifs": [
+      "decorative_motif:wide-margin-quiet-page",
+      "decorative_motif:thin-frame-around-canvas",
+      "decorative_motif:thin-rule-under-title"
+    ],
+    "density": "density:low",
+    "arc_beats": [
+      "arc_beat:title",
+      "arc_beat:context",
+      "arc_beat:architecture",
+      "arc_beat:spec",
+      "arc_beat:tradeoff",
+      "arc_beat:conclusion"
+    ],
+    "rhythm_signature": "rhythm_signature:thin-rules-quiet-grid",
+    "preferred_variants": [
+      "title",
+      "section",
+      "flow",
+      "chart",
+      "table",
+      "comparison-2col",
+      "scientific-figure"
+    ],
+    "artifact_density": 0.7
+  },
+  "palette_signals": [
+    "cool-gray"
+  ],
+  "typography_signals": [
+    "quiet-technical-labels"
+  ],
+  "layout_signals": [
+    "architecture-frame",
+    "sparse-technical-grid"
+  ],
+  "rhythm_signature": "thin-rules-quiet-grid",
+  "title_page_concept": {
+    "chosen_archetype": "topic-specific opener chosen from the preset and content",
+    "dominant_element": "large topic-specific title",
+    "supporting_element": "short subtitle or one strong hero asset",
+    "why_this_could_only_be_this_deck": "Replace with a sentence before final delivery."
+  },
+  "structure_strategy": {
+    "primary_scaffold": "open editorial content slides with measured headers",
+    "repeated_elements": [
+      "shared margins",
+      "consistent source/footer treatment",
+      "limited accent rails"
+    ],
+    "allowed_variations": [
+      "title",
+      "image-sidebar",
+      "stats",
+      "chart",
+      "comparison-2col",
+      "standard",
+      "table"
+    ],
+    "style_reference_layout_playbook": {
+      "playbook_version": "style_reference_layout_playbook_v1",
+      "reference_id": "ref-minimal-technical-brief",
+      "opening_sequence": [
+        {
+          "step": 1,
+          "role": "open",
+          "variant": "title",
+          "treatment_key": "title",
+          "layout_note": "quiet title with scope label"
+        },
+        {
+          "step": 2,
+          "role": "context",
+          "variant": "image-sidebar",
+          "treatment_key": "figure",
+          "layout_note": "single anchor figure with text column"
+        },
+        {
+          "step": 3,
+          "role": "evidence",
+          "variant": "chart",
+          "treatment_key": "chart",
+          "layout_note": "minimal chart, sparse labels"
+        },
+        {
+          "step": 4,
+          "role": "dashboard",
+          "variant": "stats",
+          "treatment_key": "dashboard",
+          "layout_note": "quiet status facts strip"
+        },
+        {
+          "step": 5,
+          "role": "comparison",
+          "variant": "comparison-2col",
+          "treatment_key": "comparison",
+          "layout_note": "low-chrome A/B comparison"
+        },
+        {
+          "step": 6,
+          "role": "decision",
+          "variant": "standard",
+          "treatment_key": "decision",
+          "layout_note": "small decision line at bottom"
+        }
+      ],
+      "content_rules": [
+        "Choose one anchor per slide and leave deliberate whitespace around it.",
+        "Use minimal charts and small decision lines rather than dense dashboards.",
+        "Keep labels precise and avoid simultaneous accent systems.",
+        "Choose slide variants from this playbook before falling back to generic cards.",
+        "Every evidence slide needs a chart, table, figure, flow, stats, or structured comparison anchor."
+      ],
+      "avoid_variants": [
+        "cards-3",
+        "kpi-hero",
+        "lab-run-results"
+      ]
+    },
+    "container_policy": "Cards are for modular comparisons or evidence groups, not the default way to make prose look designed.",
+    "rhythm_break_plan": "Use a rhythm break only when the content asks for it: a true hero metric, a full-bleed/source-backed image, a major section turn, or a decisive chart. Do not add a KPI hero just to break rhythm. Do not add a timeline just because a slide has steps; use report bands, a table, or a figure when those are clearer."
+  },
+  "readability_contract": {
+    "min_title_pt": 24,
+    "min_body_pt": 12,
+    "min_caption_pt": 7.5,
+    "max_title_lines": 2,
+    "max_slide_text_lines": 8,
+    "max_slide_words": 105,
+    "max_slide_chars": 700,
+    "footer_reserved_inches": 0.34,
+    "chart_label_min_pt": 8,
+    "table_density_rule": "split or summarize tables that force unreadable text",
+    "whitespace_rule": "avoid awkward empty regions; choose variants that fit actual evidence shape",
+    "figure_crop_rule": "tight bounding boxes and trimmed exterior whitespace"
+  },
+  "speed_contract": {
+    "renderer": "pptxgenjs by default; Python fallback only for legacy renderer-specific behavior",
+    "first_pass": "run validate_planning.py, preflight.py, and render-free QA before slide rendering",
+    "render_policy": "render only after source files are stable or when visual judgment matters",
+    "asset_policy": "reuse local/generated artifacts before network assets unless source-backed imagery is needed",
+    "conversion_hint": "use persistent LibreOffice/unoserver when available for repeated render QA"
+  }
+}

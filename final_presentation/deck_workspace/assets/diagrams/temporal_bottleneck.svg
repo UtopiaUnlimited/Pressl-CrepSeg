@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#F8FAFF"/><stop offset="1" stop-color="#F1F8FF"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#0F172A" flood-opacity=".13"/></filter></defs>
+  <rect width="1600" height="640" rx="28" fill="url(#bg)"/>
+  <g font-family="Microsoft YaHei, Arial, sans-serif" fill="#0F172A">
+    <text x="70" y="66" font-size="28" font-weight="700" fill="#2563EB">旧接口：时间上下文存在，但月份身份在 decoder 前被固定平均</text>
+    <g filter="url(#shadow)"><rect x="70" y="135" width="390" height="285" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="555" y="135" width="390" height="285" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="1040" y="135" width="440" height="285" rx="20" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/></g>
+    <text x="265" y="185" font-size="26" font-weight="700" text-anchor="middle">12 个月一起进入 Galileo</text>
+    <g transform="translate(105,225)"><rect width="44" height="100" rx="10" fill="#DBEAFE"/><rect x="54" width="44" height="100" rx="10" fill="#BFDBFE"/><rect x="108" width="44" height="100" rx="10" fill="#93C5FD"/><rect x="162" width="44" height="100" rx="10" fill="#60A5FA"/><rect x="216" width="44" height="100" rx="10" fill="#38BDF8"/><rect x="270" width="44" height="100" rx="10" fill="#22D3EE"/></g>
+    <text x="265" y="365" font-size="20" fill="#475569" text-anchor="middle">每个月的 token 已经互相看过</text>
+    <path d="M480 280H535" stroke="#60A5FA" stroke-width="7" marker-end="url(#arrow)"/>
+    <text x="750" y="185" font-size="26" font-weight="700" text-anchor="middle">F [B,L,T,D,H,W]</text>
+    <text x="750" y="240" font-size="20" fill="#475569" text-anchor="middle">encoder 输出仍保留 T</text>
+    <text x="750" y="300" font-size="34" font-weight="700" fill="#2563EB" text-anchor="middle">mean(T)</text>
+    <text x="750" y="350" font-size="20" fill="#475569" text-anchor="middle">固定压缩 → G [B,L,D,H,W]</text>
+    <path d="M965 280H1020" stroke="#60A5FA" stroke-width="7" marker-end="url(#arrow)"/>
+    <text x="1260" y="185" font-size="26" font-weight="700" text-anchor="middle" fill="#C2410C">2D decoder 只能看到平均图</text>
+    <text x="1260" y="245" font-size="22" fill="#7C2D12" text-anchor="middle">月份身份丢失</text>
+    <text x="1260" y="300" font-size="22" fill="#7C2D12" text-anchor="middle">不同位置共享同一种平均方式</text>
+    <text x="1260" y="355" font-size="22" fill="#7C2D12" text-anchor="middle">无法自主判断关键月份</text>
+    <text x="800" y="540" font-size="28" font-weight="700" fill="#1D4ED8" text-anchor="middle">关键问题：时间维应该保留到哪里，最后又如何压缩？</text>
+  </g>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#60A5FA"/></marker></defs>
+</svg>

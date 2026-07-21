@@ -1,0 +1,213 @@
+{
+  "topic": "时序遥感耕地分割：从时间融合到通用先验注入",
+  "audience": "Deck author using the presentation-skill workspace scaffold.",
+  "objective": "Replace the starter content with topic-specific narrative, evidence, and assets.",
+  "thesis": "A reliable deck starts with a preset-specific style reference, sourced evidence, staged visuals, and QA before delivery.",
+  "narrative_arc": [
+    {
+      "act": "setup",
+      "purpose": "Frame why the topic matters.",
+      "slides": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "act": "style-reference scaffold",
+      "purpose": "Show the selected preset's reusable chart, table, comparison, dashboard, or sequence grammar before topic-specific authoring.",
+      "slides": []
+    },
+    {
+      "act": "implication",
+      "purpose": "Close with what the audience should remember or do.",
+      "slides": [
+        "s16"
+      ]
+    }
+  ],
+  "slide_plan": [
+    {
+      "slide_id": "s1",
+      "role": "title",
+      "message": "Start from a durable workspace, not one-off inline code.",
+      "variant": "title",
+      "visual_strategy": "title opener with preset-specific style reference chips",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Presentation"
+    },
+    {
+      "slide_id": "s2",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 2"
+    },
+    {
+      "slide_id": "s3",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 3"
+    },
+    {
+      "slide_id": "s4",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 4"
+    },
+    {
+      "slide_id": "s5",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 5"
+    },
+    {
+      "slide_id": "s6",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 6"
+    },
+    {
+      "slide_id": "s7",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 7"
+    },
+    {
+      "slide_id": "s8",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 8"
+    },
+    {
+      "slide_id": "s9",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 9"
+    },
+    {
+      "slide_id": "s10",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 10"
+    },
+    {
+      "slide_id": "s11",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 11"
+    },
+    {
+      "slide_id": "s12",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 12"
+    },
+    {
+      "slide_id": "s13",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 13"
+    },
+    {
+      "slide_id": "s14",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 14"
+    },
+    {
+      "slide_id": "s15",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 15"
+    },
+    {
+      "slide_id": "s16",
+      "role": "setup",
+      "message": "The durable source files are the contract for future edits.",
+      "variant": "standard",
+      "visual_strategy": "preset-specific evidence or synthesis scaffold",
+      "evidence_needs": [],
+      "asset_needs": [],
+      "source_status": "workspace_starter",
+      "outline_title": "Slide 16"
+    }
+  ],
+  "design_notes": {
+    "style_preset_reason": "Starter uses the requested preset while keeping typography and spacing conservative.",
+    "rhythm_break": "Add a diagram, figure, table, or image only when the deck topic makes it useful.",
+    "visual_motif": "Source-first authoring with clear stage labels when the author chooses a process visual.",
+    "starter_slide_id": "s1",
+    "style_reference_scaffold": "Slides marked source_status=synthetic_style_reference_scaffold are style memory only and should be replaced before final delivery."
+  }
+}

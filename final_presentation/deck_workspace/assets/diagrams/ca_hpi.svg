@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#F8FAFF"/><stop offset="1" stop-color="#EFFBFF"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#0F172A" flood-opacity=".12"/></filter></defs>
+  <rect width="1600" height="700" rx="28" fill="url(#bg)"/>
+  <g font-family="Microsoft YaHei, Arial, sans-serif" fill="#0F172A">
+    <text x="70" y="68" font-size="29" font-weight="700" fill="#2563EB">CA-HPI：每个视觉时空位置主动查询先验库</text>
+    <g filter="url(#shadow)"><rect x="70" y="125" width="330" height="230" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="515" y="125" width="410" height="230" rx="20" fill="#fff" stroke="#BAE6FD" stroke-width="3"/><rect x="1040" y="125" width="270" height="230" rx="20" fill="#fff" stroke="#A7F3D0" stroke-width="3"/><rect x="1390" y="125" width="160" height="230" rx="20" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/></g>
+    <g font-size="25" font-weight="700" text-anchor="middle"><text x="235" y="180">视觉 token V_l</text><text x="720" y="180">PriorBatch Z</text><text x="1175" y="180">Cross-Attention</text><text x="1470" y="180" fill="#C2410C">写回</text></g>
+    <g font-size="21" fill="#475569" text-anchor="middle"><text x="235" y="235"><tspan x="235" dy="0">LN → Query Q</tspan><tspan x="235" dy="34">当前位置 / 月份 / 层</tspan><tspan x="235" dy="34">每个 token 都不同</tspan></text><text x="720" y="235"><tspan x="720" dy="0">Key K / Value V</tspan><tspan x="720" dy="34">mask + confidence</tspan><tspan x="720" dy="34">source balance</tspan></text><text x="1175" y="235"><tspan x="1175" dy="0">Q 与 K 匹配</tspan><tspan x="1175" dy="34">→ candidate Delta_l</tspan><tspan x="1175" dy="34">content gate g_l</tspan></text><text x="1470" y="235"><tspan x="1470" dy="0">alpha_l · g_l</tspan><tspan x="1470" dy="34">V_l' = V_l + Delta_l</tspan><tspan x="1470" dy="34">形状不变</tspan></text></g>
+    <g stroke="#60A5FA" stroke-width="6" fill="none"><path d="M420 240h80"/><path d="M945 240h80"/><path d="M1325 240h55"/></g>
+    <rect x="235" y="445" width="1130" height="105" rx="24" fill="#DBEAFE" stroke="#93C5FD" stroke-width="3"/>
+    <text x="800" y="490" font-size="27" font-weight="700" fill="#1D4ED8" text-anchor="middle">V1 是固定广播；CA-HPI 把“是否需要这份知识”的选择权交给视觉内容</text>
+    <text x="800" y="530" font-size="21" fill="#475569" text-anchor="middle">mask / confidence / gate / strength 共同控制先验残差</text>
+  </g>
+</svg>

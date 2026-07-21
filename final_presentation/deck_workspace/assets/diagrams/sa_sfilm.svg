@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#F7FAFF"/><stop offset="1" stop-color="#EFFBFF"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#0F172A" flood-opacity=".12"/></filter></defs>
+  <rect width="1600" height="720" rx="28" fill="url(#bg)"/>
+  <g font-family="Microsoft YaHei, Arial, sans-serif" fill="#0F172A">
+    <text x="70" y="66" font-size="29" font-weight="700" fill="#2563EB">SA-SFiLM：先选来源，再决定通道和空间位置</text>
+    <g filter="url(#shadow)"><rect x="70" y="115" width="330" height="360" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="465" y="115" width="330" height="360" rx="20" fill="#fff" stroke="#BAE6FD" stroke-width="3"/><rect x="865" y="115" width="300" height="360" rx="20" fill="#fff" stroke="#A7F3D0" stroke-width="3"/><rect x="1225" y="115" width="300" height="360" rx="20" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/></g>
+    <text x="235" y="165" font-size="26" font-weight="700" text-anchor="middle">来源内 attention</text>
+    <g font-size="23" font-weight="700" text-anchor="middle"><text x="235" y="220" fill="#2563EB">M1 → context1</text><text x="235" y="275" fill="#0EA5E9">M2 → context2</text><text x="235" y="330" fill="#059669">M3 → context3</text><text x="235" y="385" fill="#7C3AED">M4 → context4</text></g>
+    <text x="235" y="440" font-size="20" fill="#475569" text-anchor="middle">先在来源内部压缩竞争</text>
+    <text x="630" y="165" font-size="26" font-weight="700" text-anchor="middle">Source Gate</text>
+    <text x="630" y="250" font-size="24" fill="#475569" text-anchor="middle">当前视觉内容</text><text x="630" y="300" font-size="30" font-weight="700" fill="#2563EB" text-anchor="middle">权衡 M1–M4</text><text x="630" y="385" font-size="22" fill="#475569" text-anchor="middle">来源间选择</text><text x="630" y="435" font-size="20" fill="#475569" text-anchor="middle">避免四源一次 softmax</text>
+    <text x="1015" y="165" font-size="26" font-weight="700" text-anchor="middle">FiLM + Spatial Gate</text>
+    <text x="1015" y="250" font-size="25" font-weight="700" fill="#0EA5E9" text-anchor="middle">gamma · V + beta</text><text x="1015" y="315" font-size="22" fill="#475569" text-anchor="middle">通道缩放 / 平移</text><text x="1015" y="380" font-size="25" font-weight="700" fill="#059669" text-anchor="middle">g(x,t,l)</text><text x="1015" y="430" font-size="22" fill="#475569" text-anchor="middle">空间 / 月份接收量</text>
+    <text x="1375" y="165" font-size="26" font-weight="700" text-anchor="middle" fill="#C2410C">残差写回</text>
+    <text x="1375" y="255" font-size="28" font-weight="700" fill="#C2410C" text-anchor="middle">V_l' = V_l + alpha_l Delta_l</text><text x="1375" y="325" font-size="22" fill="#7C2D12" text-anchor="middle">decoder 前插入</text><text x="1375" y="385" font-size="22" fill="#7C2D12" text-anchor="middle">输出形状不变</text><text x="1375" y="440" font-size="22" fill="#7C2D12" text-anchor="middle">可记录诊断量</text>
+    <g stroke="#60A5FA" stroke-width="6" fill="none"><path d="M415 285h35"/><path d="M820 285h35"/><path d="M1180 285h35"/></g>
+    <text x="800" y="590" font-size="28" font-weight="700" fill="#1D4ED8" text-anchor="middle">E9 与 E10 只改变融合架构：同一 3D-Aware、同一 M1–M4、同一插入位置</text>
+  </g>
+</svg>

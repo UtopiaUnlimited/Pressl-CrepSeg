@@ -1,0 +1,452 @@
+{
+  "title": "从遥感基础表征读取到异构先验注入",
+  "subtitle": "基于 frozen Galileo 的 PASTIS 作物时序分割研究 · 项目结项汇报",
+  "deck_style": {
+    "font_pair": "clean_modern_v1",
+    "visual_density": "medium",
+    "emoji_mode": "none",
+    "research_visual_mode": false,
+    "header_mode": "eyebrow",
+    "footer_mode": "source-line",
+    "footer_page_numbers": true,
+    "title_layout": "light-atlas",
+    "title_motif": "network",
+    "section_motif": "rail-dots",
+    "table_treatment": "journal-grid",
+    "summary_callout_mode": "lab-box",
+    "style_seed": "pastis-galileo-prior-conclusion-2026"
+  },
+  "compliance": {
+    "require_attribution": false,
+    "auto_image_sources": false
+  },
+  "slides": [
+    {
+      "slide_id": "s1",
+      "type": "title",
+      "kicker": "PROJECT CONCLUSION · 2026-07",
+      "title": "从遥感基础表征读取到\n异构先验注入",
+      "subtitle": "基于 frozen Galileo 的 PASTIS 作物时序分割研究",
+      "chips": ["PASTIS", "Galileo", "Prior Injection"]
+    },
+    {
+      "slide_id": "s2",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "context",
+      "visual_intent": "data",
+      "title": "大范围农业监测需要持续、精细的作物类型信息",
+      "subtitle": "作物制图不是普通单图分类，而是时间序列上的像素级识别",
+      "table": {
+        "headers": ["农业信息需求", "传统获取限制", "卫星时间序列提供的机会"],
+        "rows": [
+          ["种植结构与空间分布", "田间调查成本高、更新频率有限", "大范围、重复观测"],
+          ["地块尺度类别与边界", "汇总统计难以提供连续空间结果", "像素级制图与区域统计"],
+          ["生长季内的动态变化", "单次调查或单景影像容易遗漏过程", "多时相光谱记录生长轨迹"]
+        ],
+        "column_weights": [1.35, 2.05, 1.75],
+        "caption": "研究对象：PASTIS Sentinel-2 月度时间序列与 19 类像素标签。"
+      },
+      "summary_callout": "同一地块一年中的变化本身就是作物信息。",
+      "sources": ["[PASTIS21] [U-TAE] "]
+    },
+    {
+      "slide_id": "s3",
+      "type": "content",
+      "variant": "comparison-2col",
+      "slide_intent": "context",
+      "visual_intent": "comparison",
+      "title": "把通用遥感表征真正转化为农业像素级结果",
+      "subtitle": "应用、科学与方法意义在同一个问题上汇合",
+      "left": {
+        "title": "现实与应用意义",
+        "body": [
+          "大范围、低成本地更新作物类型地图",
+          "充分利用完整生长季，而非依赖单景影像",
+          "让基础模型表征服务于地块边界和区域统计"
+        ]
+      },
+      "right": {
+        "title": "科学与方法意义",
+        "body": [
+          "研究 frozen Galileo 的多层、多时间 token 如何迁移到 dense prediction",
+          "将物候、气候、土壤和地理整理为可插拔先验接口",
+          "把先验的表示、选择、调制和诊断连成一条通用模式"
+        ]
+      },
+      "verdict": "基础模型提供通用表征，但不会自动完成下游 token 读取与异构知识注入。",
+      "sources": ["[Galileo25] [PASTIS21] [DPT21]"]
+    },
+    {
+      "slide_id": "s4",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "研究问题来自基础模型与像素级任务之间的三个缺口",
+      "subtitle": "先回答视觉表征怎么读，再回答外部知识怎么进",
+      "assets": {"diagram": "assets/diagrams/research_gap.svg"},
+      "sidebar_sections": [
+        {"title": "RQ1 · 空间读取", "body": ["token 如何恢复为地块边界对齐的像素图？"]},
+        {"title": "RQ2 · 时间读取", "body": ["月份身份应该何时保留、何时压缩？"]},
+        {"title": "RQ3 · 知识注入", "body": ["异构先验如何补充视觉信息并保持可诊断？"]}
+      ],
+      "summary_callout": "三个缺口对应三段受控实验：空间 → 时间 → 先验。",
+      "sources": ["[Galileo25] [DPT21] [PASTIS21]"]
+    },
+    {
+      "slide_id": "s5",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "process",
+      "visual_intent": "flow",
+      "title": "先建立可信基线，再逐步增加时间结构和外部知识",
+      "subtitle": "输入、encoder、评测协议固定；每一步只增加一个新问题",
+      "assets": {"diagram": "assets/diagrams/workflow.svg"},
+      "sidebar_sections": [
+        {"title": "固定协议", "body": ["PASTIS 月度聚合；folds 1/2/3 → 4 → 5；seed42。"]},
+        {"title": "冻结表征", "body": ["Galileo encoder 完全冻结；共享 spatial_v1 / temporal_v2 缓存。"]},
+        {"title": "证据纪律", "body": ["总体 mIoU + accuracy + macro F1 + 逐类 IoU/F1 + 模块诊断。"]}
+      ],
+      "summary_callout": "早期低结果先触发数据与 token 协议审计，后续比较建立在统一链路上。",
+      "sources": ["[ProjectProtocol] [DECODER_EXPERIMENTS]"]
+    },
+    {
+      "slide_id": "s6",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "空间细化显著释放了 Galileo 冻结表征",
+      "subtitle": "同一冻结 encoder 下，线性读取并不等于像素级可恢复性",
+      "tables": [
+        {
+          "title": "空间读取结果",
+          "headers": ["方法", "读取方式", "可训练参数", "Test mIoU"],
+          "rows": [
+            ["同协议 Linear Head", "最终层 token 直接线性分类", "0.234M", "0.3209"],
+            ["最终层卷积", "最终层特征 + 卷积细化 / 上采样", "4.925M", "0.4602"],
+            ["多层同尺度融合", "layer 3/6/9/12 投影后融合", "9.058M", "0.4801"]
+          ]
+        }
+      ],
+      "interpretation": "最终层卷积相对 Linear 提升约 13.92 pp；多层读取继续提升约 1.99 pp。参数量与 seed 不完全受控，因此这里只作空间读取阶段证据。",
+      "sources": ["[Run2026] [DPT21]"]
+    },
+    {
+      "slide_id": "s7",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "旧接口保留了时间上下文，却过早丢失月份身份",
+      "subtitle": "问题不是没有时间信息，而是 decoder 前固定 mean(T)",
+      "assets": {"diagram": "assets/diagrams/temporal_bottleneck.svg"},
+      "sidebar_sections": [
+        {"title": "已经保留", "body": ["12 个月共同进入 Galileo；每个月 token 已包含跨时间上下文。"]},
+        {"title": "被固定平均限制", "body": ["decoder 只能看到二维平均图，不能再判断哪个月份重要。"]},
+        {"title": "下一问", "body": ["时间维应该保留到哪里，最后又怎样压缩？"]}
+      ],
+      "summary_callout": "固定平均把一个可学习问题提前写死了。",
+      "sources": ["[ProjectProtocol] [TemporalReadout]"]
+    },
+    {
+      "slide_id": "s8",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "从固定时间平均推进到可学习时间融合",
+      "subtitle": "Temporal Readout 更通用；3D-Aware 更晚压缩时间维",
+      "assets": {"diagram": "assets/diagrams/temporal_fusion.svg"},
+      "sidebar_sections": [
+        {"title": "Temporal Readout", "body": ["每层、每个空间位置学习 12 个月权重，再接 2D decoder。"]},
+        {"title": "3D-Aware DPT", "body": ["时间维进入多层重组与高分辨率融合，最后 query pooling。"]},
+        {"title": "共同问题", "body": ["不要在 decoder 前默认所有月份具有相同贡献。"]}
+      ],
+      "summary_callout": "一个学习怎么读月份，一个把时间保留得更久；两者都检验晚压缩是否更合理。",
+      "sources": ["[TemporalReadout] [DPT21] [ProjectProtocol]"]
+    },
+    {
+      "slide_id": "s9",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "保留时间结构后，Test mIoU 提升到约 60%",
+      "subtitle": "Temporal Readout 跨 decoder 有效；3D-Aware 形成后续先验研究的强视觉基线",
+      "tables": [
+        {
+          "title": "Temporal Readout × 2D decoder（fold5 test）",
+          "headers": ["方案", "Test mIoU", "Test accuracy", "Test F1"],
+          "rows": [
+            ["Single", "0.54938", "0.80589", "0.68833"],
+            ["Multi", "0.56154", "0.81030", "0.69712"],
+            ["Galileo-Adapted DPT", "0.54637", "0.80904", "0.68433"],
+            ["UPerNet", "0.54442", "0.80342", "0.68279"]
+          ]
+        },
+        {
+          "title": "3D-Aware 强视觉基线",
+          "headers": ["方法", "Test loss", "Test mIoU", "Test accuracy", "Test F1"],
+          "rows": [["B0：无先验", "1.03279", "0.59945", "0.81781", "0.73133"]]
+        }
+      ],
+      "interpretation": "Temporal Readout 证明可学习月份读取可以复用；3D-Aware 把时间维保留到高分辨率融合之后，取得当前最强视觉基线。",
+      "sources": ["[Run2026] [TemporalReadout]"]
+    },
+    {
+      "slide_id": "s10",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "context",
+      "visual_intent": "data",
+      "title": "强时间模型解决主要矛盾，但没有消除类别异质性",
+      "subtitle": "先验研究不是因为视觉模型不够强，而是因为不同类别需要的线索并不相同",
+      "table": {
+        "headers": ["类别组", "3D-Aware 代表性 IoU", "观察"],
+        "rows": [
+          ["表现较好的季节作物", "Corn 0.854 · Rapeseed 0.884 · Beet 0.858", "明显季节变化已被时间融合较好捕捉"],
+          ["仍然困难的类别", "Winter triticale 0.368 · Leguminous fodder 0.365 · Sorghum 0.312", "少样本、相似类别或类内差异仍未解决"],
+          ["多年生或聚合类别", "Orchard 0.408 · Mixed cereal 0.398 · Fruits/vegetables/flowers 0.363", "单一标准物候曲线未必适用"]
+        ],
+        "column_weights": [1.45, 2.35, 1.8],
+        "caption": "总体 mIoU 不能替代逐类分析；先验的收益应按类别和来源解释。"
+      },
+      "summary_callout": "研究判断：先验不是无条件增益，而是“什么知识、在什么位置、对什么视觉内容有效”。",
+      "sources": ["[Run2026] [PASTIS21]"]
+    },
+    {
+      "slide_id": "s11",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "V1：先验证物候内容是否有信号，再讨论复杂注入",
+      "subtitle": "Global Add 是最小反事实实验，不是最终通用方案",
+      "assets": {"diagram": "assets/diagrams/v1_global_add.svg"},
+      "sidebar_sections": [
+        {"title": "P0 · 无先验", "body": ["Single Temporal Readout：0.54938 mIoU。"]},
+        {"title": "P1 · 正确物候", "body": ["0.55316；相对 P0 +0.378 pp。"]},
+        {"title": "P2 · 类别置乱", "body": ["0.54784；正确对应关系略优于置乱。"]}
+      ],
+      "summary_callout": "物候可能有弱信号，但全局广播太粗，无法支持通用异构先验。",
+      "sources": ["[PhenologyPrior] [Run2026]"]
+    },
+    {
+      "slide_id": "s12",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "统一异构先验接口：来源不同，但可以一起被诊断",
+      "subtitle": "不把物候、气候、土壤和地理强行当成同一种数据",
+      "assets": {"diagram": "assets/diagrams/prior_batch.svg"},
+      "sidebar_sections": [
+        {"title": "M1 · 物候", "body": ["类别×月份强度与置信度；19×12 token。"]},
+        {"title": "M2–M3 · 环境", "body": ["月度气候与多深度土壤属性；保留 valid mask / uncertainty。"]},
+        {"title": "M4 · 地理", "body": ["train-fold 标准化经纬度；一个静态上下文 token。"]}
+      ],
+      "summary_callout": "PriorBatch = {tokens, mask, confidence, source_id/type_id}；统一接口不等于抹平来源差异。",
+      "sources": ["[PriorBatch] [EnvironmentPriors]"]
+    },
+    {
+      "slide_id": "s13",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "V2 CA-HPI：让每个视觉时空位置主动查询先验库",
+      "subtitle": "从固定广播转向视觉内容驱动的先验选择",
+      "assets": {"diagram": "assets/diagrams/ca_hpi.svg"},
+      "sidebar_sections": [
+        {"title": "Query", "body": ["视觉 token V_l 经过 LN / Wq，当前位置、月份和层各自产生 Query。"]},
+        {"title": "Prior Key / Value", "body": ["PriorBatch 提供 K/V；mask、confidence 和 source balance 一起参与。"]},
+        {"title": "Gated residual", "body": ["candidate Delta_l 经 content gate 与 strength 控制后写回，输出形状不变。"]}
+      ],
+      "summary_callout": "CA-HPI 的关键不是“多一个 attention”，而是把是否需要知识的选择权交给视觉内容。",
+      "sources": ["[CA-HPI] [PriorBatch]"]
+    },
+    {
+      "slide_id": "s14",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "V2 结果：多源先验不是越多越好",
+      "subtitle": "M1 有弱正信号；四源直接竞争会带来类别冲突",
+      "tables": [
+        {
+          "title": "总体结果（3D-Aware B0 为参照）",
+          "headers": ["实验", "先验来源", "Test mIoU", "相对 B0"],
+          "rows": [
+            ["B0", "无先验", "0.59945", "—"],
+            ["E7", "CA-HPI + M1", "0.60443", "+0.498 pp"],
+            ["E8", "CA-HPI + M1/M2/M3", "0.60192", "+0.247 pp"],
+            ["E9", "CA-HPI + M1/M2/M3/M4", "0.59395", "−0.550 pp"]
+          ]
+        },
+        {
+          "title": "代表性类别变化（IoU 相对 B0）",
+          "headers": ["类别", "E7 M1", "E9 M1234", "读法"],
+          "rows": [
+            ["Grapevine", "+0.048", "+0.023", "物候收益被多源稀释"],
+            ["Orchard", "+0.007", "+0.040", "环境 / 地理可能补充"],
+            ["Sorghum", "+0.031", "−0.093", "来源组合高度敏感"],
+            ["Leguminous fodder", "−0.007", "−0.041", "困难类别仍未改善"]
+          ]
+        }
+      ],
+      "interpretation": "总体 mIoU 的变化来自类别正负变化的抵消，不能只说“加来源有效”或“加来源无效”。",
+      "sources": ["[E7] [E8] [E9] [Run2026]"]
+    },
+    {
+      "slide_id": "s15",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "19 类 IoU 对照（1/3）：背景与主要季节作物",
+      "subtitle": "B0 = 无先验；E7 = CA-HPI + M1；E9 = CA-HPI + M1–M4；E10 = SA-SFiLM + M1–M4",
+      "table": {
+        "headers": ["类别", "B0", "E7 M1", "E9 M1234", "E10 M1234", "E10−B0"],
+        "rows": [
+          ["Background", "0.731", "0.739", "0.736", "0.730", "−0.001"],
+          ["Meadow", "0.616", "0.630", "0.629", "0.634", "+0.017"],
+          ["Soft winter wheat", "0.828", "0.845", "0.842", "0.844", "+0.016"],
+          ["Corn", "0.854", "0.854", "0.836", "0.852", "−0.002"],
+          ["Winter barley", "0.733", "0.752", "0.739", "0.757", "+0.025"],
+          ["Winter rapeseed", "0.884", "0.882", "0.878", "0.871", "−0.012"],
+          ["Spring barley", "0.567", "0.533", "0.551", "0.562", "−0.006"]
+        ],
+        "column_weights": [2.2, 0.85, 0.95, 1.15, 1.15, 0.95]
+      },
+      "summary_callout": "SA-SFiLM 对 Meadow、Soft winter wheat、Winter barley 有正向变化，但季节作物并非全部同步提升。",
+      "sources": ["[B0] [E7] [E9] [E10]"]
+    },
+    {
+      "slide_id": "s16",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "19 类 IoU 对照（2/3）：葡萄、甜菜与冬季作物",
+      "subtitle": "逐类差异用于解释先验边界，不作为单类独立结论",
+      "table": {
+        "headers": ["类别", "B0", "E7 M1", "E9 M1234", "E10 M1234", "E10−B0"],
+        "rows": [
+          ["Sunflower", "0.689", "0.687", "0.669", "0.698", "+0.009"],
+          ["Grapevine", "0.500", "0.548", "0.522", "0.540", "+0.040"],
+          ["Beet", "0.858", "0.865", "0.866", "0.869", "+0.011"],
+          ["Winter triticale", "0.368", "0.323", "0.383", "0.335", "−0.033"],
+          ["Winter durum wheat", "0.592", "0.603", "0.607", "0.619", "+0.027"],
+          ["Fruits, vegetables, flowers", "0.363", "0.378", "0.369", "0.350", "−0.013"]
+        ],
+        "column_weights": [2.2, 0.85, 0.95, 1.15, 1.15, 0.95]
+      },
+      "summary_callout": "Grapevine 在 M1-only 下提升明显；多源组合后收益减弱，说明来源选择很重要。",
+      "sources": ["[B0] [E7] [E9] [E10]"]
+    },
+    {
+      "slide_id": "s17",
+      "type": "content",
+      "variant": "table",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "19 类 IoU 对照（3/3）：困难与混合类别决定收益边界",
+      "subtitle": "先验可能改善部分类别，也可能放大多源冲突",
+      "table": {
+        "headers": ["类别", "B0", "E7 M1", "E9 M1234", "E10 M1234", "E10−B0"],
+        "rows": [
+          ["Potatoes", "0.511", "0.526", "0.500", "0.518", "+0.007"],
+          ["Leguminous fodder", "0.365", "0.358", "0.324", "0.347", "−0.018"],
+          ["Soybeans", "0.812", "0.816", "0.772", "0.798", "−0.014"],
+          ["Orchard", "0.408", "0.415", "0.449", "0.442", "+0.034"],
+          ["Mixed cereal", "0.398", "0.389", "0.394", "0.366", "−0.032"],
+          ["Sorghum", "0.312", "0.342", "0.219", "0.281", "−0.031"]
+        ],
+        "column_weights": [2.2, 0.85, 0.95, 1.15, 1.15, 0.95]
+      },
+      "summary_callout": "逐类结果支持的不是“先验一定有效”，而是“先验作用具有类别选择性，并受融合架构约束”。",
+      "sources": ["[B0] [E7] [E9] [E10]"]
+    },
+    {
+      "slide_id": "s18",
+      "type": "content",
+      "variant": "flow",
+      "slide_intent": "architecture",
+      "visual_intent": "flow",
+      "title": "V3 SA-SFiLM：先选来源，再决定通道和空间位置",
+      "subtitle": "针对四源 CA-HPI 退化，拆开来源内选择、来源间选择与特征调制",
+      "assets": {"diagram": "assets/diagrams/sa_sfilm.svg"},
+      "sidebar_sections": [
+        {"title": "来源内 attention", "body": ["M1–M4 各自先压缩，避免 token 数量多的来源天然压过其他来源。"]},
+        {"title": "Source Gate", "body": ["根据当前视觉内容，比较四个来源的相对权重。"]},
+        {"title": "FiLM + Spatial Gate", "body": ["gamma/beta 控制通道；空间 gate 控制位置和月份；strength 控制残差幅度。"]}
+      ],
+      "summary_callout": "E9 与 E10 使用同一 3D-Aware、同一 M1–M4、同一 decoder 前插入点，只改变融合架构。",
+      "sources": ["[SA-SFiLM] [E9] [E10]"]
+    },
+    {
+      "slide_id": "s19",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "evidence",
+      "visual_intent": "data",
+      "title": "E10：架构重设计缓解四源退化，但尚未形成大幅总体增益",
+      "subtitle": "最严格的对照是 E9 vs E10：先验来源和视觉基线不变，只改融合方式",
+      "tables": [
+        {
+          "title": "总体结果",
+          "headers": ["实验", "Test loss", "Test mIoU", "相对 B0", "相对 E9", "Test F1"],
+          "rows": [
+            ["B0：无先验", "1.03279", "0.59945", "—", "—", "0.73133"],
+            ["E9：CA-HPI M1–M4", "1.06063", "0.59395", "−0.550 pp", "—", "0.72509"],
+            ["E10：SA-SFiLM M1–M4", "1.22321", "0.60073", "+0.128 pp", "+0.678 pp", "0.73051"]
+          ]
+        },
+        {
+          "title": "结果边界",
+          "headers": ["观察", "证据", "结论"],
+          "rows": [
+            ["相对 E9", "E10 mIoU +0.678 pp", "来源分层与调制缓解多源退化"],
+            ["相对 B0", "E10 mIoU +0.128 pp", "四源先验总体增益很小"],
+            ["相对 E7", "E10 低 0.370 pp", "M1-only 仍是当前更强的先验配置"]
+          ]
+        }
+      ],
+      "interpretation": "更准确的结论是：融合架构会改变多源先验的边际收益，先验仍具有类别选择性；同时，表示—选择—调制—诊断的完整模式已经建立。",
+      "sources": ["[B0] [E7] [E9] [E10]"]
+    },
+    {
+      "slide_id": "s20",
+      "type": "content",
+      "variant": "lab-run-results",
+      "slide_intent": "conclusion",
+      "visual_intent": "data",
+      "title": "性能成果与先验模式共同构成项目结果",
+      "subtitle": "有结果时说明方法有效；即使总体提升有限，模式本身仍沉淀了可复用的研究资产",
+      "tables": [
+        {
+          "title": "两条已完成成果主线",
+          "headers": ["成果主线", "已完成内容", "当前认识"],
+          "rows": [
+            ["表征读取与时间融合", "协议校正、空间 decoder、Temporal Readout、3D-Aware DPT", "frozen Galileo 的价值取决于空间恢复和时间保留；3D-Aware 达到 0.59945 mIoU"],
+            ["异构先验注入", "V1 反事实、PriorBatch、CA-HPI、SA-SFiLM、E7–E10 与逐类诊断", "先验不是无条件增益；来源、类别和融合架构共同决定边界"]
+          ],
+          "column_weights": [1.35, 2.35, 2.15]
+        },
+        {
+          "title": "后续小尝试预留位（仅在有可靠结果时加入主汇报）",
+          "headers": ["编号", "可能的尝试", "当前状态"],
+          "rows": [
+            ["F1", "完善 M2 气候先验的空间分辨率与 tile 对齐", "待决定 / 暂无结果"],
+            ["F2", "增加分类层级 head 或 coarse-to-fine 路径", "待决定 / 暂无结果"]
+          ]
+        }
+      ],
+      "interpretation": "我们建立了从 frozen Galileo 时空表征到像素级分割的读取链路，也完成了从固定广播到来源感知调制的先验探索。模式可复用，适用边界也已明确。",
+      "sources": ["[FINAL_PRESENTATION_FULL_CONTENT] [DECODER_EXPERIMENTS]"]
+    }
+  ]
+}

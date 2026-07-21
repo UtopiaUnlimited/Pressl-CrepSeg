@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#F8FAFF"/><stop offset="1" stop-color="#EFF9FF"/></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#0F172A" flood-opacity=".12"/></filter></defs>
+  <rect width="1600" height="620" rx="28" fill="url(#bg)"/>
+  <g font-family="Microsoft YaHei, Arial, sans-serif" fill="#0F172A">
+    <text x="70" y="70" font-size="29" font-weight="700" fill="#2563EB">V1 Global Add：先验编码后广播到所有空间位置</text>
+    <g filter="url(#shadow)"><rect x="65" y="145" width="280" height="255" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="425" y="145" width="280" height="255" rx="20" fill="#fff" stroke="#BFDBFE" stroke-width="3"/><rect x="785" y="145" width="280" height="255" rx="20" fill="#fff" stroke="#BAE6FD" stroke-width="3"/><rect x="1145" y="145" width="330" height="255" rx="20" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/></g>
+    <g font-size="25" font-weight="700" text-anchor="middle"><text x="205" y="205">类别×月份物候表</text><text x="565" y="205">MLP / embedding</text><text x="925" y="205">广播到 H×W</text><text x="1310" y="205" fill="#C2410C">加入视觉特征</text></g>
+    <g font-size="21" fill="#475569" text-anchor="middle"><text x="205" y="255"><tspan x="205" dy="0">[19, 12]</tspan><tspan x="205" dy="34">强度 + 置信度</tspan><tspan x="205" dy="34">P1 正确 / P2 置乱</tspan></text><text x="565" y="255"><tspan x="565" dy="0">先验 token</tspan><tspan x="565" dy="34">→ residual</tspan><tspan x="565" dy="34">没有位置选择</tspan></text><text x="925" y="255"><tspan x="925" dy="0">同一份先验</tspan><tspan x="925" dy="34">复制到每个像素</tspan><tspan x="925" dy="34">固定作用方式</tspan></text><text x="1310" y="255"><tspan x="1310" dy="0">V' = V + Delta</tspan><tspan x="1310" dy="34">最小改动验证</tspan><tspan x="1310" dy="34">通用性仍有限</tspan></text></g>
+    <g stroke="#60A5FA" stroke-width="6" fill="none"><path d="M355 270h55"/><path d="M715 270h55"/><path d="M1075 270h55"/></g>
+    <text x="800" y="520" font-size="28" font-weight="700" fill="#1D4ED8" text-anchor="middle">P1 0.55316 vs P0 0.54938：有弱信号，但广播过于粗糙</text>
+  </g>
+</svg>

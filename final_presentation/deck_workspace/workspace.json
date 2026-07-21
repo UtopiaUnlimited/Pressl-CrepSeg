@@ -1,0 +1,17 @@
+{
+  "workspace_version": 1,
+  "deck_title": "\u65f6\u5e8f\u9065\u611f\u8015\u5730\u5206\u5272\uff1a\u4ece\u65f6\u95f4\u878d\u5408\u5230\u901a\u7528\u5148\u9a8c\u6ce8\u5165",
+  "deck_slug": "deck-workspace",
+  "style_contract": "style_contract.json",
+  "content_plan": "content_plan.json",
+  "design_brief": "design_brief.json",
+  "evidence_plan": "evidence_plan.json",
+  "outline": "outline.json",
+  "asset_plan": "asset_plan.json",
+  "notes": "notes.md",
+  "assets_dir": "assets",
+  "staged_assets_dir": "assets/staged",
+  "build_dir": "build",
+  "reference_pptx": "D:\\HuaweiMoveData\\Users\\ycy\\Desktop\\DeepResearch\u8fdb\u5ea6\u6c47\u62a5_v2_\u672f\u8bed\u767d\u8bdd\u7248.pptx",
+  "deck_start_packet": "deck_start_packet.json"
+}
