@@ -1,6 +1,6 @@
-# 当前唯一执行规划：内容感知的异构先验知识注入
+# [REFERENCE] V2 CA-HPI / V3 SA-SFiLM 异构先验技术记录
 
-状态：**CURRENT / 后半阶段唯一总规划**
+状态：**REFERENCE / 已实现方法与历史实验设计**
 
 首次整理：2026-07-17
 
@@ -8,7 +8,7 @@
 
 任务：基于 frozen Galileo 多时相特征的 PASTIS 作物语义分割
 
-> 本文件决定“接下来做什么”。若其他规划、讲稿或旧运行手册与本文冲突，以本文为准。文档状态见 [README.md](README.md)。
+> V3 的多源先验未显示稳定 mIoU 增益，因此本文不再决定“接下来做什么”。当前唯一执行规划见 [V4 类别-时序原型记忆计划](NEXT_STAGE_V4_CLASS_TEMPORAL_PROTOTYPE_PLAN_2026-07-21.md)；本文只保留 CA-HPI/SA-SFiLM 的代码接口、诊断定义和历史实验依据。文档状态见 [README.md](README.md)。
 
 ## 0. 当前优先级：把已激活的先验转化为任务收益
 

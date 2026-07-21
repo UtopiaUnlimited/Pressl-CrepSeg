@@ -20,9 +20,15 @@ from .prior_injection import (
     StructuredPriorEncoder,
     TemporalFeaturePyramidPriorInjection,
 )
+from .prototype_memory import (
+    ClassTemporalPrototypeMemory,
+    build_class_temporal_prototype_memory,
+    class_temporal_prototype_enabled,
+)
 
 __all__ = [
     "CachedFeatureSegmentation",
+    "ClassTemporalPrototypeMemory",
     "GalileoDPTSegmentation",
     "ContentAwarePriorFusion",
     "CompositePriorTokenEncoder",
@@ -36,8 +42,10 @@ __all__ = [
     "StructuredPriorEncoder",
     "TemporalFeaturePyramidPriorInjection",
     "build_cached_feature_model",
+    "build_class_temporal_prototype_memory",
     "build_model",
     "build_prior_token_encoder",
     "cached_decoder_uses_feature_pyramid",
     "cached_decoder_uses_temporal_features",
+    "class_temporal_prototype_enabled",
 ]
