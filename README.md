@@ -2,9 +2,9 @@
 
 本项目研究 **frozen Galileo 遥感自监督表征在 PASTIS 作物语义分割上的迁移能力**。
 
-> 当前后半阶段已固定 3D-Aware DPT 为视觉基线，核心目标转为 V4 类别-时序原型记忆先验。请先阅读 [项目文档导航](docs/README.md) 和 [当前唯一执行规划](docs/NEXT_STAGE_V4_CLASS_TEMPORAL_PROTOTYPE_PLAN_2026-07-21.md)，不要从旧讲稿或旧 Global Add 手册生成后续任务。
+> 当前后半阶段已固定 3D-Aware DPT 为视觉基线，核心目标转为内容感知的异构先验知识注入。请先阅读 [项目文档导航](docs/README.md) 和 [当前唯一执行规划](docs/NEXT_STAGE_HETEROGENEOUS_PRIOR_INJECTION_PLAN_2026-07-17.md)，不要从旧讲稿或旧 Global Add 手册生成后续任务。
 
-V2 CA-HPI 与 V3 SA-SFiLM 保留为已实现对照：现有 M2/M3/M4 的 patch/区域级属性未显示稳定增益，不再继续增加外部环境数据。V4 将只从训练折构建类别-月份原型记忆，并以交叉建库、类别置乱和月份偏移对照检验其有效性。
+当前执行优先级是先用冻结的 structured prior v1 跑出 CA-HPI 第一组结果；FiLM、文本先验、完整反事实矩阵和第二 decoder 均延后，不阻塞 M1。
 
 当前实验固定同一个 Galileo encoder、输入协议和冻结策略，对比早期与晚期融合 decoder：
 
@@ -152,8 +152,6 @@ void label:    原始19 -> -1，在 loss 和 mIoU 中忽略
 | `configs/prior_injection/ca_hpi_m1_m2_m3_balanced.yaml` | M1+M2+M3 的来源数量平衡匹配基线 |
 | `configs/prior_injection/ca_hpi_m1_m2_m3_m4.yaml` | M1+M2+M3+M4，并启用来源数量平衡 |
 | `configs/prior_injection/sa_spatial_film_m1_m2_m3_m4.yaml` | **当前主方法**：来源分层注意力 + decoder 前空间—通道 FiLM，使用冻结 M1/M2/M3/M4 |
-| `configs/prior_injection/class_temporal_prototype_k1.yaml` | V4-K1：每个训练折类别—月份组一个原型，最终层时空 token 检索后门控写回 |
-| `configs/prior_injection/class_temporal_prototype_k4.yaml` | V4-K4：每个训练折类别—月份组四个子原型，处理同类作物的类内多样性 |
 | `configs/galileo_linear_probe.yaml` | 使用最终层共享特征复现 Galileo 论文的 PASTIS 线性探测 |
 | `configs/galileo_linear_decoder_shared.yaml` | 保留相同线性结构，但使用 decoder 对比实验的统一训练协议 |
 

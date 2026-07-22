@@ -25,11 +25,6 @@ from models.prior_injection import (
     prior_injection_enabled,
 )
 from models.prior_sources import build_prior_token_encoder
-from models.prototype_memory import (
-    ClassTemporalPrototypeMemory,
-    build_class_temporal_prototype_memory,
-    class_temporal_prototype_enabled,
-)
 
 
 THREE_D_CACHED_DECODER_NAMES = {
@@ -71,7 +66,6 @@ class CachedFeatureSegmentation(nn.Module):
         temporal_phenology_prior: PhenologyPriorAdapter | None = None,
         prior_token_encoder: PriorTokenEncoder | None = None,
         pre_decoder_prior_injection: TemporalFeaturePyramidPriorInjection | None = None,
-        prototype_memory: ClassTemporalPrototypeMemory | None = None,
     ) -> None:
         super().__init__()
         if (prior_token_encoder is None) != (pre_decoder_prior_injection is None):
@@ -80,17 +74,10 @@ class CachedFeatureSegmentation(nn.Module):
             )
         if temporal_phenology_prior is not None and prior_token_encoder is not None:
             raise ValueError("Legacy phenology and CA-HPI cannot be enabled together.")
-        if prototype_memory is not None and (
-            temporal_phenology_prior is not None or prior_token_encoder is not None
-        ):
-            raise ValueError(
-                "Class-temporal prototype memory is mutually exclusive with legacy and CA-HPI priors."
-            )
         self.decoder = decoder
         self.temporal_phenology_prior = temporal_phenology_prior
         self.prior_token_encoder = prior_token_encoder
         self.pre_decoder_prior_injection = pre_decoder_prior_injection
-        self.prototype_memory = prototype_memory
 
     def forward(self, batch: dict) -> torch.Tensor:
         device = next(self.decoder.parameters()).device
@@ -132,13 +119,6 @@ class CachedFeatureSegmentation(nn.Module):
                     prior,
                     layer_indices=tuple(int(index) for index in layer_indices),
                 )
-            if self.prototype_memory is not None:
-                features = self.prototype_memory(
-                    features,
-                    months=months,
-                    batch=batch,
-                    layer_indices=tuple(int(index) for index in layer_indices),
-                )
             return self.decoder(features, months=months, target_size=target_size)
 
         if getattr(self.decoder, "expects_feature_pyramid", False):
@@ -170,17 +150,14 @@ def build_cached_feature_model(
         decoder_name,
     )
     phenology_enabled = bool((config.get("phenology", {}) or {}).get("enabled", False))
-    prototype_memory_enabled = class_temporal_prototype_enabled(config)
-    heterogeneous_prior_enabled = (
-        prior_injection_enabled(config) and not prototype_memory_enabled
-    )
-    if phenology_enabled and (heterogeneous_prior_enabled or prototype_memory_enabled):
+    heterogeneous_prior_enabled = prior_injection_enabled(config)
+    if phenology_enabled and heterogeneous_prior_enabled:
         raise ValueError("Legacy phenology and prior_injection are mutually exclusive.")
     if phenology_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
         raise ValueError(
             "Phenology prior injection requires a decoder that preserves the temporal dimension."
         )
-    if (heterogeneous_prior_enabled or prototype_memory_enabled) and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
+    if heterogeneous_prior_enabled and decoder_name not in TEMPORAL_CACHED_DECODER_NAMES:
         raise ValueError(
             "CA-HPI requires a decoder that consumes temporal feature pyramids."
         )
@@ -277,28 +254,16 @@ def build_cached_feature_model(
     configured_num_layers = int(
         num_layers or len(tuple(encoder_cfg.get("hidden_layers") or ()))
     )
-    prototype_memory = build_class_temporal_prototype_memory(
-        config,
-        feature_channels=int(in_channels),
-        num_layers=configured_num_layers,
-    )
     return CachedFeatureSegmentation(
         decoder=decoder,
         temporal_phenology_prior=build_phenology_prior(
             config,
             feature_channels=int(in_channels),
         ),
-        prior_token_encoder=(
-            None if prototype_memory_enabled else build_prior_token_encoder(config)
+        prior_token_encoder=build_prior_token_encoder(config),
+        pre_decoder_prior_injection=build_temporal_prior_injection(
+            config,
+            feature_channels=int(in_channels),
+            num_layers=configured_num_layers,
         ),
-        pre_decoder_prior_injection=(
-            None
-            if prototype_memory_enabled
-            else build_temporal_prior_injection(
-                config,
-                feature_channels=int(in_channels),
-                num_layers=configured_num_layers,
-            )
-        ),
-        prototype_memory=prototype_memory,
     )
