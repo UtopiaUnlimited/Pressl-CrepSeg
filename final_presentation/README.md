@@ -6,7 +6,7 @@
 
 - [结项汇报总纲](FINAL_PRESENTATION_MASTER_PLAN_2026-07-21.md)：总叙事、16 页主页面结构、证据清单、待补材料和备份页规划。
 - [完整逐页内容稿](FINAL_PRESENTATION_FULL_CONTENT_2026-07-21.md)：第 1—16 页的研究背景、研究意义、研究内容、研究流程、完整实验讲稿、E10 结果与两个后续尝试预留位。
-- [结项汇报 PPTX](PROJECT_CONCLUSION_DECK_2026-07-22.pptx)：20 页最终版，沿用参考模板的浅蓝—深海军蓝视觉体系；结果页全部使用表格，19 类 IoU 拆为三页。
+- [结项汇报 PPTX](PROJECT_CONCLUSION_DECK_2026-07-22.pptx)：20 页最终版，每页均内置对应的中文演讲者备注；沿用参考模板的浅蓝—深海军蓝视觉体系，结果页全部使用表格，19 类 IoU 拆为三页。
 - [PPT 工作区大纲](deck_workspace/outline.json)：可复现的逐页内容与布局源文件。
 - [渲染预览](PROJECT_CONCLUSION_DECK_2026-07-22_PREVIEW.png)：最终 20 页接触表，用于在本地或 GitHub 快速检查整体节奏与可读性。
 - [最终 QA 摘要](PROJECT_CONCLUSION_DECK_2026-07-22_QA.md)：中文字体兼容修复后的结构、字体、几何和人工复核结果。
